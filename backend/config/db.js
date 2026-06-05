@@ -20,11 +20,27 @@ const seedAdmin = async () => {
         username: 'admin',
         email: adminEmail,
         password: adminPassword,
-        role: 'admin'
+        role: 'admin',
+        isVerified: true
       });
       console.log(`Seed: Admin account (${adminEmail}) successfully seeded.`);
     } else {
-      console.log(`Seed: Admin account (${adminEmail}) already exists. Seeding skipped.`);
+      // Ensure existing admin account is verified
+      let updated = false;
+      if (!admin.isVerified) {
+        admin.isVerified = true;
+        updated = true;
+      }
+      if (admin.role !== 'admin') {
+        admin.role = 'admin';
+        updated = true;
+      }
+      if (updated) {
+        await admin.save();
+        console.log(`Seed: Existing admin account (${adminEmail}) updated to verified admin.`);
+      } else {
+        console.log(`Seed: Admin account (${adminEmail}) already exists. Seeding skipped.`);
+      }
     }
   } catch (error) {
     console.error(`Admin seeding failed: ${error.message}`);
