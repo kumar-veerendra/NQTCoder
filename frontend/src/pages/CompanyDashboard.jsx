@@ -196,11 +196,11 @@ const CompanyDashboard = () => {
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="bg-darkBg/30 border-b border-darkBorder text-[10px] uppercase font-bold text-slate-400 tracking-wider">
-                  <th className="py-3 px-6 w-16 text-center">Status</th>
-                  <th className="py-3 px-6">Title</th>
-                  <th className="py-3 px-6">Company</th>
-                  <th className="py-3 px-6">Topic</th>
-                  <th className="py-3 px-6">Difficulty</th>
+                  <th className="py-3 px-4 sm:px-6 w-16 text-center">Status</th>
+                  <th className="py-3 px-4 sm:px-6">Title</th>
+                  <th className="py-3 px-4 sm:px-6 hidden sm:table-cell">Company</th>
+                  <th className="py-3 px-4 sm:px-6 hidden md:table-cell">Topic</th>
+                  <th className="py-3 px-4 sm:px-6">Difficulty</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-darkBorder/40">
@@ -209,14 +209,14 @@ const CompanyDashboard = () => {
                     key={q._id}
                     className="hover:bg-darkBg/20 transition-colors group"
                   >
-                    <td className="py-3.5 px-6 text-center select-none">
+                    <td className="py-3.5 px-4 sm:px-6 text-center select-none">
                       {isSolved(q._id) ? (
                         <CheckCircle className="w-4 h-4 text-emerald-500 mx-auto" />
                       ) : (
                         <div className="w-3.5 h-3.5 rounded-full border border-slate-700 mx-auto"></div>
                       )}
                     </td>
-                    <td className="py-3.5 px-6">
+                    <td className="py-3.5 px-4 sm:px-6">
                       <Link
                         to={`/problem/${q._id}`}
                         className="text-xs font-bold text-slate-200 hover:text-accentBlue transition-colors tracking-wide"
@@ -224,7 +224,7 @@ const CompanyDashboard = () => {
                         {q.title}
                       </Link>
                     </td>
-                    <td className="py-3.5 px-6 select-none">
+                    <td className="py-3.5 px-4 sm:px-6 select-none hidden sm:table-cell">
                       <div className="flex gap-1.5 flex-wrap">
                         {q.company.map((c) => (
                           <span
@@ -236,13 +236,13 @@ const CompanyDashboard = () => {
                         ))}
                       </div>
                     </td>
-                    <td className="py-3.5 px-6 select-none">
+                    <td className="py-3.5 px-4 sm:px-6 select-none hidden md:table-cell">
                       <span className="text-[11px] text-slate-400 flex items-center">
                         <Tag className="w-3 h-3 text-slate-500 mr-1.5 shrink-0" />
                         {q.topic}
                       </span>
                     </td>
-                    <td className="py-3.5 px-6 select-none">
+                    <td className="py-3.5 px-4 sm:px-6 select-none">
                       <span className={`text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded border ${getDifficultyBadge(q.difficulty)}`}>
                         {q.difficulty}
                       </span>

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Terminal, Mail, Github, Heart } from 'lucide-react';
+import { Terminal, Github, Heart } from 'lucide-react';
 
 const Footer = () => {
   const location = useLocation();
@@ -76,9 +76,8 @@ const Footer = () => {
               </Link>
             </li>
             <li>
-              <Link to="/compiler-setup" className="hover:text-white transition-colors flex items-center space-x-1.5">
-                <span>⚙️</span>
-                <span>Compiler Setup Guide</span>
+              <Link to="/compiler-setup" className="hover:text-white transition-colors">
+                Compiler Setup Guide
               </Link>
             </li>
             <li>
@@ -92,9 +91,8 @@ const Footer = () => {
               </Link>
             </li>
             <li>
-              <a href="mailto:support@nqtcoder.com" className="hover:text-white transition-colors flex items-center space-x-1.5">
-                <Mail className="w-3 h-3 text-slate-500" />
-                <span>Email Support</span>
+              <a href="mailto:support@nqtcoder.com" className="hover:text-white transition-colors">
+                Email Support
               </a>
             </li>
           </ul>
@@ -110,7 +108,7 @@ const Footer = () => {
 
         {/* Github link */}
         <a 
-          href="https://github.com" 
+          href="https://github.com/kumar-veerendra/NQTCoder" 
           target="_blank" 
           rel="noreferrer" 
           className="text-slate-500 hover:text-white transition-colors flex items-center space-x-1 text-xs"

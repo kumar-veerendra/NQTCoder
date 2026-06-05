@@ -353,10 +353,10 @@ const ProblemArena = () => {
     >
       
       {/* 1. Exam Control Bar with LeetCode Aesthetic */}
-      <div className="px-6 py-2.5 bg-darkCard border-b border-darkBorder flex items-center justify-between shrink-0 z-10">
+      <div className="px-3 sm:px-6 py-2 bg-darkCard border-b border-darkBorder flex items-center justify-between shrink-0 z-10 gap-2 select-none">
         
         {/* Left Side: Clickable NQTCoder Logo & Searchable Question title dropdown */}
-        <div className="flex items-center space-x-3 w-1/3 min-w-[260px] relative" ref={searchRef}>
+        <div className="flex items-center space-x-2.5 w-auto md:w-1/3 md:min-w-[260px] relative" ref={searchRef}>
           <div
             onClick={() => {
               if (window.confirm('Do you want to leave the exam arena? Your active coding progress will be lost.')) {
@@ -367,17 +367,17 @@ const ProblemArena = () => {
             title="Go to Dashboard"
           >
             <div className="bg-accentBlue p-1.5 rounded-md transition-colors">
-              <Terminal className="w-4 h-4 text-white" />
+              <Terminal className="w-3.5 h-3.5 text-white" />
             </div>
-            <span className="text-sm font-bold tracking-wider text-slate-200 group-hover:text-white transition-colors">
+            <span className="text-xs sm:text-sm font-bold tracking-wider text-slate-200 group-hover:text-white transition-colors">
               NQTCoder
             </span>
           </div>
 
-          <div className="w-px h-4 bg-darkBorder shrink-0"></div>
+          <div className="w-px h-4 bg-darkBorder shrink-0 hidden md:block"></div>
 
           {/* Quick Search Selector */}
-          <div className="relative flex-grow min-w-0">
+          <div className="relative flex-grow min-w-0 hidden md:block">
             <div className="relative">
               <input
                 type="text"
@@ -435,33 +435,33 @@ const ProblemArena = () => {
         </div>
 
         {/* LeetCode Middle: Run & Submit Buttons */}
-        <div className="flex items-center space-x-3.5 justify-center w-1/3 shrink-0">
+        <div className="flex items-center space-x-2 sm:space-x-3.5 justify-center w-auto md:w-1/3 shrink-0">
           <button
             onClick={handleRunCode}
             disabled={isExecuting || !code.trim()}
-            className="bg-darkCard hover:bg-darkBg/60 text-slate-200 border border-darkBorder px-3.5 py-1.5 rounded-md text-xs font-bold tracking-wide flex items-center space-x-1.5 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="bg-darkCard hover:bg-darkBg/60 text-slate-200 border border-darkBorder px-2.5 py-1 sm:px-3.5 sm:py-1.5 rounded-md text-[10px] sm:text-xs font-bold tracking-wide flex items-center space-x-1 sm:space-x-1.5 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <Play className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+            <Play className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-slate-400 shrink-0" />
             <span>Run</span>
           </button>
           
           <button
             onClick={handleSubmitCode}
             disabled={isExecuting || !code.trim() || isLocked}
-            className="bg-accentBlue hover:bg-accentBlue/90 text-white px-4 py-1.5 rounded-md text-xs font-bold tracking-wider flex items-center space-x-1.5 transition-colors"
+            className="bg-accentBlue hover:bg-accentBlue/90 text-white px-3 py-1 sm:px-4 sm:py-1.5 rounded-md text-[10px] sm:text-xs font-bold tracking-wider flex items-center space-x-1 sm:space-x-1.5 transition-colors"
           >
-            <Send className="w-3.5 h-3.5 shrink-0" />
+            <Send className="w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0" />
             <span>Submit</span>
           </button>
         </div>
 
         {/* Right Side: Server Load + Timer + Theme Toggle */}
-        <div className="flex justify-end w-1/3 min-w-[170px] items-center space-x-3">
+        <div className="flex justify-end w-auto md:w-1/3 items-center space-x-1.5 sm:space-x-3 shrink-0">
 
           {/* Live Server Load Badge */}
           {(() => {
             if (!serverLoad) return (
-              <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg border border-slate-700 bg-darkBg text-[10px] font-black uppercase tracking-wider text-slate-500">
+              <div className="hidden sm:flex items-center gap-1.5 px-2 py-1 rounded-lg border border-slate-700 bg-darkBg text-[10px] font-black uppercase tracking-wider text-slate-500">
                 <div className="w-1.5 h-1.5 rounded-full bg-slate-600 animate-pulse" />
                 <span>0 · Free</span>
               </div>
@@ -474,7 +474,7 @@ const ProblemArena = () => {
             return (
               <div
                 title={`${serverLoad.running} compiling, ${serverLoad.waiting} waiting in queue`}
-                className={`flex items-center gap-1.5 px-2 py-1 rounded-lg border text-[10px] font-black uppercase tracking-wider cursor-default ${cfg.bg} ${cfg.text}`}
+                className={`hidden sm:flex items-center gap-1.5 px-2 py-1 rounded-lg border text-[10px] font-black uppercase tracking-wider cursor-default ${cfg.bg} ${cfg.text}`}
               >
                 <div className={`w-1.5 h-1.5 rounded-full animate-pulse ${cfg.dot}`} />
                 <span>{serverLoad.total} · {cfg.label}</span>
@@ -484,7 +484,7 @@ const ProblemArena = () => {
 
           <button
             onClick={toggleTheme}
-            className="p-1.5 text-slate-400 hover:text-accentBlue hover:bg-accentBlue/10 rounded-md transition-all duration-200"
+            className="p-1.5 text-slate-400 hover:text-accentBlue hover:bg-accentBlue/10 rounded-md transition-all duration-200 shrink-0"
             title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
           >
             {theme === 'dark' ? <Sun className="w-4 h-4 text-slate-300" /> : <Moon className="w-4 h-4 text-slate-700" />}

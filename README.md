@@ -74,9 +74,12 @@ CLIENT_URL=http://localhost:5173
 ADMIN_EMAIL=your_desired_admin_email@domain.com
 ADMIN_PASSWORD=your_desired_strong_admin_password
 
-# Email SMTP Setup (For verification OTPs)
+# Email SMTP Setup (For local verification OTPs)
 EMAIL_USER=your_smtp_email@gmail.com
 EMAIL_PASS=your_smtp_app_password
+
+# Brevo Setup (Preferred in production to bypass Render outgoing SMTP blocks)
+BREVO_API_KEY=your_brevo_api_key
 
 # Compilation Mode ('local' or 'judge0')
 RUN_MODE=local

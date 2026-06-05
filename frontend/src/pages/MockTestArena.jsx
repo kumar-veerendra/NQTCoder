@@ -350,58 +350,62 @@ const MockTestArena = () => {
     >
       
       {/* 1. Strict Exam Header bar */}
-      <div className="px-6 py-2.5 bg-darkCard border-b border-darkBorder flex items-center justify-between shrink-0 z-10">
+      <div className="px-3 sm:px-6 py-2 bg-darkCard border-b border-darkBorder flex items-center justify-between shrink-0 z-10 gap-2 select-none">
         
-        <div className="flex items-center space-x-3 w-1/3 min-w-[220px]">
-          <div className="bg-red-600 p-1.5 rounded-md select-none">
-            <ShieldCheck className="w-4 h-4 text-white" />
+        <div className="flex items-center space-x-2 w-auto md:w-1/3 md:min-w-[220px]">
+          <div className="bg-red-600 p-1.5 rounded-md select-none shrink-0">
+            <ShieldCheck className="w-3.5 h-3.5 text-white" />
           </div>
-          <span className="text-sm font-bold tracking-wider text-rose-400">
+          <span className="text-xs font-bold tracking-wider text-rose-400 shrink-0 hidden sm:inline">
             PROCTOR LOBBY ({questionNumber}/2)
           </span>
-          <div className="w-px h-4 bg-darkBorder shrink-0"></div>
-          <div className="truncate">
+          <span className="text-[10px] font-bold tracking-wider text-rose-400 shrink-0 inline sm:hidden">
+            P-{questionNumber}
+          </span>
+          <div className="w-px h-4 bg-darkBorder shrink-0 hidden md:block"></div>
+          <div className="truncate hidden md:block">
             <h2 className="text-xs font-bold text-slate-300 tracking-wide truncate">{activeQuestion.title}</h2>
           </div>
         </div>
 
         {/* Compile Actions */}
-        <div className="flex items-center space-x-3.5 justify-center w-1/3 shrink-0">
+        <div className="flex items-center space-x-2 sm:space-x-3.5 justify-center w-auto md:w-1/3 shrink-0">
           <button
             onClick={handleRunCode}
             disabled={isExecuting || !code.trim()}
-            className="bg-darkCard hover:bg-darkBg/60 text-slate-200 border border-darkBorder px-3.5 py-1.5 rounded-md text-xs font-bold tracking-wide flex items-center space-x-1.5 transition-colors disabled:opacity-50"
+            className="bg-darkCard hover:bg-darkBg/60 text-slate-200 border border-darkBorder px-2.5 py-1 sm:px-3.5 sm:py-1.5 rounded-md text-[10px] sm:text-xs font-bold tracking-wide flex items-center space-x-1 sm:space-x-1.5 transition-colors disabled:opacity-50"
           >
-            <Play className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+            <Play className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-slate-400 shrink-0" />
             <span>Run</span>
           </button>
           
           <button
             onClick={handleSubmitQuestion}
             disabled={isExecuting || !code.trim()}
-            className="bg-accentBlue hover:bg-accentBlue/90 text-white px-4 py-1.5 rounded-md text-xs font-bold tracking-wider flex items-center space-x-1.5 transition-colors"
+            className="bg-accentBlue hover:bg-accentBlue/90 text-white px-3 py-1 sm:px-4 sm:py-1.5 rounded-md text-[10px] sm:text-xs font-bold tracking-wider flex items-center space-x-1 sm:space-x-1.5 transition-colors"
           >
-            <Send className="w-3.5 h-3.5 shrink-0" />
-            <span>Submit Solution</span>
+            <Send className="w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0" />
+            <span className="hidden sm:inline">Submit Solution</span>
+            <span className="inline sm:hidden">Submit</span>
           </button>
         </div>
 
         {/* Proctoring info and countdown timer */}
-        <div className="flex justify-end w-1/3 min-w-[170px] items-center space-x-3">
+        <div className="flex justify-end w-auto md:w-1/3 items-center space-x-1.5 sm:space-x-3 shrink-0">
           <button
             onClick={toggleTheme}
-            className="p-1.5 text-slate-400 hover:text-accentBlue hover:bg-accentBlue/10 rounded-md transition-all duration-200"
+            className="p-1.5 text-slate-400 hover:text-accentBlue hover:bg-accentBlue/10 rounded-md transition-all duration-200 shrink-0"
             title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
           >
             {theme === 'dark' ? <Sun className="w-4 h-4 text-slate-300" /> : <Moon className="w-4 h-4 text-slate-700" />}
           </button>
 
-          <div className="flex items-center space-x-1 text-[10px] text-amber-500 font-bold border border-amber-500/25 px-2 py-1 rounded-md select-none">
-            <span>⚠️ Switches: {warningCount} / 3</span>
+          <div className="flex items-center space-x-1 text-[10px] text-amber-500 font-bold border border-amber-500/25 px-1.5 py-0.5 rounded-md select-none shrink-0">
+            <span>⚠️ <span className="hidden sm:inline">Switches: </span>{warningCount}/3</span>
           </div>
 
-          <div className="bg-red-500/10 border border-red-500/20 text-red-500 font-mono text-sm px-3.5 py-1 rounded-md flex items-center space-x-1.5 font-bold select-none">
-            <span className="text-[9px] font-bold uppercase text-red-500 mr-0.5 tracking-wider">Time Left:</span>
+          <div className="bg-red-500/10 border border-red-500/20 text-red-500 font-mono text-xs sm:text-sm px-2 py-0.5 sm:px-3.5 sm:py-1 rounded-md flex items-center space-x-1 sm:space-x-1.5 font-bold select-none shrink-0">
+            <span className="text-[9px] font-bold uppercase text-red-500 mr-0.5 tracking-wider hidden sm:inline">Time Left:</span>
             {formatTimer(timeLeft)}
           </div>
         </div>
