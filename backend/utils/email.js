@@ -1,4 +1,5 @@
 import nodemailer from 'nodemailer';
+import axios from 'axios';
 
 let transporter;
 
@@ -21,11 +22,7 @@ const getTransporter = () => {
  * @param {string} code 
  */
 export const sendVerificationEmail = async (email, code) => {
-  const mailOptions = {
-    from: `"NQTCoder" <${process.env.EMAIL_USER}>`,
-    to: email,
-    subject: 'NQTCoder - Verify Your Email',
-    html: `
+  const htmlContent = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 30px; border: 1px solid #1e293b; border-radius: 16px; background-color: #0b1329; color: #f1f5f9; text-align: left;">
         <div style="text-align: center; margin-bottom: 25px;">
           <h2 style="color: #38bdf8; margin: 0; font-size: 24px; font-weight: 800; letter-spacing: 0.5px;">NQTCoder</h2>
@@ -41,7 +38,45 @@ export const sendVerificationEmail = async (email, code) => {
         <div style="border-top: 1px solid #1e293b; margin-top: 35px; margin-bottom: 20px;"></div>
         <p style="font-size: 11px; color: #64748b; text-align: center; margin: 0; font-weight: 500;">&copy; 2026 NQTCoder. All rights reserved.</p>
       </div>
-    `
+  `;
+
+  // If Brevo API Key is present, send via HTTP API to bypass Render SMTP blocks
+  if (process.env.BREVO_API_KEY) {
+    console.log("Sending email via Brevo HTTP API...");
+    try {
+      const response = await axios.post('https://api.brevo.com/v3/smtp/email', {
+        sender: {
+          name: "NQTCoder",
+          email: process.env.EMAIL_USER || "veerendrakumarbgs@gmail.com"
+        },
+        to: [
+          {
+            email: email
+          }
+        ],
+        subject: 'NQTCoder - Verify Your Email',
+        htmlContent: htmlContent
+      }, {
+        headers: {
+          'accept': 'application/json',
+          'api-key': process.env.BREVO_API_KEY,
+          'content-type': 'application/json'
+        }
+      });
+      return response.data;
+    } catch (apiErr) {
+      console.error("Brevo API Error Details:", apiErr.response ? apiErr.response.data : apiErr.message);
+      throw apiErr;
+    }
+  }
+
+  // Fallback to local Nodemailer SMTP
+  console.log("Sending email via local Nodemailer SMTP...");
+  const mailOptions = {
+    from: `"NQTCoder" <${process.env.EMAIL_USER}>`,
+    to: email,
+    subject: 'NQTCoder - Verify Your Email',
+    html: htmlContent
   };
 
   return getTransporter().sendMail(mailOptions);
