@@ -1,6 +1,5 @@
 import mongoose from 'mongoose';
 import User from '../models/User.js';
-import { seedQuestions } from './seedQuestions.js';
 
 const seedAdmin = async () => {
   try {
@@ -54,9 +53,6 @@ const connectDB = async () => {
     
     // Seed default admin account
     await seedAdmin();
-
-    // Seed TCS NQT Practice Questions
-    await seedQuestions();
   } catch (error) {
     console.error(`Database Connection Error: ${error.message}`);
     process.exit(1);
