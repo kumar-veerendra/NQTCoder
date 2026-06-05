@@ -46,23 +46,25 @@ const Console = ({
         <div className="flex space-x-1">
           <button
             onClick={() => onActiveTabChange('input')}
-            className={`px-4 py-3 text-xs font-bold uppercase tracking-wider border-b-2 transition-all ${
+            className={`px-3 sm:px-4 py-3 text-xs font-bold uppercase tracking-wider border-b-2 transition-all ${
               activeTab === 'input'
                 ? 'border-accentBlue text-accentBlue'
                 : 'border-transparent text-slate-400 hover:text-slate-200'
             }`}
           >
-            Custom Input
+            <span className="hidden sm:inline">Custom Input</span>
+            <span className="inline sm:hidden">Input</span>
           </button>
           <button
             onClick={() => onActiveTabChange('output')}
-            className={`px-4 py-3 text-xs font-bold uppercase tracking-wider border-b-2 transition-all ${
+            className={`px-3 sm:px-4 py-3 text-xs font-bold uppercase tracking-wider border-b-2 transition-all ${
               activeTab === 'output'
                 ? 'border-accentBlue text-accentBlue'
                 : 'border-transparent text-slate-400 hover:text-slate-200'
             }`}
           >
-            Results Console
+            <span className="hidden sm:inline">Results Console</span>
+            <span className="inline sm:hidden">Results</span>
           </button>
         </div>
 

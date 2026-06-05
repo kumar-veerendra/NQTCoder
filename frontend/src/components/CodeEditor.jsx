@@ -158,24 +158,24 @@ const CodeEditor = ({
           </select>
 
           {compilerStatus?.error ? (
-            <div className="flex items-center space-x-1.5 text-[10px] font-bold px-2 py-1.5 rounded-md bg-darkCard border border-darkBorder select-none">
+            <div className="flex items-center space-x-1 sm:space-x-1.5 text-[10px] font-bold px-2 py-1.5 rounded-md bg-darkCard border border-darkBorder select-none">
               <span className="h-1.5 w-1.5 rounded-full bg-rose-600 animate-pulse"></span>
-              <span className="text-rose-500 font-extrabold">Server Offline</span>
+              <span className="text-rose-500 font-extrabold hidden sm:inline">Server Offline</span>
             </div>
           ) : !compilerStatus ? (
-            <div className="flex items-center space-x-1.5 text-[10px] font-bold px-2 py-1.5 rounded-md bg-darkCard border border-darkBorder select-none">
+            <div className="flex items-center space-x-1 sm:space-x-1.5 text-[10px] font-bold px-2 py-1.5 rounded-md bg-darkCard border border-darkBorder select-none">
               <span className="h-1.5 w-1.5 rounded-full bg-amber-500 animate-pulse"></span>
-              <span className="text-amber-400 font-extrabold">Checking Compilers...</span>
+              <span className="text-amber-400 font-extrabold hidden sm:inline">Checking...</span>
             </div>
           ) : (
-            <div className="flex items-center space-x-1.5 text-[10px] font-bold px-2 py-1.5 rounded-md bg-darkCard border border-darkBorder select-none">
+            <div className="flex items-center space-x-1 sm:space-x-1.5 text-[10px] font-bold px-2 py-1.5 rounded-md bg-darkCard border border-darkBorder select-none">
               <span className={`h-1.5 w-1.5 rounded-full ${
                 compilerStatus[language]?.available ? 'bg-emerald-500' : 'bg-rose-500'
               }`}></span>
-              <span className={compilerStatus[language]?.available ? 'text-emerald-400 font-extrabold' : 'text-rose-400 font-extrabold'}>
+              <span className={compilerStatus[language]?.available ? 'text-emerald-400 font-extrabold hidden sm:inline' : 'text-rose-400 font-extrabold hidden sm:inline'}>
                 {compilerStatus[language]?.available 
                   ? 'Connected' 
-                  : 'Offline (Not Found)'
+                  : 'Offline'
                 }
               </span>
             </div>

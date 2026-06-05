@@ -55,27 +55,27 @@ const Timer = ({ durationMinutes = 20, isEnabled = true, onTimeout }) => {
 
   return (
     <div
-      className={`flex items-center space-x-2.5 px-3 py-1.5 rounded-xl border transition-all duration-300 shadow-md ${
+      className={`flex items-center space-x-1.5 sm:space-x-2.5 px-2 py-1 sm:px-3 sm:py-1.5 rounded-xl border transition-all duration-300 shadow-md shrink-0 ${
         isUrgent
           ? 'bg-red-500/10 border-red-500/30 text-red-400 animate-pulse font-black'
           : 'bg-darkCard border-darkBorder text-slate-200'
       }`}
     >
       {isUrgent ? (
-        <AlertTriangle className="w-4 h-4 text-red-400 shrink-0" />
+        <AlertTriangle className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-red-400 shrink-0" />
       ) : (
-        <TimerIcon className="w-4 h-4 text-accentBlue shrink-0" />
+        <TimerIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-accentBlue shrink-0" />
       )}
       
       <span className="text-[10px] font-bold tracking-wider uppercase hidden sm:inline">Time:</span>
       
-      <span className="text-md font-mono font-bold tracking-widest shrink-0">
+      <span className="text-xs sm:text-sm font-mono font-bold tracking-widest shrink-0">
         {formatNumber(minutes)}:{formatNumber(seconds)}
       </span>
 
-      <div className="w-px h-4 bg-darkBorder shrink-0"></div>
+      <div className="w-px h-4 bg-darkBorder shrink-0 hidden sm:block"></div>
 
-      <div className="flex items-center space-x-1 shrink-0">
+      <div className="flex items-center space-x-1 shrink-0 hidden sm:flex">
         {/* Manual Pause / Play control button */}
         <button
           onClick={() => setIsPaused(!isPaused)}
