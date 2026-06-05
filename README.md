@@ -1,5 +1,11 @@
 # NQTCoder - Elite MERN Recruitment Practice Arena
 
+## 🌐 Live Deployments
+* **Frontend Application (Vercel):** [https://nqtcoder.vercel.app](https://nqtcoder.vercel.app)
+* **Backend REST API (Render):** [https://nqtcoder.onrender.com](https://nqtcoder.onrender.com)
+
+---
+
 NQTCoder is a production-ready, full-stack MERN coding assessment platform modeled after technical recruitment and competitive programming environments used by global enterprise recruiters (such as TCS NQT, Accenture, Wipro, Cognizant, etc.).
 
 ---
