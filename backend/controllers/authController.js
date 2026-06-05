@@ -53,12 +53,10 @@ export const registerUser = async (req, res) => {
     });
 
     if (user) {
-      // Send OTP verification email
-      try {
-        await sendVerificationEmail(user.email, verificationCode);
-      } catch (emailErr) {
+      // Send OTP verification email asynchronously
+      sendVerificationEmail(user.email, verificationCode).catch((emailErr) => {
         console.error('Error sending registration verification email:', emailErr);
-      }
+      });
 
       res.status(201).json({
         success: true,
@@ -334,13 +332,10 @@ export const resendVerificationCode = async (req, res) => {
     user.verificationCodeExpires = verificationCodeExpires;
     await user.save();
 
-    // Send email
-    try {
-      await sendVerificationEmail(user.email, verificationCode);
-    } catch (emailErr) {
+    // Send email asynchronously
+    sendVerificationEmail(user.email, verificationCode).catch((emailErr) => {
       console.error('Error sending resend OTP email:', emailErr);
-      return res.status(500).json({ message: 'Error sending verification email' });
-    }
+    });
 
     res.json({ success: true, message: 'Verification code resent successfully' });
   } catch (error) {

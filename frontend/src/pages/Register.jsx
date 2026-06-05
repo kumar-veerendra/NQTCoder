@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import { ThemeContext } from '../context/ThemeContext';
 import { GoogleLogin } from '@react-oauth/google';
-import { User, Mail, Lock, UserPlus, AlertCircle } from 'lucide-react';
+import { User, Mail, Lock, UserPlus, AlertCircle, Eye, EyeOff } from 'lucide-react';
 import api from '../services/api';
 
 const Register = () => {
@@ -15,6 +15,8 @@ const Register = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   
   // Real-time username availability check states
   const [usernameAvailable, setUsernameAvailable] = useState(null);
@@ -169,15 +171,22 @@ const Register = () => {
                 <Lock className="w-4 h-4" />
               </span>
               <input
-                type="password"
+                type={showPassword ? 'text' : 'password'}
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
                 className={`w-full bg-darkBg/60 border ${
                   errors.password ? 'border-red-500' : 'border-darkBorder'
-                } pl-10 pr-4 py-2 rounded-md text-sm focus:outline-none focus:border-accentBlue transition-colors text-slate-200`}
+                } pl-10 pr-10 py-2 rounded-md text-sm focus:outline-none focus:border-accentBlue transition-colors text-slate-200`}
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-500 hover:text-slate-300 transition-colors"
+              >
+                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
             </div>
             {errors.password && <p className="text-[10px] text-red-400 mt-1 font-semibold leading-normal">{errors.password}</p>}
           </div>
@@ -189,15 +198,22 @@ const Register = () => {
                 <Lock className="w-4 h-4" />
               </span>
               <input
-                type="password"
+                type={showConfirmPassword ? 'text' : 'password'}
                 required
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 placeholder="••••••••"
                 className={`w-full bg-darkBg/60 border ${
                   errors.confirmPassword ? 'border-red-500' : 'border-darkBorder'
-                } pl-10 pr-4 py-2 rounded-md text-sm focus:outline-none focus:border-accentBlue transition-colors text-slate-200`}
+                } pl-10 pr-10 py-2 rounded-md text-sm focus:outline-none focus:border-accentBlue transition-colors text-slate-200`}
               />
+              <button
+                type="button"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-500 hover:text-slate-300 transition-colors"
+              >
+                {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
             </div>
             {errors.confirmPassword && (
               <p className="text-[10px] text-red-400 mt-1 font-semibold">{errors.confirmPassword}</p>

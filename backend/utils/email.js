@@ -1,12 +1,19 @@
 import nodemailer from 'nodemailer';
 
-const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-});
+let transporter;
+
+const getTransporter = () => {
+  if (!transporter) {
+    transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+      },
+    });
+  }
+  return transporter;
+};
 
 /**
  * Send 6-digit OTP verification email to registered user
@@ -37,5 +44,5 @@ export const sendVerificationEmail = async (email, code) => {
     `
   };
 
-  return transporter.sendMail(mailOptions);
+  return getTransporter().sendMail(mailOptions);
 };

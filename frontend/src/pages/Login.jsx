@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import { ThemeContext } from '../context/ThemeContext';
 import { GoogleLogin } from '@react-oauth/google';
-import { Mail, Lock, LogIn, AlertCircle } from 'lucide-react';
+import { Mail, Lock, LogIn, AlertCircle, Eye, EyeOff } from 'lucide-react';
 
 const Login = () => {
   const { login, loginWithGoogle, user } = useContext(AuthContext);
@@ -12,6 +12,7 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
   // Redirect if already logged in
@@ -62,9 +63,20 @@ const Login = () => {
         </div>
 
         {errors.auth && (
-          <div className="flex items-center space-x-2 bg-red-500/10 border border-red-500/25 p-3 rounded-md text-red-400 text-xs mb-6">
-            <AlertCircle className="w-4 h-4 shrink-0" />
-            <span>{errors.auth}</span>
+          <div className="flex flex-col space-y-2 bg-red-500/10 border border-red-500/25 p-3 rounded-md text-red-400 text-xs mb-6">
+            <div className="flex items-center space-x-2">
+              <AlertCircle className="w-4 h-4 shrink-0" />
+              <span>{errors.auth}</span>
+            </div>
+            {errors.auth.includes('verify your email') && (
+              <button
+                type="button"
+                onClick={() => navigate(`/verify-email?email=${encodeURIComponent(email)}`)}
+                className="text-accentBlue hover:text-accentBlue/80 font-bold transition-colors w-fit text-left pl-6"
+              >
+                Verify your email now →
+              </button>
+            )}
           </div>
         )}
 
@@ -96,15 +108,22 @@ const Login = () => {
                 <Lock className="w-4 h-4" />
               </span>
               <input
-                type="password"
+                type={showPassword ? 'text' : 'password'}
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
                 className={`w-full bg-darkBg/60 border ${
                   errors.password ? 'border-red-500' : 'border-darkBorder'
-                } pl-10 pr-4 py-2.5 rounded-md text-sm focus:outline-none focus:border-accentBlue transition-colors text-slate-200`}
+                } pl-10 pr-10 py-2.5 rounded-md text-sm focus:outline-none focus:border-accentBlue transition-colors text-slate-200`}
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-500 hover:text-slate-300 transition-colors"
+              >
+                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
             </div>
             {errors.password && <p className="text-[10px] text-red-400 mt-1 font-semibold">{errors.password}</p>}
           </div>
