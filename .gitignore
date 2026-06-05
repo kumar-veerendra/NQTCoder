@@ -50,7 +50,3 @@ scratch/
 !vercel.json
 
 # Frontend (tracked in veeru-dev branch for pull request)
-
-# Unignore database seed files for deployment
-!backend/config/seedQuestions.js
-!backend/config/data.Question.json
