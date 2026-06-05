@@ -4,23 +4,27 @@ import { seedQuestions } from './seedQuestions.js';
 
 const seedAdmin = async () => {
   try {
-    let admin = await User.findOne({ email: 'admin@nqtcoder.com' });
+    const adminEmail = process.env.ADMIN_EMAIL;
+    const adminPassword = process.env.ADMIN_PASSWORD;
+
+    if (!adminEmail || !adminPassword) {
+      console.log('Seed: ADMIN_EMAIL or ADMIN_PASSWORD environment variables not set. Skipping admin account seeding.');
+      return;
+    }
+
+    let admin = await User.findOne({ email: adminEmail });
     
     if (!admin) {
       // Create new admin
       await User.create({
         username: 'admin',
-        email: 'admin@nqtcoder.com',
-        password: 'AdminPassword@123',
+        email: adminEmail,
+        password: adminPassword,
         role: 'admin'
       });
-      console.log('Seed: Admin account (admin@nqtcoder.com / AdminPassword@123) successfully seeded.');
+      console.log(`Seed: Admin account (${adminEmail}) successfully seeded.`);
     } else {
-      // Reset existing admin to ensure password is correct
-      admin.password = 'AdminPassword@123';
-      admin.role = 'admin';
-      await admin.save();
-      console.log('Seed: Existing admin@nqtcoder.com credentials reset to: AdminPassword@123');
+      console.log(`Seed: Admin account (${adminEmail}) already exists. Seeding skipped.`);
     }
   } catch (error) {
     console.error(`Admin seeding failed: ${error.message}`);
