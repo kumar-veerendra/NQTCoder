@@ -234,7 +234,6 @@ const Register = () => {
             theme={theme === 'light' ? 'outline' : 'dark'}
             shape="circle"
             text="signup_with"
-            width="100%"
           />
         </div>
 
