@@ -1,0 +1,271 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-bg-rgb: 11 15 25;
+  --color-card-rgb: 17 24 39;
+  --color-border-rgb: 31 41 55;
+  --color-border: #1F2937;
+  --color-text-muted: #9CA3AF;
+  --color-text-highlight: #F9FAFB;
+  --color-card-bg: #111827;
+  --color-hero-gradient-from: #C7D2FE;
+  --color-hero-gradient-via: #E0E7FF;
+}
+
+@layer base {
+  body {
+    font-family: 'Outfit', sans-serif;
+    background-color: rgb(var(--color-bg-rgb));
+    color: var(--color-text-highlight);
+  }
+
+  code, pre, .monaco-editor {
+    font-family: 'JetBrains Mono', monospace !important;
+  }
+}
+
+/* Custom modern scrollbar styles */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgb(var(--color-bg-rgb));
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgb(var(--color-border-rgb));
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #6366F1;
+}
+
+/* Minimalist panel & card styles */
+.glass-panel {
+  background: #111827;
+  border: 1px solid #1F2937;
+}
+
+.glass-card {
+  background: #111827;
+  border: 1px solid #1F2937;
+  transition: all 0.2s ease-in-out;
+}
+
+.glass-card:hover {
+  border-color: #6366F1;
+}
+
+/* Light Mode Overrides */
+:root[data-theme="light"], [data-theme="light"] {
+  --color-bg-rgb: 241 245 249;
+  --color-card-rgb: 255 255 255;
+  --color-border-rgb: 203 213 225;
+  --color-border: rgba(0, 0, 0, 0.08);
+  --color-text-muted: #475569;
+  --color-text-highlight: #0f172a;
+  --color-card-bg: #ffffff;
+  --color-hero-gradient-from: #4F46E5;
+  --color-hero-gradient-via: #6366F1;
+}
+
+/* Override text colors globally when data-theme is light */
+[data-theme="light"] .text-slate-100 { color: #0f172a !important; }
+[data-theme="light"] .text-slate-200 { color: #1e293b !important; }
+[data-theme="light"] .text-slate-300 { color: #334155 !important; }
+[data-theme="light"] .text-slate-400 { color: #475569 !important; }
+[data-theme="light"] .text-slate-500 { color: #64748b !important; }
+[data-theme="light"] .text-white { color: #0f172a !important; }
+[data-theme="light"] .text-slate-300.group-hover\:text-white:hover { color: #0f172a !important; }
+
+/* Glass components overrides */
+[data-theme="light"] .glass-panel {
+  background: rgba(255, 255, 255, 0.85) !important;
+  border-color: rgba(0, 0, 0, 0.08) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03) !important;
+}
+[data-theme="light"] .glass-card {
+  background: rgba(255, 255, 255, 0.75) !important;
+  border-color: rgba(0, 0, 0, 0.08) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02) !important;
+}
+
+[data-theme="light"] .glass-card:hover {
+  border-color: rgba(99, 102, 241, 0.4) !important;
+  box-shadow: 0 10px 20px -10px rgba(99, 102, 241, 0.15) !important;
+}
+
+/* Table borders */
+[data-theme="light"] .divide-darkBorder\/40 > * + * {
+  border-color: rgba(203, 213, 225, 0.4) !important;
+}
+[data-theme="light"] .bg-darkBg\/60.border-b {
+  border-color: #cbd5e1 !important;
+}
+
+/* Core Accent Text Overrides */
+[data-theme="light"] .text-indigo-400 { color: #4f46e5 !important; }
+[data-theme="light"] .text-indigo-300 { color: #3730a3 !important; }
+[data-theme="light"] .text-blue-400 { color: #4f46e5 !important; }
+[data-theme="light"] .text-blue-500 { color: #6366F1 !important; }
+[data-theme="light"] .bg-slate-700 { background-color: #cbd5e1 !important; }
+[data-theme="light"] .text-emerald-400 { color: #059669 !important; }
+[data-theme="light"] .text-emerald-300 { color: #047857 !important; }
+[data-theme="light"] .text-rose-400 { color: #dc2626 !important; }
+[data-theme="light"] .text-rose-300 { color: #b91c1c !important; }
+[data-theme="light"] .text-amber-400 { color: #d97706 !important; }
+[data-theme="light"] .text-amber-300 { color: #b45309 !important; }
+[data-theme="light"] .text-sky-400 { color: #0284c7 !important; }
+[data-theme="light"] .text-red-400 { color: #b91c1c !important; }
+[data-theme="light"] .text-teal-400 { color: #0d9488 !important; }
+[data-theme="light"] .text-orange-400 { color: #ea580c !important; }
+[data-theme="light"] .bg-emerald-950\/10 { background-color: rgba(16, 185, 129, 0.08) !important; }
+[data-theme="light"] .bg-rose-950\/10 { background-color: rgba(244, 63, 94, 0.08) !important; }
+
+/* Inputs, Select elements, Textareas inside light mode */
+[data-theme="light"] input, [data-theme="light"] select, [data-theme="light"] textarea {
+  background-color: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+[data-theme="light"] input::placeholder, [data-theme="light"] textarea::placeholder {
+  color: #94a3b8 !important;
+}
+
+/* Override Tailwind gradient colors for darkCard in light mode */
+[data-theme="light"] .to-darkCard {
+  --tw-gradient-to: #ffffff !important;
+}
+[data-theme="light"] .from-darkCard {
+  --tw-gradient-from: #ffffff !important;
+}
+[data-theme="light"] .from-indigo-950\/20 {
+  --tw-gradient-from: rgba(37, 99, 235, 0.05) !important;
+}
+[data-theme="light"] .from-amber-950\/20 {
+  --tw-gradient-from: rgba(217, 119, 6, 0.05) !important;
+}
+
+/* Ensure white text stays white on solid colored backgrounds in light mode */
+[data-theme="light"] .bg-blue-600 .text-white, [data-theme="light"] .bg-blue-700 .text-white,
+[data-theme="light"] .bg-indigo-600 .text-white, [data-theme="light"] .bg-indigo-700 .text-white,
+[data-theme="light"] .bg-emerald-600 .text-white, [data-theme="light"] .bg-emerald-700 .text-white,
+[data-theme="light"] .bg-rose-600 .text-white, [data-theme="light"] .bg-rose-700 .text-white,
+[data-theme="light"] .bg-amber-600 .text-white, [data-theme="light"] .bg-amber-700 .text-white,
+[data-theme="light"] .bg-red-600 .text-white, [data-theme="light"] .bg-red-700 .text-white,
+[data-theme="light"] .bg-blue-600.text-white, [data-theme="light"] .bg-blue-700.text-white,
+[data-theme="light"] .bg-indigo-600.text-white, [data-theme="light"] .bg-indigo-700.text-white,
+[data-theme="light"] .bg-emerald-600.text-white, [data-theme="light"] .bg-emerald-700.text-white,
+[data-theme="light"] .bg-rose-600.text-white, [data-theme="light"] .bg-rose-700.text-white,
+[data-theme="light"] .bg-amber-600.text-white, [data-theme="light"] .bg-amber-700.text-white,
+[data-theme="light"] .bg-red-600.text-white, [data-theme="light"] .bg-red-700.text-white,
+[data-theme="light"] .bg-rose-500 .text-white, [data-theme="light"] .bg-rose-500.text-white,
+[data-theme="light"] .bg-sky-500 .text-white, [data-theme="light"] .bg-sky-500.text-white,
+[data-theme="light"] .bg-amber-500 .text-white, [data-theme="light"] .bg-amber-500.text-white,
+[data-theme="light"] .bg-teal-500 .text-white, [data-theme="light"] .bg-teal-500.text-white,
+[data-theme="light"] .hover\:bg-rose-500:hover, [data-theme="light"] .hover\:bg-sky-500:hover,
+[data-theme="light"] .hover\:bg-amber-500:hover, [data-theme="light"] .hover\:bg-teal-500:hover,
+[data-theme="light"] .bg-accentBlue .text-white, [data-theme="light"] .bg-accentBlue.text-white,
+[data-theme="light"] .bg-\[\#6366F1\] .text-white, [data-theme="light"] .bg-\[\#6366F1\].text-white,
+[data-theme="light"] .hover\:bg-accentBlue:hover, [data-theme="light"] .hover\:bg-accentBlue\/90:hover, [data-theme="light"] .hover\:bg-accentBlue\/95:hover {
+  color: #ffffff !important;
+}
+
+[data-theme="light"] .bg-blue-600 .text-slate-100, [data-theme="light"] .bg-blue-700 .text-slate-100,
+[data-theme="light"] .bg-indigo-600 .text-slate-100, [data-theme="light"] .bg-indigo-700 .text-slate-100,
+[data-theme="light"] .bg-emerald-600 .text-slate-100, [data-theme="light"] .bg-emerald-700 .text-slate-100,
+[data-theme="light"] .bg-rose-600 .text-slate-100, [data-theme="light"] .bg-rose-700 .text-slate-100,
+[data-theme="light"] .bg-amber-600 .text-slate-100, [data-theme="light"] .bg-amber-700 .text-slate-100,
+[data-theme="light"] .bg-blue-600.text-slate-100, [data-theme="light"] .bg-blue-700.text-slate-100,
+[data-theme="light"] .bg-indigo-600.text-slate-100, [data-theme="light"] .bg-indigo-700.text-slate-100,
+[data-theme="light"] .bg-emerald-600.text-slate-100, [data-theme="light"] .bg-emerald-700.text-slate-100,
+[data-theme="light"] .bg-rose-600.text-slate-100, [data-theme="light"] .bg-rose-700.text-slate-100,
+[data-theme="light"] .bg-amber-600.text-slate-100, [data-theme="light"] .bg-amber-700.text-slate-100,
+[data-theme="light"] .bg-rose-500 .text-slate-100, [data-theme="light"] .bg-rose-500.text-slate-100,
+[data-theme="light"] .bg-sky-500 .text-slate-100, [data-theme="light"] .bg-sky-500.text-slate-100,
+[data-theme="light"] .bg-amber-500 .text-slate-100, [data-theme="light"] .bg-amber-500.text-slate-100,
+[data-theme="light"] .bg-teal-500 .text-slate-100, [data-theme="light"] .bg-teal-500.text-slate-100,
+[data-theme="light"] .bg-accentBlue .text-slate-100, [data-theme="light"] .bg-accentBlue.text-slate-100,
+[data-theme="light"] .bg-\[\#6366F1\] .text-slate-100, [data-theme="light"] .bg-\[\#6366F1\].text-slate-100 {
+  color: #f8fafc !important;
+}
+
+/* Hover background overrides for light mode */
+[data-theme="light"] .hover\:bg-darkCard:hover { background-color: #f8fafc !important; }
+
+/* Hover text overrides for light mode */
+[data-theme="light"] .hover\:text-slate-200:hover { color: #0f172a !important; }
+[data-theme="light"] .hover\:text-white:hover { color: #0f172a !important; }
+
+/* Retain white hover text specifically on purple/solid buttons */
+[data-theme="light"] .bg-accentBlue:hover, [data-theme="light"] .hover\:bg-accentBlue:hover,
+[data-theme="light"] .bg-\[\#6366F1\]:hover, [data-theme="light"] .hover\:bg-accentBlue\/90:hover,
+[data-theme="light"] .hover\:bg-accentBlue\/95:hover {
+  color: #ffffff !important;
+}
+
+/* Retain light text for hardcoded dark terminal containers in light mode */
+[data-theme="light"] .bg-\[\#070b12\] .text-slate-300 { color: #d1d5db !important; }
+[data-theme="light"] .bg-\[\#070b12\] .text-slate-400 { color: #9ca3af !important; }
+[data-theme="light"] .bg-\[\#070b12\] .text-slate-200 { color: #e2e8f0 !important; }
+[data-theme="light"] .bg-\[\#070b12\] .text-white { color: #ffffff !important; }
+[data-theme="light"] .bg-\[\#070b12\] .text-indigo-400 { color: #818cf8 !important; }
+[data-theme="light"] .bg-\[\#070b12\] .text-blue-400 { color: #60a5fa !important; }
+[data-theme="light"] .bg-\[\#070b12\] .text-emerald-400 { color: #34d399 !important; }
+[data-theme="light"] .bg-\[\#070b12\] .text-yellow-400 { color: #facc15 !important; }
+[data-theme="light"] .bg-\[\#070b12\] .text-orange-400 { color: #fb923c !important; }
+[data-theme="light"] .bg-\[\#070b12\] .text-rose-400 { color: #fb7185 !important; }
+
+/* Contribution Calendar Colors */
+.calendar-cell-0 {
+  background-color: rgba(31, 41, 55, 0.4);
+  border: 1px solid rgba(55, 65, 81, 0.3);
+}
+[data-theme="light"] .calendar-cell-0 {
+  background-color: rgba(226, 232, 240, 0.8);
+  border: 1px solid rgba(203, 213, 225, 0.8);
+}
+
+.calendar-cell-1 {
+  background-color: rgba(99, 102, 241, 0.15);
+  border: 1px solid rgba(99, 102, 241, 0.3);
+}
+[data-theme="light"] .calendar-cell-1 {
+  background-color: rgba(99, 102, 241, 0.25);
+  border: 1px solid rgba(99, 102, 241, 0.4);
+}
+
+.calendar-cell-2 {
+  background-color: rgba(99, 102, 241, 0.4);
+  border: 1px solid rgba(99, 102, 241, 0.5);
+}
+[data-theme="light"] .calendar-cell-2 {
+  background-color: rgba(99, 102, 241, 0.5);
+  border: 1px solid rgba(99, 102, 241, 0.6);
+}
+
+.calendar-cell-3 {
+  background-color: rgba(99, 102, 241, 0.7);
+  border: 1px solid rgba(99, 102, 241, 0.8);
+}
+[data-theme="light"] .calendar-cell-3 {
+  background-color: rgba(99, 102, 241, 0.75);
+  border: 1px solid rgba(99, 102, 241, 0.9);
+}
+
+.calendar-cell-4 {
+  background-color: #6366F1;
+  border: 1px solid #4f46e5;
+}
+[data-theme="light"] .calendar-cell-4 {
+  background-color: #4f46e5;
+  border: 1px solid #4338ca;
+}
+
+
+

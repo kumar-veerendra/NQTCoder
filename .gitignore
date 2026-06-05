@@ -45,6 +45,3 @@ scratch/
 
 # JSON data files
 *.json
-
-# Frontend (only tracked in satyam-dev branch)
-frontend/
