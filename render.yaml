@@ -1,0 +1,52 @@
+services:
+  # ── Backend API (Node.js) ───────────────────────────────────────────────────
+  - type: web
+    name: nqtcoder-backend
+    runtime: node
+    rootDir: backend
+    buildCommand: chmod +x render-build.sh && ./render-build.sh
+    startCommand: node server.js
+    plan: free
+
+    # ── Environment Variables ────────────────────────────────────────────────
+    # Set these in Render Dashboard → Environment tab (NOT in .env file)
+    # The .env file is only for local development on your own computer.
+    envVars:
+      - key: NODE_ENV
+        value: production
+
+      - key: PORT
+        value: 10000   # Render assigns this automatically
+
+      # ── MongoDB Atlas ──────────────────────────────────────────────────────
+      # Paste your full MongoDB Atlas connection string here in Render Dashboard
+      - key: MONGO_URI
+        sync: false    # Set manually in dashboard (sensitive)
+
+      # ── JWT Secret ────────────────────────────────────────────────────────
+      - key: JWT_SECRET
+        sync: false
+
+      # ── Google OAuth ──────────────────────────────────────────────────────
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+
+      # ── Email (SMTP) ──────────────────────────────────────────────────────
+      - key: EMAIL_USER
+        sync: false
+      - key: EMAIL_PASS
+        sync: false
+
+      # ── Client URL (your frontend URL on Vercel/Netlify) ──────────────────
+      - key: CLIENT_URL
+        sync: false    # e.g. https://nqtcoder.vercel.app
+
+      # ── Compiler Mode ─────────────────────────────────────────────────────
+      # Keep 'local' — compilers are auto-installed by render-build.sh
+      - key: RUN_MODE
+        value: local
+
+      # ── Java Path (auto-detected on Linux, leave blank) ───────────────────
+      # Java is in system PATH on Render's Linux server, no need to set this
+      - key: JAVA_8_BIN
+        value: ""

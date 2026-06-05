@@ -1,0 +1,376 @@
+import User from '../models/User.js';
+import jwt from 'jsonwebtoken';
+import { OAuth2Client } from 'google-auth-library';
+import { validateRegister, validateLogin } from '../utils/validator.js';
+import { sendVerificationEmail } from '../utils/email.js';
+
+// Initialize Google OAuth2 Client
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+
+/**
+ * Generate JWT Token
+ */
+const generateToken = (id) => {
+  return jwt.sign({ id }, process.env.JWT_SECRET || 'nqtcoder_super_secret_jwt_key_2026', {
+    expiresIn: '30d'
+  });
+};
+
+/**
+ * @desc    Register a new user
+ * @route   POST /api/auth/register
+ * @access  Public
+ */
+export const registerUser = async (req, res) => {
+  const { username, email, password, confirmPassword } = req.body;
+
+  const { errors, isValid } = validateRegister({ username, email, password, confirmPassword });
+  if (!isValid) {
+    return res.status(400).json({ errors });
+  }
+
+  try {
+    const userExists = await User.findOne({ $or: [{ email }, { username }] });
+    if (userExists) {
+      const field = userExists.email === email ? 'email' : 'username';
+      return res.status(400).json({
+        errors: { [field]: `User with this ${field} already exists` }
+      });
+    }
+
+    // Generate 6-digit OTP code
+    const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
+    const verificationCodeExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+
+    const user = await User.create({
+      username,
+      email,
+      password,
+      role: 'user', // default registration is user
+      isVerified: false,
+      verificationCode,
+      verificationCodeExpires
+    });
+
+    if (user) {
+      // Send OTP verification email
+      try {
+        await sendVerificationEmail(user.email, verificationCode);
+      } catch (emailErr) {
+        console.error('Error sending registration verification email:', emailErr);
+      }
+
+      res.status(201).json({
+        success: true,
+        verificationRequired: true,
+        email: user.email,
+        message: 'Verification code sent to email'
+      });
+    } else {
+      res.status(400).json({ message: 'Invalid user data' });
+    }
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+/**
+ * @desc    Auth user & get token
+ * @route   POST /api/auth/login
+ * @access  Public
+ */
+export const loginUser = async (req, res) => {
+  const { email, password } = req.body;
+
+  const { errors, isValid } = validateLogin({ email, password });
+  if (!isValid) {
+    return res.status(400).json({ errors });
+  }
+
+  try {
+    const user = await User.findOne({ email });
+
+    if (user && (await user.matchPassword(password))) {
+      // Check if user is verified
+      if (!user.isVerified) {
+        return res.status(401).json({
+          errors: { auth: 'Please verify your email before logging in.' }
+        });
+      }
+
+      res.json({
+        _id: user._id,
+        username: user.username,
+        email: user.email,
+        role: user.role,
+        token: generateToken(user._id)
+      });
+    } else {
+      res.status(401).json({
+        errors: { auth: 'Invalid email or password' }
+      });
+    }
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+/**
+ * @desc    Google OAuth Sign in / Sign up
+ * @route   POST /api/auth/google
+ * @access  Public
+ */
+export const googleLogin = async (req, res) => {
+  const { credential } = req.body;
+
+  if (!credential) {
+    return res.status(400).json({ message: 'Google credential is required' });
+  }
+
+  try {
+    let payload;
+    
+    // Attempt standard verification if client ID is present
+    if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_ID !== 'your-google-client-id-here') {
+      const ticket = await client.verifyIdToken({
+        idToken: credential,
+        audience: process.env.GOOGLE_CLIENT_ID
+      });
+      payload = ticket.getPayload();
+    } else {
+      // Fallback for development/testing if Client ID is not configured.
+      // We will decode the JWT payload manually without signature verification.
+      console.warn('Google Client ID not configured. Decoding payload insecurely for development only.');
+      const base64Url = credential.split('.')[1];
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const jsonPayload = decodeURIComponent(
+        atob(base64)
+          .split('')
+          .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+          .join('')
+      );
+      payload = JSON.parse(jsonPayload);
+    }
+
+    const { sub: googleId, email, name } = payload;
+
+    if (!email) {
+      return res.status(400).json({ message: 'Email not provided by Google' });
+    }
+
+    // Check if user exists
+    let user = await User.findOne({ $or: [{ googleId }, { email }] });
+
+    if (user) {
+      // If user exists by email but googleId is not linked, link it
+      if (!user.googleId) {
+        user.googleId = googleId;
+        await user.save();
+      }
+    } else {
+      // Generate a unique username from name
+      let baseUsername = name.replace(/\s+/g, '').toLowerCase();
+      let username = baseUsername;
+      let count = 1;
+      
+      // Ensure unique username
+      while (await User.findOne({ username })) {
+        username = `${baseUsername}${count}`;
+        count++;
+      }
+
+      user = await User.create({
+        username,
+        email,
+        googleId,
+        role: 'user',
+        isVerified: true
+      });
+    }
+
+    res.json({
+      _id: user._id,
+      username: user.username,
+      email: user.email,
+      role: user.role,
+      token: generateToken(user._id)
+    });
+  } catch (error) {
+    console.error('Google Auth Error:', error);
+    res.status(401).json({ message: 'Google Authentication failed', error: error.message });
+  }
+};
+
+/**
+ * @desc    Get user profile data
+ * @route   GET /api/auth/profile
+ * @access  Private
+ */
+export const getUserProfile = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id)
+      .select('-password')
+      .populate('solvedQuestions', 'title difficulty company topic');
+      
+    if (user) {
+      res.json(user);
+    } else {
+      res.status(404).json({ message: 'User not found' });
+    }
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+/**
+ * @desc    Update user profile details
+ * @route   PUT /api/auth/profile
+ * @access  Private
+ */
+export const updateUserProfile = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id);
+
+    if (user) {
+      user.fullName = req.body.fullName !== undefined ? req.body.fullName : user.fullName;
+      user.bio = req.body.bio !== undefined ? req.body.bio : user.bio;
+
+      const updatedUser = await user.save();
+      
+      const populatedUser = await User.findById(updatedUser._id)
+        .select('-password')
+        .populate('solvedQuestions', 'title difficulty company topic');
+
+      res.json(populatedUser);
+    } else {
+      res.status(404).json({ message: 'User not found' });
+    }
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+/**
+ * @desc    Verify email using OTP code
+ * @route   POST /api/auth/verify
+ * @access  Public
+ */
+export const verifyEmail = async (req, res) => {
+  const { email, code } = req.body;
+
+  if (!email || !code) {
+    return res.status(400).json({ message: 'Email and verification code are required' });
+  }
+
+  try {
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    if (user.isVerified) {
+      return res.status(400).json({ message: 'User is already verified' });
+    }
+
+    if (user.verificationCode !== code) {
+      return res.status(400).json({
+        errors: { code: 'Invalid verification code' }
+      });
+    }
+
+    if (new Date() > user.verificationCodeExpires) {
+      return res.status(400).json({
+        errors: { code: 'Verification code has expired. Please request a new code.' }
+      });
+    }
+
+    // Mark as verified
+    user.isVerified = true;
+    user.verificationCode = undefined;
+    user.verificationCodeExpires = undefined;
+    await user.save();
+
+    res.json({
+      _id: user._id,
+      username: user.username,
+      email: user.email,
+      role: user.role,
+      token: generateToken(user._id)
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+/**
+ * @desc    Resend verification code OTP
+ * @route   POST /api/auth/resend-code
+ * @access  Public
+ */
+export const resendVerificationCode = async (req, res) => {
+  const { email } = req.body;
+
+  if (!email) {
+    return res.status(400).json({ message: 'Email is required' });
+  }
+
+  try {
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    if (user.isVerified) {
+      return res.status(400).json({ message: 'User is already verified' });
+    }
+
+    // Generate new OTP
+    const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
+    const verificationCodeExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+
+    user.verificationCode = verificationCode;
+    user.verificationCodeExpires = verificationCodeExpires;
+    await user.save();
+
+    // Send email
+    try {
+      await sendVerificationEmail(user.email, verificationCode);
+    } catch (emailErr) {
+      console.error('Error sending resend OTP email:', emailErr);
+      return res.status(500).json({ message: 'Error sending verification email' });
+    }
+
+    res.json({ success: true, message: 'Verification code resent successfully' });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+/**
+ * @desc    Check username availability in real-time
+ * @route   GET /api/auth/check-username
+ * @access  Public
+ */
+export const checkUsername = async (req, res) => {
+  const { username } = req.query;
+
+  if (!username || username.trim() === '') {
+    return res.status(400).json({ message: 'Username is required' });
+  }
+
+  try {
+    const userExists = await User.findOne({
+      username: { $regex: new RegExp(`^${username.trim()}$`, 'i') }
+    });
+
+    if (userExists) {
+      return res.json({ available: false });
+    }
+
+    return res.json({ available: true });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};

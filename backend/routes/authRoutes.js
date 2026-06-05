@@ -1,0 +1,25 @@
+import express from 'express';
+import {
+  registerUser,
+  loginUser,
+  googleLogin,
+  getUserProfile,
+  updateUserProfile,
+  verifyEmail,
+  resendVerificationCode,
+  checkUsername
+} from '../controllers/authController.js';
+import { protect } from '../middleware/authMiddleware.js';
+
+const router = express.Router();
+
+router.post('/register', registerUser);
+router.post('/login', loginUser);
+router.post('/google', googleLogin);
+router.post('/verify', verifyEmail);
+router.post('/resend-code', resendVerificationCode);
+router.get('/check-username', checkUsername);
+router.get('/profile', protect, getUserProfile);
+router.put('/profile', protect, updateUserProfile);
+
+export default router;
