@@ -4,49 +4,43 @@ import { Settings, RefreshCw, Type } from 'lucide-react';
 
 const CODE_TEMPLATES = {
   python: `# Python 3
-import sys
+# ───────────
+# Instructions:
+# 1. Write a complete working program from scratch.
+# 2. Read input from standard input (stdin) using sys.stdin.read() or input().
+# 3. Print your final result to standard output (stdout) using print().
+# 4. NQTCoder runs your code once per testcase. Do not wrap your logic in 
+#    a loop for multiple test cases unless specified in the problem statement.
+#
+# Write your code below:
 
-def main():
-    # Read all inputs from standard input (stdin)
-    # input_data = sys.stdin.read().split()
-    
-    # Write your logic here
-    pass
-
-if __name__ == '__main__':
-    main()
 `,
   cpp: `// C++
-#include <iostream>
-#include <vector>
-#include <string>
-#include <algorithm>
+// ───────────
+// Instructions:
+// 1. Write a complete working program from scratch.
+// 2. You must include headers (e.g. #include <iostream>), namespace std, and int main().
+// 3. Read input from standard input (stdin) using cin (e.g. cin >> N).
+// 4. Print your final result to standard output (stdout) using cout.
+// 5. NQTCoder runs your code once per testcase. Do not wrap your logic in 
+//    a t-- loop for multiple test cases unless specified in the problem statement.
+//
+// Write your code below:
 
-using namespace std;
-
-int main() {
-    // Fast I/O for performance
-    ios_base::sync_with_stdio(false);
-    cin.tie(NULL);
-
-    // Read input from standard input (stdin) e.g., cin >> N;
-    // Write your logic here
-    
-    return 0;
-}
 `,
   java: `// Java
-import java.util.Scanner;
+// ───────────
+// Instructions:
+// 1. Write a complete working program from scratch (including imports).
+// 2. The entry class must be named "Main" (public class Main).
+// 3. Implement your execution entry point inside: public static void main(String[] args)
+// 4. Read input from standard input (stdin) using Scanner (e.g. new Scanner(System.in)).
+// 5. Print your final result to standard output (stdout) using System.out.println().
+// 6. NQTCoder runs your code once per testcase. Do not wrap your logic in 
+//    a hasNext() loop for multiple test cases unless specified in the problem statement.
+//
+// Write your code below:
 
-public class Main {
-    public static void main(String[] args) {
-        Scanner sc = new Scanner(System.in);
-        
-        // Read input from standard input (stdin) e.g., int N = sc.nextInt();
-        // Write your logic here
-        
-    }
-}
 `
 };
 
