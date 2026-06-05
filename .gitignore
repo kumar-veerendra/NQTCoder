@@ -45,6 +45,8 @@ scratch/
 
 # JSON data files
 *.json
+!package.json
+!package-lock.json
+!vercel.json
 
-# Frontend (only tracked in satyam-dev branch)
-frontend/
+# Frontend (tracked in veeru-dev branch for pull request)
