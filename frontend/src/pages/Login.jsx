@@ -63,9 +63,20 @@ const Login = () => {
         </div>
 
         {errors.auth && (
-          <div className="flex items-center space-x-2 bg-red-500/10 border border-red-500/25 p-3 rounded-md text-red-400 text-xs mb-6">
-            <AlertCircle className="w-4 h-4 shrink-0" />
-            <span>{errors.auth}</span>
+          <div className="flex flex-col space-y-2 bg-red-500/10 border border-red-500/25 p-3 rounded-md text-red-400 text-xs mb-6">
+            <div className="flex items-center space-x-2">
+              <AlertCircle className="w-4 h-4 shrink-0" />
+              <span>{errors.auth}</span>
+            </div>
+            {errors.auth.includes('verify your email') && (
+              <button
+                type="button"
+                onClick={() => navigate(`/verify-email?email=${encodeURIComponent(email)}`)}
+                className="text-accentBlue hover:text-accentBlue/80 font-bold transition-colors w-fit text-left pl-6"
+              >
+                Verify your email now →
+              </button>
+            )}
           </div>
         )}
 
