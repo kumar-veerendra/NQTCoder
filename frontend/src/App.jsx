@@ -1,3 +1,4 @@
+// Frontend entrypoint - authored by Satyam
 import React, { useContext } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { GoogleOAuthProvider } from '@react-oauth/google';
