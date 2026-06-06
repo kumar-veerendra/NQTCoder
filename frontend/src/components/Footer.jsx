@@ -91,7 +91,7 @@ const Footer = () => {
               </Link>
             </li>
             <li>
-              <a href="mailto:support@nqtcoder.com" className="hover:text-white transition-colors">
+              <a href="mailto:veerendrakumartmsl@gmail.com" className="hover:text-white transition-colors">
                 Email Support
               </a>
             </li>

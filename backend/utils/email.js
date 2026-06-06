@@ -47,7 +47,7 @@ export const sendVerificationEmail = async (email, code) => {
       const response = await axios.post('https://api.brevo.com/v3/smtp/email', {
         sender: {
           name: "NQTCoder",
-          email: process.env.EMAIL_USER || "veerendrakumarbgs@gmail.com"
+          email: process.env.EMAIL_USER || "veerendrakumartmsl@gmail.com"
         },
         to: [
           {
