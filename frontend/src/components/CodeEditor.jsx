@@ -4,7 +4,7 @@ import { Settings, RefreshCw, Type } from 'lucide-react';
 
 const CODE_TEMPLATES = {
   python: `# Python 3
-# ───────────
+# -----------
 # Instructions:
 # 1. Write a complete working program from scratch.
 # 2. Read input from standard input (stdin) using sys.stdin.read() or input().
@@ -16,7 +16,7 @@ const CODE_TEMPLATES = {
 
 `,
   cpp: `// C++
-// ───────────
+// -----------
 // Instructions:
 // 1. Write a complete working program from scratch.
 // 2. You must include headers (e.g. #include <iostream>), namespace std, and int main().
@@ -29,7 +29,7 @@ const CODE_TEMPLATES = {
 
 `,
   java: `// Java
-// ───────────
+// -----------
 // Instructions:
 // 1. Write a complete working program from scratch (including imports).
 // 2. The entry class must be named "Main" (public class Main).
