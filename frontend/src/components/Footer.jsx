@@ -91,7 +91,12 @@ const Footer = () => {
               </Link>
             </li>
             <li>
-              <a href="mailto:veerendrakumartmsl@gmail.com" className="hover:text-white transition-colors">
+              <a 
+                href="https://mail.google.com/mail/?view=cm&fs=1&to=veerendrakumartmsl@gmail.com" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="hover:text-white transition-colors"
+              >
                 Email Support
               </a>
             </li>

@@ -172,7 +172,9 @@ const AboutContact = () => {
               
               <div className="space-y-3.5 text-xs text-slate-300">
                 <a 
-                  href="mailto:veerendrakumartmsl@gmail.com" 
+                  href="https://mail.google.com/mail/?view=cm&fs=1&to=veerendrakumartmsl@gmail.com" 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
                   className="flex items-center space-x-3 p-2 rounded hover:bg-darkBg/50 transition-colors group"
                 >
                   <Mail className="w-4 h-4 text-slate-400 group-hover:text-[#6366F1] transition-colors" />
