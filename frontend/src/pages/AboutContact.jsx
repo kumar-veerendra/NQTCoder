@@ -172,15 +172,15 @@ const AboutContact = () => {
               
               <div className="space-y-3.5 text-xs text-slate-300">
                 <a 
-                  href="mailto:support@nqtcoder.com" 
+                  href="mailto:veerendrakumartmsl@gmail.com" 
                   className="flex items-center space-x-3 p-2 rounded hover:bg-darkBg/50 transition-colors group"
                 >
                   <Mail className="w-4 h-4 text-slate-400 group-hover:text-[#6366F1] transition-colors" />
-                  <span>support@nqtcoder.com</span>
+                  <span>veerendrakumartmsl@gmail.com</span>
                 </a>
 
                 <a 
-                  href="https://github.com" 
+                  href="https://github.com/kumar-veerendra/NQTCoder" 
                   target="_blank" 
                   rel="noreferrer" 
                   className="flex items-center space-x-3 p-2 rounded hover:bg-darkBg/50 transition-colors group"
