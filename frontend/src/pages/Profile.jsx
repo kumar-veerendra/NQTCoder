@@ -9,6 +9,7 @@ import {
   Settings
 } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 
 const Profile = () => {
   const { user: authUser } = useContext(AuthContext);
@@ -166,6 +167,16 @@ const Profile = () => {
   const acceptanceRate = submissionsCount > 0 
     ? Math.round((solvedCount / submissionsCount) * 100) 
     : 0;
+
+  // Pie Chart Data Preparation
+  const pieData = [
+    { name: 'Easy', value: profile.solvedCount?.easy || 0, color: '#10b981' },
+    { name: 'Medium', value: profile.solvedCount?.medium || 0, color: '#f59e0b' },
+    { name: 'Hard', value: profile.solvedCount?.hard || 0, color: '#f43f5e' },
+  ].filter(item => item.value > 0);
+
+  // If no problems solved, show a placeholder if you like, but Recharts handles empty data
+  const hasSolvedAny = pieData.length > 0;
 
   // Professional Level Badge
   const userRank = solvedCount > 30 ? 'Grandmaster' : solvedCount > 15 ? 'Expert' : solvedCount > 5 ? 'Specialist' : 'Novice';
@@ -397,55 +408,73 @@ const Profile = () => {
               {/* Difficulty Breakdown Panel */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 
-                {/* Left Side Progress Bars */}
-                <div className="bg-darkCard border border-darkBorder rounded-lg p-5 space-y-4">
-                  <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center select-none">
+                {/* Left Side Visual Analytics (Pie Chart) */}
+                <div className="bg-darkCard border border-darkBorder rounded-lg p-5 flex flex-col h-full shadow-sm">
+                  <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center select-none mb-4">
                     <CircleDot className="w-4 h-4 text-accentBlue mr-2" /> Difficulty Metrics
                   </h3>
 
-                  <div className="space-y-4">
-                    {/* Easy Solved Bar */}
-                    <div className="space-y-1.5">
-                      <div className="flex justify-between text-xs font-semibold select-none">
-                        <span className="text-emerald-400">Easy</span>
-                        <span className="text-slate-300 font-mono">{profile.solvedCount?.easy || 0} Solved</span>
+                  {hasSolvedAny ? (
+                    <div className="flex-grow flex flex-col">
+                      <div className="h-44 w-full">
+                        <ResponsiveContainer width="100%" height="100%">
+                          <PieChart>
+                            <Pie
+                              data={pieData}
+                              cx="50%"
+                              cy="50%"
+                              innerRadius={50}
+                              outerRadius={70}
+                              paddingAngle={5}
+                              dataKey="value"
+                              stroke="none"
+                            >
+                              {pieData.map((entry, index) => (
+                                <Cell key={`cell-${index}`} fill={entry.color} />
+                              ))}
+                            </Pie>
+                            <Tooltip 
+                              contentStyle={{ 
+                                backgroundColor: '#0f172a', 
+                                border: '1px solid #1e293b',
+                                borderRadius: '8px',
+                                fontSize: '10px',
+                                fontWeight: 'bold',
+                                color: '#f8fafc'
+                              }}
+                              itemStyle={{ color: '#f8fafc' }}
+                              cursor={{ fill: 'transparent' }}
+                            />
+                            <Legend 
+                              verticalAlign="bottom" 
+                              height={36}
+                              iconType="circle"
+                              formatter={(value) => <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{value}</span>}
+                            />
+                          </PieChart>
+                        </ResponsiveContainer>
                       </div>
-                      <div className="w-full bg-darkBg border border-darkBorder h-2 rounded overflow-hidden">
-                        <div 
-                          className="bg-emerald-500 h-full rounded transition-all duration-500" 
-                          style={{ width: `${Math.min(((profile.solvedCount?.easy || 0) / 20) * 100, 100)}%` }}
-                        ></div>
+                      
+                      {/* Sub-stats for details */}
+                      <div className="grid grid-cols-3 gap-2 mt-4">
+                        {pieData.map((item) => (
+                          <div key={item.name} className="text-center p-2 rounded-lg bg-darkBg/30 border border-darkBorder/40">
+                            <div className="text-[10px] font-black uppercase tracking-widest" style={{ color: item.color }}>{item.name}</div>
+                            <div className="text-xs font-mono font-bold text-white mt-0.5">{item.value}</div>
+                          </div>
+                        ))}
                       </div>
                     </div>
-
-                    {/* Medium Solved Bar */}
-                    <div className="space-y-1.5">
-                      <div className="flex justify-between text-xs font-semibold select-none">
-                        <span className="text-amber-400">Medium</span>
-                        <span className="text-slate-300 font-mono">{profile.solvedCount?.medium || 0} Solved</span>
+                  ) : (
+                    <div className="flex-grow flex flex-col items-center justify-center text-center p-8 space-y-3">
+                      <div className="w-16 h-16 rounded-full bg-darkBg border border-darkBorder flex items-center justify-center">
+                        <Percent className="w-8 h-8 text-slate-700" />
                       </div>
-                      <div className="w-full bg-darkBg border border-darkBorder h-2 rounded overflow-hidden">
-                        <div 
-                          className="bg-amber-500 h-full rounded transition-all duration-500" 
-                          style={{ width: `${Math.min(((profile.solvedCount?.medium || 0) / 10) * 100, 100)}%` }}
-                        ></div>
-                      </div>
+                      <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest leading-relaxed">
+                        No challenges solved <br /> to visualize data.
+                      </p>
                     </div>
-
-                    {/* Hard Solved Bar */}
-                    <div className="space-y-1.5">
-                      <div className="flex justify-between text-xs font-semibold select-none">
-                        <span className="text-rose-400">Hard</span>
-                        <span className="text-slate-300 font-mono">{profile.solvedCount?.hard || 0} Solved</span>
-                      </div>
-                      <div className="w-full bg-darkBg border border-darkBorder h-2 rounded overflow-hidden">
-                        <div 
-                          className="bg-rose-500 h-full rounded transition-all duration-500" 
-                          style={{ width: `${Math.min(((profile.solvedCount?.hard || 0) / 5) * 100, 100)}%` }}
-                        ></div>
-                      </div>
-                    </div>
-                  </div>
+                  )}
                 </div>
 
                 {/* Right Side Badges */}
