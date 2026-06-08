@@ -42,6 +42,7 @@ seedQuestions.js
 verify_mocktest.js
 verify_tracks.js
 scratch/
+backend/test_compiler_pipeline.js
 
 # JSON data files
 *.json

@@ -42,9 +42,9 @@ const isCommandAvailable = (cmd) => {
 /**
  * Runs a command with a child process, feeds stdin, handles timeouts
  */
-const runProcess = (cmd, args, input, timeoutSec) => {
+const runProcess = (cmd, args, input, timeoutSec, options = {}) => {
   return new Promise((resolve) => {
-    const processInstance = spawn(cmd, args, { cwd: TEMP_DIR });
+    const processInstance = spawn(cmd, args, { cwd: options.cwd || TEMP_DIR });
     let stdout = '';
     let stderr = '';
     let timedOut = false;
@@ -108,11 +108,16 @@ const runProcess = (cmd, args, input, timeoutSec) => {
 };
 
 /**
- * Main execution runner
+ * Main execution runner for multiple test cases (Compile Once, Run Many)
  */
-export const runLocalCode = async (code, language, input, timeLimit = 2) => {
+export const runLocalCodeMulti = async (code, language, inputs, timeLimit = 2) => {
   const jobId = Math.random().toString(36).substring(7);
-  let result = { status: 'Pending', stdout: '', error: '' };
+  
+  console.log(`\n--- [NQTCoder Compiler] Job ${jobId} initialized for language: ${language} ---`);
+  console.time(`[Job ${jobId}] Total Time`);
+
+  const inputsArray = Array.isArray(inputs) ? inputs : [inputs];
+  const results = [];
 
   if (language === 'python') {
     const filename = `script_${jobId}.py`;
@@ -127,19 +132,23 @@ export const runLocalCode = async (code, language, input, timeLimit = 2) => {
 
     if (!isCommandAvailable(pyCmd)) {
       try { fs.unlinkSync(filepath); } catch (e) {}
+      console.timeEnd(`[Job ${jobId}] Total Time`);
       return {
         status: 'Compilation Error',
-        stdout: '',
         error: '[System Error] Python was not detected on this machine.\n\nTo run Python code, please download and install Python 3.x and ensure it is added to your system Environment Variables.'
       };
     }
 
-    const runRes = await runProcess(pyCmd, [filename], input, timeLimit);
-    result = {
-      status: runRes.status === 'Success' ? 'Accepted' : runRes.status,
-      stdout: runRes.stdout,
-      error: runRes.error
-    };
+    console.time(`[Job ${jobId}] Run ${inputsArray.length} test cases`);
+    for (const input of inputsArray) {
+      const runRes = await runProcess(pyCmd, [filename], input, timeLimit);
+      results.push({
+        status: runRes.status === 'Success' ? 'Accepted' : runRes.status,
+        stdout: runRes.stdout,
+        error: runRes.error
+      });
+    }
+    console.timeEnd(`[Job ${jobId}] Run ${inputsArray.length} test cases`);
 
     // Clean up
     try {
@@ -156,35 +165,42 @@ export const runLocalCode = async (code, language, input, timeLimit = 2) => {
 
     if (!isCommandAvailable('g++')) {
       try { fs.unlinkSync(filepath); } catch (e) {}
+      console.timeEnd(`[Job ${jobId}] Total Time`);
       return {
         status: 'Compilation Error',
-        stdout: '',
         error: '[System Error] GCC C++ Compiler (g++) was not detected on this machine.\n\nTo run C++ code, please download and install MinGW (GCC) and ensure its "bin" path is added to your system Environment Variables.'
       };
     }
 
-    // Compile
+    // Compile once - using -O1 optimization for faster compile times on Render
+    console.time(`[Job ${jobId}] C++ Compilation`);
     try {
-      execSync(`g++ -O3 "${filepath}" -o "${binaryPath}"`, { stdio: 'pipe' });
+      execSync(`g++ -O1 "${filepath}" -o "${binaryPath}"`, { stdio: 'pipe' });
+      console.timeEnd(`[Job ${jobId}] C++ Compilation`);
     } catch (err) {
-      result = {
-        status: 'Compilation Error',
-        stdout: '',
-        error: err.stderr ? err.stderr.toString() : err.message
-      };
+      console.timeEnd(`[Job ${jobId}] C++ Compilation`);
+      const errorMsg = err.stderr ? err.stderr.toString() : err.message;
       try {
         if (fs.existsSync(filepath)) fs.unlinkSync(filepath);
       } catch (e) {}
-      return result;
+      console.timeEnd(`[Job ${jobId}] Total Time`);
+      return {
+        status: 'Compilation Error',
+        error: errorMsg
+      };
     }
 
-    // Run
-    const runRes = await runProcess(path.join(TEMP_DIR, binaryName), [], input, timeLimit);
-    result = {
-      status: runRes.status === 'Success' ? 'Accepted' : runRes.status,
-      stdout: runRes.stdout,
-      error: runRes.error
-    };
+    // Run test cases
+    console.time(`[Job ${jobId}] Run ${inputsArray.length} test cases`);
+    for (const input of inputsArray) {
+      const runRes = await runProcess(binaryPath, [], input, timeLimit);
+      results.push({
+        status: runRes.status === 'Success' ? 'Accepted' : runRes.status,
+        stdout: runRes.stdout,
+        error: runRes.error
+      });
+    }
+    console.timeEnd(`[Job ${jobId}] Run ${inputsArray.length} test cases`);
 
     // Clean up
     try {
@@ -193,9 +209,6 @@ export const runLocalCode = async (code, language, input, timeLimit = 2) => {
     } catch (e) {}
 
   } else if (language === 'java') {
-    // For Java, we must extract the public class or default to class Main.
-    // We will save it as Main.java and execute java Main.
-    // To handle concurrent jobs, we create a subfolder for this job.
     const jobDir = path.join(TEMP_DIR, `java_${jobId}`);
     fs.mkdirSync(jobDir, { recursive: true });
 
@@ -211,109 +224,88 @@ export const runLocalCode = async (code, language, input, timeLimit = 2) => {
     // Verify if java is available
     if (!isCommandAvailable(javacCmd) || !isCommandAvailable(javaCmd)) {
       try { fs.rmSync(jobDir, { recursive: true, force: true }); } catch (e) {}
+      console.timeEnd(`[Job ${jobId}] Total Time`);
       return {
         status: 'Compilation Error',
-        stdout: '',
         error: '[System Error] Java Compiler (javac/java) was not detected on this machine.\n\nTo run Java 8 code, please download and install JDK 8 (Java Development Kit) and ensure its "bin" path is added to your system Environment Variables.'
       };
     }
 
     // Compile targeting Java 8 using --release 8 parameter if supported
+    console.time(`[Job ${jobId}] Java Compilation`);
+    let compiled = false;
+    let compileError = '';
+
     try {
       // We wrap compiler paths in quotes to support Windows paths with spaces
       execSync(`"${javacCmd}" --release 8 "${filepath}"`, { stdio: 'pipe' });
+      compiled = true;
     } catch (err) {
       // Fallback compilation without --release flag if using a pure Java 8 JDK (which doesn't support --release)
       try {
         execSync(`"${javacCmd}" "${filepath}"`, { stdio: 'pipe' });
+        compiled = true;
       } catch (innerErr) {
-        result = {
-          status: 'Compilation Error',
-          stdout: '',
-          error: innerErr.stderr ? innerErr.stderr.toString() : innerErr.message
-        };
-        try {
-          fs.rmSync(jobDir, { recursive: true, force: true });
-        } catch (e) {}
-        return result;
+        compileError = innerErr.stderr ? innerErr.stderr.toString() : innerErr.message;
       }
     }
+    console.timeEnd(`[Job ${jobId}] Java Compilation`);
 
-    // Run
-    // We spawn java with execution context inside jobDir
-    return new Promise((resolve) => {
-      const processInstance = spawn(javaCmd, ['Main'], { cwd: jobDir });
-      let stdout = '';
-      let stderr = '';
-      let timedOut = false;
+    if (!compiled) {
+      try {
+        fs.rmSync(jobDir, { recursive: true, force: true });
+      } catch (e) {}
+      console.timeEnd(`[Job ${jobId}] Total Time`);
+      return {
+        status: 'Compilation Error',
+        error: compileError
+      };
+    }
 
-      const timeout = setTimeout(() => {
-        timedOut = true;
-        try {
-          processInstance.kill();
-        } catch (e) {}
-        resolve({
-          status: 'Time Limit Exceeded',
-          stdout: '',
-          error: `Time limit of ${timeLimit}s exceeded.`
-        });
-      }, timeLimit * 1000);
-
-      if (input) {
-        processInstance.stdin.write(input);
-        processInstance.stdin.end();
-      } else {
-        processInstance.stdin.end();
-      }
-
-      processInstance.stdout.on('data', (data) => {
-        stdout += data.toString();
+    // Run test cases
+    console.time(`[Job ${jobId}] Run ${inputsArray.length} test cases`);
+    for (const input of inputsArray) {
+      const runRes = await runProcess(javaCmd, ['Main'], input, timeLimit, { cwd: jobDir });
+      results.push({
+        status: runRes.status === 'Success' ? 'Accepted' : runRes.status,
+        stdout: runRes.stdout,
+        error: runRes.error
       });
+    }
+    console.timeEnd(`[Job ${jobId}] Run ${inputsArray.length} test cases`);
 
-      processInstance.stderr.on('data', (data) => {
-        stderr += data.toString();
-      });
-
-      processInstance.on('close', (code) => {
-        clearTimeout(timeout);
-        // Clean up directory
-        try {
-          fs.rmSync(jobDir, { recursive: true, force: true });
-        } catch (e) {}
-
-        if (timedOut) return;
-
-        if (code === 0) {
-          resolve({
-            status: 'Accepted',
-            stdout,
-            error: stderr
-          });
-        } else {
-          resolve({
-            status: 'Runtime Error',
-            stdout,
-            error: stderr || `Process exited with code ${code}`
-          });
-        }
-      });
-
-      processInstance.on('error', (err) => {
-        clearTimeout(timeout);
-        try {
-          fs.rmSync(jobDir, { recursive: true, force: true });
-        } catch (e) {}
-        if (timedOut) return;
-        resolve({
-          status: 'Runtime Error',
-          stdout: '',
-          error: err.message
-        });
-      });
-    });
+    // Clean up directory
+    try {
+      fs.rmSync(jobDir, { recursive: true, force: true });
+    } catch (e) {}
+  } else {
+    console.timeEnd(`[Job ${jobId}] Total Time`);
+    return {
+      status: 'Compilation Error',
+      error: `Unsupported language: ${language}`
+    };
   }
 
-  return result;
+  console.timeEnd(`[Job ${jobId}] Total Time`);
+  return {
+    status: 'Success',
+    results
+  };
+};
+
+/**
+ * Backwards compatible single execution code runner
+ */
+export const runLocalCode = async (code, language, input, timeLimit = 2) => {
+  const multiRes = await runLocalCodeMulti(code, language, [input], timeLimit);
+  if (multiRes.status === 'Compilation Error') {
+    return {
+      status: 'Compilation Error',
+      stdout: '',
+      error: multiRes.error
+    };
+  }
+  return multiRes.results[0];
 };
 
 /**
