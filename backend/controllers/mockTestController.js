@@ -1,7 +1,7 @@
 import MockTest from '../models/MockTest.js';
 import Question from '../models/Question.js';
 import User from '../models/User.js';
-import { runLocalCode } from '../utils/localRunner.js';
+import { runLocalCode, runLocalCodeMulti } from '../utils/localRunner.js';
 import { runJudge0Code } from '../utils/judge0Runner.js';
 import { compilerQueue } from '../utils/compilerQueue.js';
 
@@ -11,23 +11,38 @@ import { compilerQueue } from '../utils/compilerQueue.js';
 const runTestCases = async (question, code, language) => {
   const allTestCases = [...question.visibleTestCases, ...question.hiddenTestCases];
   const totalCount = allTestCases.length;
+  const inputs = allTestCases.map(tc => tc.input);
   let passedCount = 0;
   let firstErrorMessage = '';
   
-  const executeCode = async (input, timeLimit) => {
+  const executeCodeMulti = async (inputs, timeLimit) => {
     const mode = process.env.RUN_MODE || 'local';
     if (mode === 'judge0') {
-      return await runJudge0Code(code, language, input, timeLimit);
+      const promises = inputs.map(input => runJudge0Code(code, language, input, timeLimit));
+      return await Promise.all(promises);
     } else {
-      return await runLocalCode(code, language, input, timeLimit);
+      const multiRes = await runLocalCodeMulti(code, language, inputs, timeLimit);
+      if (multiRes.status === 'Compilation Error') {
+        return {
+          status: 'Compilation Error',
+          error: multiRes.error
+        };
+      }
+      return multiRes.results;
     }
   };
 
+  const runResults = await executeCodeMulti(inputs, question.timeLimit);
+
+  if (runResults.status === 'Compilation Error') {
+    return { passedCount: 0, totalCount, errorMessage: runResults.error };
+  }
+
   for (let i = 0; i < totalCount; i++) {
     const tc = allTestCases[i];
-    const runResult = await executeCode(tc.input, question.timeLimit);
+    const runResult = runResults[i];
 
-    if (runResult.status === 'Compilation Error' || runResult.status === 'Runtime Error' || runResult.status === 'Time Limit Exceeded') {
+    if (runResult.status === 'Time Limit Exceeded' || runResult.status === 'Runtime Error') {
       firstErrorMessage = runResult.error || runResult.status;
       break;
     }
@@ -36,6 +51,11 @@ const runTestCases = async (question, code, language) => {
     const cleanExpectedOutput = tc.output ? tc.output.toString().replace(/\r/g, '').trim() : '';
     if (cleanExpected === cleanExpectedOutput) {
       passedCount++;
+    } else {
+      // Mark it as a failed test case
+      if (!firstErrorMessage) {
+        firstErrorMessage = 'Wrong Answer';
+      }
     }
   }
 

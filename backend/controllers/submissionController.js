@@ -1,7 +1,7 @@
 import Question from '../models/Question.js';
 import Submission from '../models/Submission.js';
 import User from '../models/User.js';
-import { runLocalCode, getCompilerVersions } from '../utils/localRunner.js';
+import { runLocalCode, runLocalCodeMulti, getCompilerVersions } from '../utils/localRunner.js';
 import { runJudge0Code } from '../utils/judge0Runner.js';
 import { compilerQueue } from '../utils/compilerQueue.js';
 import { updateQuestionStats } from './questionController.js';
@@ -30,6 +30,23 @@ const executeCode = async (code, language, input, timeLimit) => {
     return await runJudge0Code(code, language, input, timeLimit);
   } else {
     return await runLocalCode(code, language, input, timeLimit);
+  }
+};
+
+const executeCodeMulti = async (code, language, inputs, timeLimit) => {
+  const mode = process.env.RUN_MODE || 'local';
+  if (mode === 'judge0') {
+    const promises = inputs.map(input => runJudge0Code(code, language, input, timeLimit));
+    return await Promise.all(promises);
+  } else {
+    const multiRes = await runLocalCodeMulti(code, language, inputs, timeLimit);
+    if (multiRes.status === 'Compilation Error') {
+      return {
+        status: 'Compilation Error',
+        error: multiRes.error
+      };
+    }
+    return multiRes.results;
   }
 };
 
@@ -69,19 +86,22 @@ export const runCode = async (req, res) => {
 
       // 2. Otherwise, run all visible test cases
       const visibleCases = question.visibleTestCases;
-      const testResults = [];
-      let compilationErrorOccurred = false;
-      let compilationErrorMessage = '';
+      const inputs = visibleCases.map(tc => tc.input);
+      const runResults = await executeCodeMulti(code, language, inputs, question.timeLimit);
 
+      if (runResults.status === 'Compilation Error') {
+        return {
+          isCustom: false,
+          status: 'Compilation Error',
+          error: runResults.error,
+          testResults: []
+        };
+      }
+
+      const testResults = [];
       for (let i = 0; i < visibleCases.length; i++) {
         const tc = visibleCases[i];
-        const runResult = await executeCode(code, language, tc.input, question.timeLimit);
-
-        if (runResult.status === 'Compilation Error') {
-          compilationErrorOccurred = true;
-          compilationErrorMessage = runResult.error;
-          break;
-        }
+        const runResult = runResults[i];
 
         const cleanExpected = normalizeText(tc.output);
         const cleanActual = normalizeText(runResult.stdout);
@@ -99,15 +119,6 @@ export const runCode = async (req, res) => {
           error: runResult.error,
           status: verdict
         });
-      }
-
-      if (compilationErrorOccurred) {
-        return {
-          isCustom: false,
-          status: 'Compilation Error',
-          error: compilationErrorMessage,
-          testResults: []
-        };
       }
 
       const failedCase = testResults.find((r) => r.status !== 'Accepted');
@@ -151,46 +162,50 @@ export const submitCode = async (req, res) => {
       // Combine visible and hidden test cases
       const allTestCases = [...question.visibleTestCases, ...question.hiddenTestCases];
       const totalCount = allTestCases.length;
+      const inputs = allTestCases.map(tc => tc.input);
+
+      const startAll = Date.now();
+      const runResults = await executeCodeMulti(code, language, inputs, question.timeLimit);
+      const totalExecutionTime = (Date.now() - startAll) / 1000;
+
       let passedCount = 0;
       let overallVerdict = 'Accepted';
       let firstErrorMessage = '';
       let runTimeMax = 0;
 
-      for (let i = 0; i < totalCount; i++) {
-        const tc = allTestCases[i];
-        const start = Date.now();
-        const runResult = await executeCode(code, language, tc.input, question.timeLimit);
-        const executionTime = (Date.now() - start) / 1000;
-        
-        if (executionTime > runTimeMax) {
-          runTimeMax = executionTime;
-        }
+      if (runResults.status === 'Compilation Error') {
+        overallVerdict = 'Compilation Error';
+        firstErrorMessage = runResults.error;
+      } else {
+        for (let i = 0; i < totalCount; i++) {
+          const tc = allTestCases[i];
+          const runResult = runResults[i];
+          const executionTime = totalExecutionTime / totalCount;
+          
+          if (executionTime > runTimeMax) {
+            runTimeMax = executionTime;
+          }
 
-        if (runResult.status === 'Compilation Error') {
-          overallVerdict = 'Compilation Error';
-          firstErrorMessage = runResult.error;
-          break;
-        }
+          if (runResult.status === 'Time Limit Exceeded') {
+            overallVerdict = 'Time Limit Exceeded';
+            firstErrorMessage = runResult.error || 'Time Limit Exceeded';
+            break;
+          }
 
-        if (runResult.status === 'Time Limit Exceeded') {
-          overallVerdict = 'Time Limit Exceeded';
-          firstErrorMessage = runResult.error;
-          break;
-        }
+          if (runResult.status === 'Runtime Error') {
+            overallVerdict = 'Runtime Error';
+            firstErrorMessage = runResult.error || 'Runtime Error';
+            break;
+          }
 
-        if (runResult.status === 'Runtime Error') {
-          overallVerdict = 'Runtime Error';
-          firstErrorMessage = runResult.error;
-          break;
-        }
+          const cleanExpected = normalizeText(tc.output);
+          const cleanActual = normalizeText(runResult.stdout);
 
-        const cleanExpected = normalizeText(tc.output);
-        const cleanActual = normalizeText(runResult.stdout);
-
-        if (cleanExpected === cleanActual) {
-          passedCount++;
-        } else {
-          overallVerdict = 'Wrong Answer';
+          if (cleanExpected === cleanActual) {
+            passedCount++;
+          } else {
+            overallVerdict = 'Wrong Answer';
+          }
         }
       }
 
