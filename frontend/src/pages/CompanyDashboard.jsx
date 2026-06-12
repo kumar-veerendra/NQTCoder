@@ -2,7 +2,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import { Link } from 'react-router-dom';
 import * as questionService from '../services/questionService';
 import { AuthContext } from '../context/AuthContext';
-import { Search, Shield, Filter, Code2, Tag, BookOpen, Layers, CheckCircle } from 'lucide-react';
+import { Search, Shield, Filter, Code2, Tag, BookOpen, Layers, CheckCircle, ChevronLeft, ChevronRight } from 'lucide-react';
 
 const COMPANIES = ['TCS', 'Infosys', 'Accenture', 'Wipro', 'Cognizant', 'Capgemini', 'HCL'];
 const TOPICS = [
@@ -21,10 +21,31 @@ const CompanyDashboard = () => {
   const [selectedTopic, setSelectedTopic] = useState('');
   const [selectedDifficulty, setSelectedDifficulty] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
 
+  // Pagination State
+  const [page, setPage] = useState(1);
+  const [limit] = useState(10);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalQuestions, setTotalQuestions] = useState(0);
+
+  // Debounce search query to prevent excessive backend calls
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery);
+    }, 300);
+    return () => clearTimeout(handler);
+  }, [searchQuery]);
+
+  // Reset page to 1 when filters or search change
+  useEffect(() => {
+    setPage(1);
+  }, [selectedCompany, selectedTopic, selectedDifficulty, debouncedSearchQuery]);
+
+  // Fetch questions when filters, search, or page changes
   useEffect(() => {
     fetchQuestions();
-  }, [selectedCompany, selectedTopic, selectedDifficulty]);
+  }, [selectedCompany, selectedTopic, selectedDifficulty, debouncedSearchQuery, page]);
 
   const fetchQuestions = async () => {
     setLoading(true);
@@ -33,9 +54,14 @@ const CompanyDashboard = () => {
       const data = await questionService.getQuestions({
         company: selectedCompany,
         topic: selectedTopic,
-        difficulty: selectedDifficulty
+        difficulty: selectedDifficulty,
+        search: debouncedSearchQuery,
+        page,
+        limit
       });
-      setQuestions(data);
+      setQuestions(data.questions || []);
+      setTotalPages(data.totalPages || 1);
+      setTotalQuestions(data.totalQuestions || 0);
     } catch (err) {
       console.error(err);
       setError('Failed to fetch coding challenges. Please check backend.');
@@ -51,10 +77,7 @@ const CompanyDashboard = () => {
     setSearchQuery('');
   };
 
-  // Local client filtering for instant search box
-  const filteredQuestions = questions.filter((q) =>
-    q.title.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredQuestions = questions;
 
   const getDifficultyBadge = (diff) => {
     switch (diff) {
@@ -96,7 +119,7 @@ const CompanyDashboard = () => {
             Solved: <span className="text-emerald-400 font-bold">{user?.solvedQuestions?.length || 0}</span>
           </div>
           <div className="bg-darkCard border border-darkBorder px-3.5 py-1.5 rounded-lg">
-            Total Challenges: <span className="text-accentBlue font-bold">{questions.length}</span>
+            Total Challenges: <span className="text-accentBlue font-bold">{totalQuestions}</span>
           </div>
         </div>
       </div>
@@ -251,6 +274,66 @@ const CompanyDashboard = () => {
                 ))}
               </tbody>
             </table>
+
+            {/* Pagination Controls Section */}
+            <div className="flex flex-col sm:flex-row items-center justify-between px-6 py-4 bg-darkBg/10 border-t border-darkBorder/40 gap-4 select-none">
+              {/* Left Side: Showing X-Y of Z */}
+              <div className="text-xs text-slate-400 font-medium">
+                Showing <span className="text-slate-200 font-bold">{Math.min(totalQuestions, (page - 1) * limit + 1)}</span> to <span className="text-slate-200 font-bold">{Math.min(totalQuestions, page * limit)}</span> of <span className="text-accentBlue font-bold">{totalQuestions}</span> challenges
+              </div>
+
+              {/* Right Side: Page Selector Buttons */}
+              <div className="flex items-center space-x-1.5">
+                {/* Previous Button */}
+                <button
+                  onClick={() => setPage(prev => Math.max(1, prev - 1))}
+                  disabled={page === 1}
+                  className="p-1.5 rounded-lg border border-darkBorder hover:border-slate-600 bg-darkCard hover:bg-darkBg/60 text-slate-300 hover:text-white transition-all disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-darkCard disabled:hover:border-darkBorder"
+                  title="Previous Page"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
+
+                {/* Page Number Buttons */}
+                {(() => {
+                  const pages = [];
+                  const maxVisible = 5;
+                  let start = Math.max(1, page - Math.floor(maxVisible / 2));
+                  let end = Math.min(totalPages, start + maxVisible - 1);
+
+                  if (end - start + 1 < maxVisible) {
+                    start = Math.max(1, end - maxVisible + 1);
+                  }
+
+                  for (let i = start; i <= end; i++) {
+                    pages.push(
+                      <button
+                        key={i}
+                        onClick={() => setPage(i)}
+                        className={`min-w-8 h-8 px-2 rounded-lg border text-xs font-black uppercase tracking-wider transition-all cursor-pointer ${
+                          page === i
+                            ? 'bg-accentBlue border-accentBlue text-white shadow-md shadow-accentBlue/10'
+                            : 'border-darkBorder hover:border-slate-600 bg-darkCard text-slate-300 hover:text-white'
+                        }`}
+                      >
+                        {i}
+                      </button>
+                    );
+                  }
+                  return pages;
+                })()}
+
+                {/* Next Button */}
+                <button
+                  onClick={() => setPage(prev => Math.min(totalPages, prev + 1))}
+                  disabled={page === totalPages}
+                  className="p-1.5 rounded-lg border border-darkBorder hover:border-slate-600 bg-darkCard hover:bg-darkBg/60 text-slate-300 hover:text-white transition-all disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-darkCard disabled:hover:border-darkBorder"
+                  title="Next Page"
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
           </div>
         )}
       </div>

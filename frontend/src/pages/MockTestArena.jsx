@@ -17,6 +17,7 @@ const MockTestArena = () => {
   const [mockTest, setMockTest] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [compilerStatus, setCompilerStatus] = useState(null);
   
   // Active Question states
   const [activeQuestion, setActiveQuestion] = useState(null);
@@ -64,10 +65,21 @@ const MockTestArena = () => {
 
   useEffect(() => {
     fetchActiveSession();
+    fetchCompilerStatus();
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
     };
   }, [id]);
+
+  const fetchCompilerStatus = async () => {
+    try {
+      const data = await executionService.getCompilersStatus();
+      setCompilerStatus(data);
+    } catch (err) {
+      console.error('Failed to retrieve compiler status:', err);
+      setCompilerStatus({ error: true });
+    }
+  };
 
   const fetchActiveSession = async () => {
     setLoading(true);
@@ -494,6 +506,7 @@ const MockTestArena = () => {
               onFontSizeChange={setFontSize}
               theme={theme}
               disableClipboard={true}
+              compilerStatus={compilerStatus}
             />
           </div>
 

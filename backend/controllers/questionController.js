@@ -8,7 +8,7 @@ import { validateQuestion } from '../utils/validator.js';
  * @access  Public
  */
 export const getQuestions = async (req, res) => {
-  const { company, topic, difficulty } = req.query;
+  const { company, topic, difficulty, page, limit, search } = req.query;
   const filter = {};
 
   if (company) {
@@ -24,8 +24,37 @@ export const getQuestions = async (req, res) => {
     filter.difficulty = difficulty;
   }
 
+  if (search) {
+    filter.title = { $regex: new RegExp(search, 'i') };
+  }
+
   try {
-    // Select all fields EXCEPT hidden test cases to protect database content
+    // Determine if pagination is requested (opt-in)
+    if (page !== undefined || limit !== undefined) {
+      const pageNum = Math.max(1, parseInt(page) || 1);
+      const limitNum = Math.max(1, parseInt(limit) || 10);
+      const skipCount = (pageNum - 1) * limitNum;
+
+      // Count matching documents
+      const totalQuestions = await Question.countDocuments(filter);
+      const totalPages = Math.ceil(totalQuestions / limitNum);
+
+      // Select fields, excluding both hidden AND visible test cases for lightweight list payload
+      const questions = await Question.find(filter)
+        .select('-hiddenTestCases -visibleTestCases')
+        .populate('createdBy', 'username')
+        .skip(skipCount)
+        .limit(limitNum);
+
+      return res.json({
+        questions,
+        totalPages,
+        currentPage: pageNum,
+        totalQuestions
+      });
+    }
+
+    // Default/fallback: return unpaginated array for backward compatibility
     const questions = await Question.find(filter)
       .select('-hiddenTestCases')
       .populate('createdBy', 'username');

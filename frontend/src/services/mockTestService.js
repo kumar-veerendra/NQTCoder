@@ -4,6 +4,8 @@ const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
 const pollMockJobStatus = async (jobId) => {
   while (true) {
+    let failed = false;
+    let errorMsg = '';
     try {
       const response = await api.get(`/api/submissions/status/${jobId}`);
       const job = response.data;
@@ -13,10 +15,15 @@ const pollMockJobStatus = async (jobId) => {
       }
       
       if (job.status === 'failed') {
-        throw new Error(job.error || 'Mock test submission run failed');
+        failed = true;
+        errorMsg = job.error || 'Mock test submission run failed';
       }
     } catch (err) {
       console.warn('Temporary status polling error for mock test, retrying...', err);
+    }
+
+    if (failed) {
+      throw new Error(errorMsg);
     }
     await sleep(1000);
   }

@@ -43,6 +43,7 @@ verify_mocktest.js
 verify_tracks.js
 scratch/
 backend/test_compiler_pipeline.js
+backend/test_pagination.js
 
 # JSON data files
 *.json

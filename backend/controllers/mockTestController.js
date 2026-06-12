@@ -34,15 +34,26 @@ const runTestCases = async (question, code, language) => {
 
   const runResults = await executeCodeMulti(inputs, question.timeLimit);
 
-  if (runResults.status === 'Compilation Error') {
-    return { passedCount: 0, totalCount, errorMessage: runResults.error };
+  const hasCompilationError = Array.isArray(runResults)
+    ? runResults.some(r => r.status === 'Compilation Error')
+    : runResults.status === 'Compilation Error';
+
+  if (hasCompilationError) {
+    const compError = Array.isArray(runResults)
+      ? runResults.find(r => r.status === 'Compilation Error').error
+      : runResults.error;
+    return { passedCount: 0, totalCount, errorMessage: compError };
   }
 
   for (let i = 0; i < totalCount; i++) {
     const tc = allTestCases[i];
     const runResult = runResults[i];
 
-    if (runResult.status === 'Time Limit Exceeded' || runResult.status === 'Runtime Error') {
+    if (
+      runResult.status === 'Time Limit Exceeded' ||
+      runResult.status === 'Runtime Error' ||
+      runResult.status === 'Compilation Error'
+    ) {
       firstErrorMessage = runResult.error || runResult.status;
       break;
     }

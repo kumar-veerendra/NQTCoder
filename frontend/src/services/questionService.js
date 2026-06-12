@@ -5,6 +5,9 @@ export const getQuestions = async (filters = {}) => {
   if (filters.company) params.company = filters.company;
   if (filters.topic) params.topic = filters.topic;
   if (filters.difficulty) params.difficulty = filters.difficulty;
+  if (filters.page) params.page = filters.page;
+  if (filters.limit) params.limit = filters.limit;
+  if (filters.search) params.search = filters.search;
 
   const response = await api.get('/api/questions', { params });
   return response.data;
