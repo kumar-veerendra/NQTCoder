@@ -6,9 +6,82 @@ import * as executionService from '../services/executionService';
 import { 
   User, Award, BookOpen, Percent, Flame, CircleDot, ChevronRight, 
   Activity, Calendar, History, CheckCircle, ExternalLink, GraduationCap,
-  Settings
+  Settings, ShieldCheck, Zap, Code, Lock
 } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
+
+const calculateStreakDetails = (submissions) => {
+  if (!submissions || submissions.length === 0) {
+    return { currentStreak: 0, maxStreak: 0 };
+  }
+  
+  // Get unique dates of submissions (active activity)
+  const dates = [...new Set(submissions.map(s => new Date(s.createdAt).toDateString()))]
+    .map(d => new Date(d))
+    .sort((a, b) => b - a); // Newest first
+
+  if (dates.length === 0) return { currentStreak: 0, maxStreak: 0 };
+
+  // Calculate Current Streak
+  let currentStreak = 0;
+  const today = new Date();
+  today.setHours(0,0,0,0);
+  const yesterday = new Date(today);
+  yesterday.setDate(yesterday.getDate() - 1);
+
+  const firstDate = new Date(dates[0]);
+  firstDate.setHours(0,0,0,0);
+
+  // If last activity is older than yesterday, current streak is 0
+  if (firstDate < yesterday) {
+    currentStreak = 0;
+  } else {
+    currentStreak = 1;
+    let lastDate = firstDate;
+    for (let i = 1; i < dates.length; i++) {
+      const checkDate = new Date(dates[i]);
+      checkDate.setHours(0,0,0,0);
+      const diffTime = Math.abs(lastDate - checkDate);
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      
+      if (diffDays === 1) {
+        currentStreak++;
+        lastDate = checkDate;
+      } else if (diffDays > 1) {
+        break;
+      }
+    }
+  }
+
+  // Calculate Max Streak
+  let maxStreak = 0;
+  let tempStreak = 0;
+  let lastDate = null;
+
+  // Sort oldest first to compute max streak
+  const sortedOldest = [...dates].sort((a, b) => a - b);
+  sortedOldest.forEach(d => {
+    const currentDate = new Date(d);
+    currentDate.setHours(0,0,0,0);
+
+    if (!lastDate) {
+      tempStreak = 1;
+    } else {
+      const diffTime = Math.abs(currentDate - lastDate);
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      if (diffDays === 1) {
+        tempStreak++;
+      } else if (diffDays > 1) {
+        if (tempStreak > maxStreak) maxStreak = tempStreak;
+        tempStreak = 1;
+      }
+    }
+    lastDate = currentDate;
+  });
+  if (tempStreak > maxStreak) maxStreak = tempStreak;
+
+  return { currentStreak, maxStreak };
+};
 
 const Profile = () => {
   const { user: authUser } = useContext(AuthContext);
@@ -207,8 +280,239 @@ const Profile = () => {
   };
   const monthLabels = getMonthLabels();
 
+  const { currentStreak, maxStreak } = calculateStreakDetails(userSubmissions);
+  const solvedCountTotal = profile?.solvedQuestions?.length || 0;
+  const mockCount = mockHistory?.length || 0;
+  const proctorPerfectCount = mockHistory?.filter(m => m.tabSwitchesCount === 0 && m.status === 'completed').length || 0;
+
+  const languagesUsed = [...new Set(userSubmissions.filter(s => s.status === 'Accepted').map(s => s.language))];
+  const uniqueLangsCount = languagesUsed.length;
+
+  const bestRuntime = userSubmissions.filter(s => s.status === 'Accepted' && s.runTime !== undefined)
+    .reduce((min, s) => s.runTime < min ? s.runTime : min, Infinity);
+
+  const badges = [
+    {
+      id: 'welcome',
+      title: 'Welcome Coder',
+      subtitle: 'Account Created',
+      desc: 'Joined the NQTCoder practice platform.',
+      icon: <GraduationCap className="w-5 h-5" />,
+      isUnlocked: true,
+      color: 'from-blue-600/20 to-indigo-600/10 border-blue-500/30 text-blue-400 badge-glow-blue',
+    },
+    {
+      id: 'first_solve',
+      title: 'First Solve',
+      subtitle: 'Code Journey Begun',
+      desc: 'Successfully solved your first programming challenge.',
+      icon: <CheckCircle className="w-5 h-5" />,
+      isUnlocked: solvedCountTotal >= 1,
+      color: solvedCountTotal >= 1
+        ? 'from-emerald-600/20 to-teal-600/10 border-emerald-500/30 text-emerald-400 badge-glow-emerald'
+        : 'from-slate-800/40 to-slate-900/20 border-slate-700/30 text-slate-500 opacity-40',
+    },
+    {
+      id: 'focus_pro',
+      title: 'Focus Pro',
+      subtitle: 'Mock Competitor',
+      desc: 'Completed at least one corporate mock test simulation.',
+      icon: <Award className="w-5 h-5" />,
+      isUnlocked: mockCount >= 1,
+      color: mockCount >= 1
+        ? 'from-amber-600/20 to-orange-600/10 border-amber-500/30 text-amber-400 badge-glow-amber'
+        : 'from-slate-800/40 to-slate-900/20 border-slate-700/30 text-slate-500 opacity-40',
+    },
+    {
+      id: 'proctor_champ',
+      title: 'Cheat-Free',
+      subtitle: 'Proctor Perfect',
+      desc: 'Completed a mock test with zero proctor tab switches.',
+      icon: <ShieldCheck className="w-5 h-5" />,
+      isUnlocked: proctorPerfectCount >= 1,
+      color: proctorPerfectCount >= 1
+        ? 'from-purple-600/20 to-indigo-600/10 border-purple-500/30 text-purple-400 badge-glow-purple'
+        : 'from-slate-800/40 to-slate-900/20 border-slate-700/30 text-slate-500 opacity-40',
+    },
+    {
+      id: 'streak_7',
+      title: '7-Day Streak',
+      subtitle: 'Week Active',
+      desc: 'Maintained a coding streak for 7 consecutive days.',
+      icon: <Flame className="w-5 h-5" />,
+      isUnlocked: maxStreak >= 7,
+      color: maxStreak >= 7
+        ? 'from-orange-600/20 to-red-600/10 border-orange-500/30 text-orange-400 badge-glow-amber'
+        : 'from-slate-800/40 to-slate-900/20 border-slate-700/30 text-slate-500 opacity-40',
+    },
+    {
+      id: 'streak_50',
+      title: '50-Day Streak',
+      subtitle: 'Consistency Master',
+      desc: 'Maintained a coding streak for 50 consecutive days.',
+      icon: <Flame className="w-5 h-5" />,
+      isUnlocked: maxStreak >= 50,
+      color: maxStreak >= 50
+        ? 'from-pink-600/20 to-rose-600/10 border-pink-500/30 text-pink-400 badge-glow-rose'
+        : 'from-slate-800/40 to-slate-900/20 border-slate-700/30 text-slate-500 opacity-40',
+    },
+    {
+      id: 'streak_100',
+      title: '100-Day Streak',
+      subtitle: 'Century Solver',
+      desc: 'Maintained a coding streak for 100 consecutive days.',
+      icon: <Flame className="w-5 h-5" />,
+      isUnlocked: maxStreak >= 100,
+      color: maxStreak >= 100
+        ? 'from-sky-600/20 to-indigo-600/10 border-sky-500/30 text-sky-400 badge-glow-blue'
+        : 'from-slate-800/40 to-slate-900/20 border-slate-700/30 text-slate-500 opacity-40',
+    },
+    {
+      id: 'streak_200',
+      title: '200-Day Streak',
+      subtitle: 'Elite Solver',
+      desc: 'Maintained a coding streak for 200 consecutive days.',
+      icon: <Flame className="w-5 h-5" />,
+      isUnlocked: maxStreak >= 200,
+      color: maxStreak >= 200
+        ? 'from-amber-600/20 to-rose-600/10 border-orange-500/30 text-orange-400 badge-glow-amber'
+        : 'from-slate-800/40 to-slate-900/20 border-slate-700/30 text-slate-500 opacity-40',
+    },
+    {
+      id: 'streak_365',
+      title: '365-Day Streak',
+      subtitle: 'Legendary Coder',
+      desc: 'Maintained a coding streak for 365 consecutive days.',
+      icon: <Flame className="w-5 h-5" />,
+      isUnlocked: maxStreak >= 365,
+      color: maxStreak >= 365
+        ? 'from-violet-600/20 to-fuchsia-600/10 border-violet-500/30 text-violet-400 badge-glow-purple'
+        : 'from-slate-800/40 to-slate-900/20 border-slate-700/30 text-slate-500 opacity-40',
+    },
+    {
+      id: 'polyglot',
+      title: uniqueLangsCount >= 3 ? 'Polyglot Coder' : uniqueLangsCount === 2 ? 'Dual Coder' : 'All-Rounder',
+      subtitle: 'Languages Polyglot',
+      desc: 'Solved challenges in multiple programming languages (C++, Java, Python).',
+      icon: <Code className="w-5 h-5" />,
+      isUnlocked: uniqueLangsCount >= 2,
+      color: uniqueLangsCount >= 2
+        ? 'from-teal-600/20 to-cyan-600/10 border-teal-500/30 text-teal-400 badge-glow-emerald'
+        : 'from-slate-800/40 to-slate-900/20 border-slate-700/30 text-slate-500 opacity-40',
+    },
+    {
+      id: 'speed_coder',
+      title: bestRuntime <= 0.05 ? 'Lightning Solver' : bestRuntime <= 0.2 ? 'Speed Coder' : 'Fast Solver',
+      subtitle: 'Fast Execution',
+      desc: 'Solved a challenge with execution runtime under 200ms.',
+      icon: <Zap className="w-5 h-5" />,
+      isUnlocked: bestRuntime !== Infinity && bestRuntime <= 0.2,
+      color: (bestRuntime !== Infinity && bestRuntime <= 0.2)
+        ? 'from-rose-600/20 to-orange-600/10 border-rose-500/30 text-rose-400 badge-glow-rose'
+        : 'from-slate-800/40 to-slate-900/20 border-slate-700/30 text-slate-500 opacity-40',
+    }
+  ];
+
   return (
     <div className="max-w-6xl mx-auto px-4 py-8 bg-darkBg text-slate-100 min-h-screen">
+      <style>{`
+        @keyframes float {
+          0% { transform: translateY(0px); }
+          50% { transform: translateY(-5px); }
+          100% { transform: translateY(0px); }
+        }
+        @keyframes shine {
+          0% { background-position: -200% 0; }
+          100% { background-position: 200% 0; }
+        }
+        @keyframes pulse-slow {
+          0%, 100% { opacity: 0.8; }
+          50% { opacity: 1; }
+        }
+        .badge-card {
+          transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .badge-card:hover {
+          transform: translateY(-5px);
+          box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+        }
+        .badge-card:hover .animate-pulse-slow {
+          animation: float 2.5s ease-in-out infinite;
+        }
+        .premium-shine {
+          position: absolute;
+          inset: 0;
+          overflow: hidden;
+        }
+        .premium-shine::after {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: -150%;
+          width: 50%;
+          height: 100%;
+          background: linear-gradient(
+            to right,
+            rgba(255, 255, 255, 0) 0%,
+            rgba(255, 255, 255, 0.15) 50%,
+            rgba(255, 255, 255, 0) 100%
+          );
+          transform: skewX(-25deg);
+          transition: 0.75s;
+          pointer-events: none;
+        }
+        .badge-card:hover .premium-shine::after {
+          left: 150%;
+        }
+        .badge-glow-blue {
+          box-shadow: 0 4px 15px -3px rgba(59, 130, 246, 0.15);
+        }
+        .badge-glow-blue:hover {
+          box-shadow: 0 8px 25px -3px rgba(59, 130, 246, 0.35);
+          border-color: rgba(59, 130, 246, 0.5) !important;
+        }
+        .badge-glow-emerald {
+          box-shadow: 0 4px 15px -3px rgba(16, 185, 129, 0.15);
+        }
+        .badge-glow-emerald:hover {
+          box-shadow: 0 8px 25px -3px rgba(16, 185, 129, 0.35);
+          border-color: rgba(16, 185, 129, 0.5) !important;
+        }
+        .badge-glow-amber {
+          box-shadow: 0 4px 15px -3px rgba(245, 158, 11, 0.15);
+        }
+        .badge-glow-amber:hover {
+          box-shadow: 0 8px 25px -3px rgba(245, 158, 11, 0.35);
+          border-color: rgba(245, 158, 11, 0.5) !important;
+        }
+        .badge-glow-purple {
+          box-shadow: 0 4px 15px -3px rgba(168, 85, 247, 0.15);
+        }
+        .badge-glow-purple:hover {
+          box-shadow: 0 8px 25px -3px rgba(168, 85, 247, 0.35);
+          border-color: rgba(168, 85, 247, 0.5) !important;
+        }
+        .badge-glow-rose {
+          box-shadow: 0 4px 15px -3px rgba(244, 63, 94, 0.15);
+        }
+        .badge-glow-rose:hover {
+          box-shadow: 0 8px 25px -3px rgba(244, 63, 94, 0.35);
+          border-color: rgba(244, 63, 94, 0.5) !important;
+        }
+        .scrollbar-thin::-webkit-scrollbar {
+          width: 4px;
+        }
+        .scrollbar-thin::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        .scrollbar-thin::-webkit-scrollbar-thumb {
+          background: rgba(156, 163, 175, 0.15);
+          border-radius: 9999px;
+        }
+        .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+          background: rgba(156, 163, 175, 0.3);
+        }
+      `}</style>
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 items-start">
         
         {/* LEFT COLUMN: User Profile Summary Card */}
@@ -449,28 +753,65 @@ const Profile = () => {
                 </div>
 
                 {/* Right Side Badges */}
-                <div className="bg-darkCard border border-darkBorder rounded-lg p-5 space-y-4">
+                <div className="bg-darkCard border border-darkBorder rounded-lg p-5 space-y-4 overflow-visible">
                   <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center select-none">
                     <Award className="w-4 h-4 text-accentBlue mr-2" /> Badges & Achievements
                   </h3>
 
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="border border-darkBorder p-3 rounded bg-darkBg/30 text-center space-y-1 select-none">
-                      <div className="text-xs font-extrabold text-accentBlue">Streak Champion</div>
-                      <div className="text-[9px] text-slate-500 uppercase font-black">Active Solver</div>
-                    </div>
-                    <div className="border border-darkBorder p-3 rounded bg-darkBg/30 text-center space-y-1 select-none">
-                      <div className="text-xs font-extrabold text-amber-400">Focus Pro</div>
-                      <div className="text-[9px] text-slate-500 uppercase font-black">Mock Competitor</div>
-                    </div>
-                    <div className="border border-darkBorder p-3 rounded bg-darkBg/30 text-center space-y-1 select-none">
-                      <div className="text-xs font-extrabold text-emerald-400">All-Rounder</div>
-                      <div className="text-[9px] text-slate-500 uppercase font-black">Languages Polyglot</div>
-                    </div>
-                    <div className="border border-darkBorder p-3 rounded bg-darkBg/30 text-center space-y-1 select-none">
-                      <div className="text-xs font-extrabold text-rose-400">Fast Solver</div>
-                      <div className="text-[9px] text-slate-500 uppercase font-black">Speed Coder</div>
-                    </div>
+                  <div className="grid grid-cols-2 gap-3 overflow-visible">
+                    {badges.map((badge) => (
+                      <div 
+                        key={badge.id}
+                        className={`relative group border rounded-xl p-3 bg-gradient-to-br transition-all duration-300 flex flex-col items-center justify-center text-center select-none badge-card ${badge.color}`}
+                      >
+                        {/* Premium shimmer overlay */}
+                        <div className="premium-shine rounded-xl"></div>
+                        
+                        {/* Icon Container */}
+                        <div className={`p-2 rounded-full mb-1.5 bg-darkBg/60 border border-slate-700/50 flex items-center justify-center transition-all duration-300 group-hover:scale-110 group-hover:border-current relative z-10 ${badge.isUnlocked ? 'animate-pulse-slow' : ''}`}>
+                          {badge.icon}
+                          {!badge.isUnlocked && (
+                            <div className="absolute -bottom-1 -right-1 bg-slate-950 p-0.5 rounded-full border border-slate-800 text-slate-500 flex items-center justify-center">
+                              <Lock className="w-2 h-2" />
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Text labels */}
+                        <div className="text-[11px] font-black tracking-wide truncate max-w-full leading-tight relative z-10">
+                          {badge.title}
+                        </div>
+                        <div className="text-[8px] font-bold text-slate-500 uppercase tracking-wider truncate max-w-full mt-0.5 relative z-10">
+                          {badge.subtitle}
+                        </div>
+
+                        {/* Status Label */}
+                        <div className="mt-1 text-[8px] font-bold select-none relative z-10">
+                          {badge.isUnlocked ? (
+                            <span className="flex items-center justify-center text-emerald-400">
+                              <span className="w-1 h-1 rounded-full bg-emerald-400 animate-pulse mr-1"></span>
+                              Unlocked
+                            </span>
+                          ) : (
+                            <span className="text-slate-500 flex items-center justify-center">
+                              Locked
+                            </span>
+                          )}
+                        </div>
+
+                        {/* Premium Tooltip */}
+                        <div className="absolute z-30 bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:flex flex-col w-48 bg-slate-950/95 border border-slate-800 rounded-lg p-2.5 shadow-2xl pointer-events-none transition-all duration-200 backdrop-blur-sm text-left">
+                          <div className="flex items-center justify-between mb-1">
+                            <span className="font-extrabold text-white text-[10px] tracking-wide">{badge.title}</span>
+                            <span className={`text-[8px] px-1 py-0.2 rounded font-black uppercase ${badge.isUnlocked ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-slate-800 text-slate-500 border border-slate-700/20'}`}>
+                              {badge.isUnlocked ? 'Unlocked' : 'Locked'}
+                            </span>
+                          </div>
+                          <p className="text-[9px] text-slate-300 leading-normal font-medium">{badge.desc}</p>
+                          <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-950"></div>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </div>
               </div>
