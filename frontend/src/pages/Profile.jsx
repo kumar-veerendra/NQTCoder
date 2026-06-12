@@ -408,12 +408,12 @@ const Profile = () => {
                     <div className="space-y-1.5">
                       <div className="flex justify-between text-xs font-semibold select-none">
                         <span className="text-emerald-400">Easy</span>
-                        <span className="text-slate-300 font-mono">{profile.solvedCount?.easy || 0} Solved</span>
+                        <span className="text-slate-300 font-mono">{profile.solvedCount?.easy || 0} / {profile.difficultyTotals?.easy || 0} Solved</span>
                       </div>
                       <div className="w-full bg-darkBg border border-darkBorder h-2 rounded overflow-hidden">
                         <div 
                           className="bg-emerald-500 h-full rounded transition-all duration-500" 
-                          style={{ width: `${Math.min(((profile.solvedCount?.easy || 0) / 20) * 100, 100)}%` }}
+                          style={{ width: `${(profile.difficultyTotals?.easy || 0) > 0 ? Math.min(((profile.solvedCount?.easy || 0) / profile.difficultyTotals.easy) * 100, 100) : 0}%` }}
                         ></div>
                       </div>
                     </div>
@@ -422,12 +422,12 @@ const Profile = () => {
                     <div className="space-y-1.5">
                       <div className="flex justify-between text-xs font-semibold select-none">
                         <span className="text-amber-400">Medium</span>
-                        <span className="text-slate-300 font-mono">{profile.solvedCount?.medium || 0} Solved</span>
+                        <span className="text-slate-300 font-mono">{profile.solvedCount?.medium || 0} / {profile.difficultyTotals?.medium || 0} Solved</span>
                       </div>
                       <div className="w-full bg-darkBg border border-darkBorder h-2 rounded overflow-hidden">
                         <div 
                           className="bg-amber-500 h-full rounded transition-all duration-500" 
-                          style={{ width: `${Math.min(((profile.solvedCount?.medium || 0) / 10) * 100, 100)}%` }}
+                          style={{ width: `${(profile.difficultyTotals?.medium || 0) > 0 ? Math.min(((profile.solvedCount?.medium || 0) / profile.difficultyTotals.medium) * 100, 100) : 0}%` }}
                         ></div>
                       </div>
                     </div>
@@ -436,12 +436,12 @@ const Profile = () => {
                     <div className="space-y-1.5">
                       <div className="flex justify-between text-xs font-semibold select-none">
                         <span className="text-rose-400">Hard</span>
-                        <span className="text-slate-300 font-mono">{profile.solvedCount?.hard || 0} Solved</span>
+                        <span className="text-slate-300 font-mono">{profile.solvedCount?.hard || 0} / {profile.difficultyTotals?.hard || 0} Solved</span>
                       </div>
                       <div className="w-full bg-darkBg border border-darkBorder h-2 rounded overflow-hidden">
                         <div 
                           className="bg-rose-500 h-full rounded transition-all duration-500" 
-                          style={{ width: `${Math.min(((profile.solvedCount?.hard || 0) / 5) * 100, 100)}%` }}
+                          style={{ width: `${(profile.difficultyTotals?.hard || 0) > 0 ? Math.min(((profile.solvedCount?.hard || 0) / profile.difficultyTotals.hard) * 100, 100) : 0}%` }}
                         ></div>
                       </div>
                     </div>

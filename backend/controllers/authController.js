@@ -1,4 +1,5 @@
 import User from '../models/User.js';
+import Question from '../models/Question.js';
 import jwt from 'jsonwebtoken';
 import { OAuth2Client } from 'google-auth-library';
 import { validateRegister, validateLogin } from '../utils/validator.js';
@@ -199,6 +200,29 @@ export const googleLogin = async (req, res) => {
   }
 };
 
+const formatUserProfile = async (user) => {
+  const easyTotal = await Question.countDocuments({ difficulty: { $in: ['Easy', 'Easy-Medium'] }, status: 'active' });
+  const mediumTotal = await Question.countDocuments({ difficulty: { $in: ['Medium', 'Medium-Hard'] }, status: 'active' });
+  const hardTotal = await Question.countDocuments({ difficulty: 'Hard', status: 'active' });
+
+  const solvedEasy = user.solvedQuestions.filter(q => ['Easy', 'Easy-Medium'].includes(q.difficulty)).length;
+  const solvedMedium = user.solvedQuestions.filter(q => ['Medium', 'Medium-Hard'].includes(q.difficulty)).length;
+  const solvedHard = user.solvedQuestions.filter(q => q.difficulty === 'Hard').length;
+
+  const userObj = user.toObject();
+  userObj.solvedCount = {
+    easy: solvedEasy,
+    medium: solvedMedium,
+    hard: solvedHard
+  };
+  userObj.difficultyTotals = {
+    easy: easyTotal,
+    medium: mediumTotal,
+    hard: hardTotal
+  };
+  return userObj;
+};
+
 /**
  * @desc    Get user profile data
  * @route   GET /api/auth/profile
@@ -211,7 +235,8 @@ export const getUserProfile = async (req, res) => {
       .populate('solvedQuestions', 'title difficulty company topic');
       
     if (user) {
-      res.json(user);
+      const formatted = await formatUserProfile(user);
+      res.json(formatted);
     } else {
       res.status(404).json({ message: 'User not found' });
     }
@@ -239,7 +264,8 @@ export const updateUserProfile = async (req, res) => {
         .select('-password')
         .populate('solvedQuestions', 'title difficulty company topic');
 
-      res.json(populatedUser);
+      const formatted = await formatUserProfile(populatedUser);
+      res.json(formatted);
     } else {
       res.status(404).json({ message: 'User not found' });
     }
