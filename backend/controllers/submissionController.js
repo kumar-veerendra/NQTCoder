@@ -173,9 +173,15 @@ export const submitCode = async (req, res) => {
       let firstErrorMessage = '';
       let runTimeMax = 0;
 
-      if (runResults.status === 'Compilation Error') {
+      const hasCompilationError = Array.isArray(runResults)
+        ? runResults.some(r => r.status === 'Compilation Error')
+        : runResults.status === 'Compilation Error';
+
+      if (hasCompilationError) {
         overallVerdict = 'Compilation Error';
-        firstErrorMessage = runResults.error;
+        firstErrorMessage = Array.isArray(runResults)
+          ? runResults.find(r => r.status === 'Compilation Error').error
+          : runResults.error;
       } else {
         for (let i = 0; i < totalCount; i++) {
           const tc = allTestCases[i];
@@ -195,6 +201,12 @@ export const submitCode = async (req, res) => {
           if (runResult.status === 'Runtime Error') {
             overallVerdict = 'Runtime Error';
             firstErrorMessage = runResult.error || 'Runtime Error';
+            break;
+          }
+
+          if (runResult.status === 'Compilation Error') {
+            overallVerdict = 'Compilation Error';
+            firstErrorMessage = runResult.error || 'Compilation Error';
             break;
           }
 

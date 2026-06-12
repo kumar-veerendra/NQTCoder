@@ -295,7 +295,7 @@ const TUTORIAL_DATA = {
 const Home = () => {
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
-  const [totalQuestions, setTotalQuestions] = useState(284);
+  const [totalQuestions, setTotalQuestions] = useState(286);
   const [selectedResource, setSelectedResource] = useState(null);
   const [modalLogs, setModalLogs] = useState([]);
   const [compilationProgress, setCompilationProgress] = useState(0);

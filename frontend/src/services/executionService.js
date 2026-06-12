@@ -4,6 +4,8 @@ const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
 const pollJobStatus = async (jobId, onStatusChange) => {
   while (true) {
+    let failed = false;
+    let errorMsg = '';
     try {
       const response = await api.get(`/api/submissions/status/${jobId}`);
       const job = response.data;
@@ -13,7 +15,8 @@ const pollJobStatus = async (jobId, onStatusChange) => {
       }
       
       if (job.status === 'failed') {
-        throw new Error(job.error || 'Compilation or execution failed');
+        failed = true;
+        errorMsg = job.error || 'Compilation or execution failed';
       }
 
       if (onStatusChange) {
@@ -28,6 +31,9 @@ const pollJobStatus = async (jobId, onStatusChange) => {
       console.warn('Temporary status polling error, retrying...', err);
     }
 
+    if (failed) {
+      throw new Error(errorMsg);
+    }
     await sleep(1000);
   }
 };
