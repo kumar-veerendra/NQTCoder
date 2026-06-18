@@ -2,7 +2,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import { Link } from 'react-router-dom';
 import * as questionService from '../services/questionService';
 import { AuthContext } from '../context/AuthContext';
-import { Search, Shield, Filter, Code2, Tag, BookOpen, Layers, CheckCircle, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Search, Shield, Filter, Code2, Tag, BookOpen, Layers, CheckCircle, ChevronLeft, ChevronRight, RotateCcw } from 'lucide-react';
 
 const COMPANIES = ['TCS', 'Infosys', 'Accenture', 'Wipro', 'Cognizant', 'Capgemini', 'HCL'];
 const TOPICS = [
@@ -294,33 +294,86 @@ const CompanyDashboard = () => {
                   <ChevronLeft className="w-4 h-4" />
                 </button>
 
+                {/* Reset to Page 1 Button (IndiaBix Style) */}
+                <button
+                  onClick={() => setPage(1)}
+                  disabled={page === 1}
+                  className="p-1.5 rounded-lg border border-darkBorder hover:border-slate-600 bg-darkCard hover:bg-darkBg/60 text-slate-300 hover:text-white transition-all disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-darkCard disabled:hover:border-darkBorder"
+                  title="First Page"
+                >
+                  <RotateCcw className="w-4 h-4" />
+                </button>
+
                 {/* Page Number Buttons */}
                 {(() => {
-                  const pages = [];
-                  const maxVisible = 5;
-                  let start = Math.max(1, page - Math.floor(maxVisible / 2));
-                  let end = Math.min(totalPages, start + maxVisible - 1);
+                  const getPaginationRange = (currentPage, total) => {
+                    const siblingCount = 1;
+                    if (total <= 6) {
+                      const range = [];
+                      for (let i = 1; i <= total; i++) range.push(i);
+                      return range;
+                    }
 
-                  if (end - start + 1 < maxVisible) {
-                    start = Math.max(1, end - maxVisible + 1);
-                  }
+                    const leftSiblingIndex = Math.max(currentPage - siblingCount, 1);
+                    const rightSiblingIndex = Math.min(currentPage + siblingCount, total);
 
-                  for (let i = start; i <= end; i++) {
-                    pages.push(
+                    const showLeftDots = leftSiblingIndex > 3;
+                    const showRightDots = rightSiblingIndex < total - 2;
+
+                    if (!showLeftDots && showRightDots) {
+                      const leftItemCount = 3 + 2 * siblingCount;
+                      const range = [];
+                      for (let i = 1; i <= leftItemCount; i++) range.push(i);
+                      range.push('...');
+                      range.push(total);
+                      return range;
+                    }
+
+                    if (showLeftDots && !showRightDots) {
+                      const rightItemCount = 3 + 2 * siblingCount;
+                      const range = [1, '...'];
+                      for (let i = total - rightItemCount + 1; i <= total; i++) range.push(i);
+                      return range;
+                    }
+
+                    if (showLeftDots && showRightDots) {
+                      const range = [1, '...'];
+                      for (let i = leftSiblingIndex; i <= rightSiblingIndex; i++) range.push(i);
+                      range.push('...');
+                      range.push(total);
+                      return range;
+                    }
+                    
+                    return [];
+                  };
+
+                  const pageRange = getPaginationRange(page, totalPages);
+
+                  return pageRange.map((item, idx) => {
+                    if (item === '...') {
+                      return (
+                        <span
+                          key={`dots-${idx}`}
+                          className="min-w-8 h-8 flex items-center justify-center text-xs font-bold text-slate-500 select-none"
+                        >
+                          ...
+                        </span>
+                      );
+                    }
+                    return (
                       <button
-                        key={i}
-                        onClick={() => setPage(i)}
+                        key={item}
+                        onClick={() => setPage(item)}
                         className={`min-w-8 h-8 px-2 rounded-lg border text-xs font-black uppercase tracking-wider transition-all cursor-pointer ${
-                          page === i
+                          page === item
                             ? 'bg-accentBlue border-accentBlue text-white shadow-md shadow-accentBlue/10'
                             : 'border-darkBorder hover:border-slate-600 bg-darkCard text-slate-300 hover:text-white'
                         }`}
                       >
-                        {i}
+                        {item}
                       </button>
                     );
-                  }
-                  return pages;
+                  });
                 })()}
 
                 {/* Next Button */}
