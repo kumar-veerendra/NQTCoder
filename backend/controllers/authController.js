@@ -426,6 +426,7 @@ export const forgotPassword = async (req, res) => {
     // Option B: Generic Secure Response
     // If the user does not exist, we still return success to prevent user enumeration
     if (!user) {
+      console.log(`\n[Forgot Password] Request for UNREGISTERED email: ${email}. No email sent (Security Option B).\n`);
       return res.status(200).json({
         success: true,
         message: 'If this email is registered in our system, a password reset OTP has been sent.'
@@ -448,6 +449,38 @@ export const forgotPassword = async (req, res) => {
     res.status(200).json({
       success: true,
       message: 'If this email is registered in our system, a password reset OTP has been sent.'
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+/**
+ * @desc    Verify reset password OTP code
+ * @route   POST /api/auth/verify-reset-code
+ * @access  Public
+ */
+export const verifyResetCode = async (req, res) => {
+  const { email, code } = req.body;
+
+  if (!email || !code) {
+    return res.status(400).json({ message: 'Email and OTP code are required.' });
+  }
+
+  try {
+    const user = await User.findOne({ email });
+
+    if (!user || !user.resetPasswordCode || user.resetPasswordCode !== code) {
+      return res.status(400).json({ message: 'Invalid email or reset OTP code.' });
+    }
+
+    if (new Date() > user.resetPasswordCodeExpires) {
+      return res.status(400).json({ message: 'Reset OTP code has expired. Please request a new one.' });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'OTP code verified successfully.'
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
