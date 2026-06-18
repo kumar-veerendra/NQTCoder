@@ -14,7 +14,7 @@ import { Play, Send, ChevronLeft, Terminal, AlertTriangle, ShieldCheck, Sun, Moo
 const ProblemArena = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { user } = useContext(AuthContext);
+  const { user, refreshUser } = useContext(AuthContext);
 
   const [question, setQuestion] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -207,20 +207,7 @@ const ProblemArena = () => {
 
       if (result.status === 'Accepted') {
         if (user) {
-          if (!user.solvedQuestions) {
-            user.solvedQuestions = [];
-          }
-          if (!user.solvedQuestions.includes(id)) {
-            user.solvedQuestions.push(id);
-            if (!user.solvedCount) {
-              user.solvedCount = { easy: 0, medium: 0, hard: 0 };
-            }
-            const diff = question.difficulty.toLowerCase();
-            if (diff === 'easy') user.solvedCount.easy = (user.solvedCount.easy || 0) + 1;
-            if (diff === 'medium') user.solvedCount.medium = (user.solvedCount.medium || 0) + 1;
-            if (diff === 'hard') user.solvedCount.hard = (user.solvedCount.hard || 0) + 1;
-            localStorage.setItem('userInfo', JSON.stringify(user));
-          }
+          refreshUser();
         }
       }
     } catch (err) {

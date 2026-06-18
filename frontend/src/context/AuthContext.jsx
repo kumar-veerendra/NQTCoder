@@ -1,5 +1,7 @@
 import React, { createContext, useState, useEffect } from 'react';
 import * as authService from '../services/authService';
+import * as executionService from '../services/executionService';
+import { calculateStreakDetails } from '../utils/profileHelpers';
 
 export const AuthContext = createContext();
 
@@ -7,10 +9,49 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  const refreshUser = async (currentUser = null) => {
+    try {
+      const [profileData, submissions] = await Promise.all([
+        authService.getProfile(),
+        executionService.getUserSubmissions()
+      ]);
+      const { currentStreak, maxStreak } = calculateStreakDetails(submissions);
+      const solvedQuestionIds = (profileData.solvedQuestions || []).map(q => 
+        typeof q === 'object' ? q._id : q
+      );
+      
+      setUser(prevUser => {
+        const baseUser = currentUser || prevUser || JSON.parse(localStorage.getItem('userInfo'));
+        if (!baseUser) return null;
+        
+        const updatedUser = {
+          ...baseUser,
+          solvedQuestions: solvedQuestionIds,
+          solvedCount: profileData.solvedCount || { easy: 0, medium: 0, hard: 0 },
+          fullName: profileData.fullName || '',
+          bio: profileData.bio || '',
+          currentStreak,
+          maxStreak
+        };
+        localStorage.setItem('userInfo', JSON.stringify(updatedUser));
+        return updatedUser;
+      });
+    } catch (err) {
+      console.error('Failed to refresh user details:', err);
+    }
+  };
+
+  const updateUser = (newUserData) => {
+    setUser(newUserData);
+    localStorage.setItem('userInfo', JSON.stringify(newUserData));
+  };
+
   useEffect(() => {
     const savedUser = localStorage.getItem('userInfo');
     if (savedUser) {
-      setUser(JSON.parse(savedUser));
+      const parsed = JSON.parse(savedUser);
+      setUser(parsed);
+      refreshUser(parsed);
     }
     setLoading(false);
   }, []);
@@ -20,6 +61,7 @@ export const AuthProvider = ({ children }) => {
       const data = await authService.login(email, password);
       setUser(data);
       localStorage.setItem('userInfo', JSON.stringify(data));
+      refreshUser(data);
       return { success: true };
     } catch (error) {
       return {
@@ -37,6 +79,7 @@ export const AuthProvider = ({ children }) => {
       }
       setUser(data);
       localStorage.setItem('userInfo', JSON.stringify(data));
+      refreshUser(data);
       return { success: true };
     } catch (error) {
       return {
@@ -51,6 +94,7 @@ export const AuthProvider = ({ children }) => {
       const data = await authService.verifyEmail(email, code);
       setUser(data);
       localStorage.setItem('userInfo', JSON.stringify(data));
+      refreshUser(data);
       return { success: true };
     } catch (error) {
       return {
@@ -77,6 +121,7 @@ export const AuthProvider = ({ children }) => {
       const data = await authService.googleLogin(credential);
       setUser(data);
       localStorage.setItem('userInfo', JSON.stringify(data));
+      refreshUser(data);
       return { success: true };
     } catch (error) {
       return {
@@ -99,7 +144,9 @@ export const AuthProvider = ({ children }) => {
     verifyEmail,
     resendCode,
     loginWithGoogle,
-    logout
+    logout,
+    updateUser,
+    refreshUser
   };
 
   return (
@@ -108,3 +155,4 @@ export const AuthProvider = ({ children }) => {
     </AuthContext.Provider>
   );
 };
+

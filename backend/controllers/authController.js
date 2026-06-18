@@ -102,6 +102,10 @@ export const loginUser = async (req, res) => {
         username: user.username,
         email: user.email,
         role: user.role,
+        solvedQuestions: user.solvedQuestions || [],
+        solvedCount: user.solvedCount || { easy: 0, medium: 0, hard: 0 },
+        fullName: user.fullName || '',
+        bio: user.bio || '',
         token: generateToken(user._id)
       });
     } else {
@@ -192,6 +196,10 @@ export const googleLogin = async (req, res) => {
       username: user.username,
       email: user.email,
       role: user.role,
+      solvedQuestions: user.solvedQuestions || [],
+      solvedCount: user.solvedCount || { easy: 0, medium: 0, hard: 0 },
+      fullName: user.fullName || '',
+      bio: user.bio || '',
       token: generateToken(user._id)
     });
   } catch (error) {
@@ -320,6 +328,10 @@ export const verifyEmail = async (req, res) => {
       username: user.username,
       email: user.email,
       role: user.role,
+      solvedQuestions: user.solvedQuestions || [],
+      solvedCount: user.solvedCount || { easy: 0, medium: 0, hard: 0 },
+      fullName: user.fullName || '',
+      bio: user.bio || '',
       token: generateToken(user._id)
     });
   } catch (error) {

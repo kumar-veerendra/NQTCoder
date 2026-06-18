@@ -6,7 +6,7 @@ import * as resourceService from '../services/resourceService';
 import { 
   ArrowRight, BookOpen, CheckCircle, Flame, Target, 
   Cpu, Briefcase, FileText, Database, Server, Network, Layers,
-  AlertTriangle, X, ChevronDown, Terminal
+  AlertTriangle, X, ChevronDown, Terminal, Award
 } from 'lucide-react';
 
 const faqs = [
@@ -513,7 +513,7 @@ const Home = () => {
             <h3 className="text-2xl font-extrabold text-white">Track Your Progress</h3>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {/* Card 1: Solved Count */}
             <div className="bg-darkCard border border-darkBorder p-6 rounded-xl flex items-center justify-between shadow-lg">
               <div className="space-y-1.5">
@@ -525,19 +525,30 @@ const Home = () => {
               </div>
             </div>
 
-            {/* Card 2: Streak */}
+            {/* Card 2: Current Streak */}
             <div className="bg-darkCard border border-darkBorder p-6 rounded-xl flex items-center justify-between shadow-lg">
               <div className="space-y-1.5">
                 <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Current Streak</span>
-                <div className="text-3xl font-extrabold text-white">{user.streak || 1} Days</div>
+                <div className="text-3xl font-extrabold text-white">{user.currentStreak || 0} Days</div>
               </div>
               <div className="bg-accentBlue/10 p-3 rounded-lg border border-accentBlue/20 text-accentBlue">
                 <Flame className="w-6 h-6" />
               </div>
             </div>
 
-            {/* Card 3: Completion Percent */}
-            <div className="bg-darkCard border border-darkBorder p-6 rounded-xl space-y-4 shadow-lg">
+            {/* Card 3: Max Streak */}
+            <div className="bg-darkCard border border-darkBorder p-6 rounded-xl flex items-center justify-between shadow-lg">
+              <div className="space-y-1.5">
+                <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Max Streak</span>
+                <div className="text-3xl font-extrabold text-white">{user.maxStreak || 0} Days</div>
+              </div>
+              <div className="bg-accentBlue/10 p-3 rounded-lg border border-accentBlue/20 text-accentBlue">
+                <Award className="w-6 h-6" />
+              </div>
+            </div>
+
+            {/* Card 4: Completion Percent */}
+            <div className="bg-darkCard border border-darkBorder p-6 rounded-xl space-y-4 shadow-lg flex flex-col justify-center">
               <div className="flex justify-between items-center">
                 <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Completion Percentage</span>
                 <span className="text-xs font-black text-accentBlue">{userCompletionPercent}%</span>
