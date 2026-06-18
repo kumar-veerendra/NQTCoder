@@ -1,19 +1,76 @@
-import nodemailer from 'nodemailer';
 import axios from 'axios';
 
-let transporter;
+let cachedAccessToken = null;
+let tokenExpiryTime = 0;
 
-const getTransporter = () => {
-  if (!transporter) {
-    transporter = nodemailer.createTransport({
-      service: 'gmail',
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
-      },
-    });
+/**
+ * Get access token from Google OAuth
+ */
+const getGmailAccessToken = async () => {
+  // If token is cached and not expired (with 1 min buffer), return it
+  if (cachedAccessToken && Date.now() < tokenExpiryTime - 60000) {
+    return cachedAccessToken;
   }
-  return transporter;
+
+  const clientId = process.env.GOOGLE_GMAIL_CLIENT_ID;
+  const clientSecret = process.env.GOOGLE_GMAIL_CLIENT_SECRET;
+  const refreshToken = process.env.GOOGLE_GMAIL_REFRESH_TOKEN;
+
+  if (!clientId || !clientSecret || !refreshToken) {
+    throw new Error('Gmail API credentials missing in environment.');
+  }
+
+  const response = await axios.post('https://oauth2.googleapis.com/token', {
+    client_id: clientId,
+    client_secret: clientSecret,
+    refresh_token: refreshToken,
+    grant_type: 'refresh_token'
+  });
+
+  cachedAccessToken = response.data.access_token;
+  tokenExpiryTime = Date.now() + (response.data.expires_in * 1000);
+  return cachedAccessToken;
+};
+
+/**
+ * Send email via Google Gmail API (HTTPS)
+ */
+const sendEmailViaGmailAPI = async (to, subject, htmlContent) => {
+  const senderEmail = process.env.EMAIL_USER || 'veerendrakumartmsl@gmail.com';
+  const accessToken = await getGmailAccessToken();
+
+  const utf8Subject = `=?utf-8?B?${Buffer.from(subject).toString('base64')}?=`;
+  const messageParts = [
+    `From: NQTCoder <${senderEmail}>`,
+    `To: ${to}`,
+    `Subject: ${utf8Subject}`,
+    'MIME-Version: 1.0',
+    'Content-Type: text/html; charset=utf-8',
+    'Content-Transfer-Encoding: 7bit',
+    '',
+    htmlContent
+  ];
+  const message = messageParts.join('\n');
+
+  // Base64URL encode the message
+  const encodedMessage = Buffer.from(message)
+    .toString('base64')
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+    .replace(/=+$/, '');
+
+  const response = await axios.post(
+    'https://gmail.googleapis.com/gmail/v1/users/me/messages/send',
+    { raw: encodedMessage },
+    {
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json'
+      }
+    }
+  );
+
+  return response.data;
 };
 
 /**
@@ -22,6 +79,11 @@ const getTransporter = () => {
  * @param {string} code 
  */
 export const sendVerificationEmail = async (email, code) => {
+  console.log(`\n========================================`);
+  console.log(`[EMAIL] Registration OTP sent to: ${email}`);
+  console.log(`[EMAIL] Code: ${code}`);
+  console.log(`========================================\n`);
+
   const htmlContent = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 30px; border: 1px solid #1e293b; border-radius: 16px; background-color: #0b1329; color: #f1f5f9; text-align: left;">
         <div style="text-align: center; margin-bottom: 25px;">
@@ -40,46 +102,18 @@ export const sendVerificationEmail = async (email, code) => {
       </div>
   `;
 
-  // If Brevo API Key is present, send via HTTP API to bypass Render SMTP blocks
-  if (process.env.BREVO_API_KEY) {
-    console.log("Sending email via Brevo HTTP API...");
+  if (process.env.GOOGLE_GMAIL_CLIENT_ID) {
     try {
-      const response = await axios.post('https://api.brevo.com/v3/smtp/email', {
-        sender: {
-          name: "NQTCoder",
-          email: process.env.EMAIL_USER || "veerendrakumartmsl@gmail.com"
-        },
-        to: [
-          {
-            email: email
-          }
-        ],
-        subject: 'NQTCoder - Verify Your Email',
-        htmlContent: htmlContent
-      }, {
-        headers: {
-          'accept': 'application/json',
-          'api-key': process.env.BREVO_API_KEY,
-          'content-type': 'application/json'
-        }
-      });
-      return response.data;
+      console.log("Sending email via Gmail API...");
+      return await sendEmailViaGmailAPI(email, 'NQTCoder - Verify Your Email', htmlContent);
     } catch (apiErr) {
-      console.error("Brevo API Error Details:", apiErr.response ? apiErr.response.data : apiErr.message);
+      console.error("Gmail API Send Error:", apiErr.response ? apiErr.response.data : apiErr.message);
       throw apiErr;
     }
   }
 
-  // Fallback to local Nodemailer SMTP
-  console.log("Sending email via local Nodemailer SMTP...");
-  const mailOptions = {
-    from: `"NQTCoder" <${process.env.EMAIL_USER}>`,
-    to: email,
-    subject: 'NQTCoder - Verify Your Email',
-    html: htmlContent
-  };
-
-  return getTransporter().sendMail(mailOptions);
+  console.log("Gmail API not configured. Falling back to console log only.");
+  return { mock: true, code };
 };
 
 /**
@@ -88,6 +122,11 @@ export const sendVerificationEmail = async (email, code) => {
  * @param {string} code 
  */
 export const sendPasswordResetEmail = async (email, code) => {
+  console.log(`\n========================================`);
+  console.log(`[EMAIL] Password Reset OTP sent to: ${email}`);
+  console.log(`[EMAIL] Code: ${code}`);
+  console.log(`========================================\n`);
+
   const htmlContent = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 30px; border: 1px solid #1e293b; border-radius: 16px; background-color: #0b1329; color: #f1f5f9; text-align: left;">
         <div style="text-align: center; margin-bottom: 25px;">
@@ -106,42 +145,16 @@ export const sendPasswordResetEmail = async (email, code) => {
       </div>
   `;
 
-  if (process.env.BREVO_API_KEY) {
-    console.log("Sending email via Brevo HTTP API...");
+  if (process.env.GOOGLE_GMAIL_CLIENT_ID) {
     try {
-      const response = await axios.post('https://api.brevo.com/v3/smtp/email', {
-        sender: {
-          name: "NQTCoder",
-          email: process.env.EMAIL_USER || "veerendrakumartmsl@gmail.com"
-        },
-        to: [
-          {
-            email: email
-          }
-        ],
-        subject: 'NQTCoder - Password Reset Request',
-        htmlContent: htmlContent
-      }, {
-        headers: {
-          'accept': 'application/json',
-          'api-key': process.env.BREVO_API_KEY,
-          'content-type': 'application/json'
-        }
-      });
-      return response.data;
+      console.log("Sending email via Gmail API...");
+      return await sendEmailViaGmailAPI(email, 'NQTCoder - Password Reset Request', htmlContent);
     } catch (apiErr) {
-      console.error("Brevo API Error Details:", apiErr.response ? apiErr.response.data : apiErr.message);
+      console.error("Gmail API Send Error:", apiErr.response ? apiErr.response.data : apiErr.message);
       throw apiErr;
     }
   }
 
-  console.log("Sending email via local Nodemailer SMTP...");
-  const mailOptions = {
-    from: `"NQTCoder" <${process.env.EMAIL_USER}>`,
-    to: email,
-    subject: 'NQTCoder - Password Reset Request',
-    html: htmlContent
-  };
-
-  return getTransporter().sendMail(mailOptions);
+  console.log("Gmail API not configured. Falling back to console log only.");
+  return { mock: true, code };
 };
