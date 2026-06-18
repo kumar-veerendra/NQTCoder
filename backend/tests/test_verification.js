@@ -2,7 +2,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 import mongoose from 'mongoose';
 import axios from 'axios';
-import User from './models/User.js';
+import User from '../models/User.js';
 
 const API_URL = 'http://localhost:5000/api/auth';
 const testUsername = `tester_${Math.floor(100000 + Math.random() * 900000)}`;
