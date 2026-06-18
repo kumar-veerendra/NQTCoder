@@ -165,7 +165,7 @@ const ForgotPassword = () => {
 
   return (
     <div className="min-h-[85vh] flex items-center justify-center px-4 bg-darkBg text-slate-100">
-      <div className="glass-panel w-full max-w-md p-8 rounded-lg shadow-xl relative overflow-hidden">
+      <div className="glass-panel w-full max-w-md p-6 sm:p-8 rounded-lg shadow-xl relative overflow-hidden">
         
         {/* Background Glows */}
         <div className="absolute -top-20 -right-20 w-40 h-40 bg-accentBlue/10 rounded-full blur-2xl pointer-events-none"></div>
@@ -179,7 +179,7 @@ const ForgotPassword = () => {
                   <Key className="w-6 h-6 animate-pulse" />
                 </div>
               </div>
-              <h2 className="text-3xl font-extrabold text-white tracking-wide">Forgot Password?</h2>
+              <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-wide font-sans">Forgot Password?</h2>
               <p className="text-xs text-slate-400 leading-relaxed max-w-xs mx-auto">
                 No worries! Enter your email and we'll send you a 6-digit OTP code to reset your password.
               </p>
@@ -205,9 +205,7 @@ const ForgotPassword = () => {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="name@domain.com"
-                    className={`w-full bg-darkBg/60 border ${
-                      errors.email ? 'border-red-500' : 'border-darkBorder'
-                    } pl-10 pr-4 py-2.5 rounded-md text-sm focus:outline-none focus:border-accentBlue transition-colors text-slate-200`}
+                    className="w-full bg-darkBg/60 border border-darkBorder pl-10 pr-4 py-2.5 rounded-md text-sm focus:outline-none focus:border-accentBlue transition-colors text-slate-200"
                   />
                 </div>
                 {errors.email && <p className="text-[10px] text-red-400 mt-1 font-semibold">{errors.email}</p>}
@@ -227,7 +225,7 @@ const ForgotPassword = () => {
             </form>
 
             <div className="text-center pt-2">
-              <Link to="/login" className="inline-flex items-center text-xs text-slate-400 hover:text-slate-200 font-semibold gap-1 transition-colors font-bold">
+              <Link to="/login" className="inline-flex items-center text-xs text-slate-400 hover:text-slate-200 font-bold gap-1 transition-colors">
                 <ArrowLeft className="w-3.5 h-3.5" /> Back to Sign In
               </Link>
             </div>
@@ -245,7 +243,7 @@ const ForgotPassword = () => {
               </div>
               <h2 className="text-2xl font-extrabold text-white tracking-wide">Verify OTP</h2>
               <p className="text-xs text-slate-400 leading-relaxed max-w-xs mx-auto">
-                Please enter the 6-digit OTP code sent to <strong className="text-slate-200">{email}</strong>.
+                Please enter the 6-digit OTP code sent to <strong className="text-slate-200 break-all">{email}</strong>.
               </p>
             </div>
 
@@ -264,10 +262,10 @@ const ForgotPassword = () => {
             )}
 
             <form onSubmit={handleVerifyOtp} className="space-y-5">
-              {/* Digit Inputs Row */}
+              {/* Digit Inputs Row (Responsive width) */}
               <div className="space-y-1">
                 <label className="text-xs font-bold text-slate-400 uppercase tracking-wider block text-center mb-1">6-Digit OTP Code</label>
-                <div className="flex justify-center gap-2" onPaste={handlePasteDigit}>
+                <div className="flex justify-center gap-1.5 sm:gap-2" onPaste={handlePasteDigit}>
                   {code.map((num, idx) => (
                     <input
                       key={idx}
@@ -278,7 +276,7 @@ const ForgotPassword = () => {
                       value={num}
                       onChange={(e) => handleChangeDigit(e, idx)}
                       onKeyDown={(e) => handleKeyDownDigit(e, idx)}
-                      className="w-11 h-12 text-center text-lg font-bold bg-darkBg border border-darkBorder rounded-lg focus:outline-none focus:border-accentBlue text-slate-200 transition-colors"
+                      className="w-9 h-11 sm:w-11 sm:h-12 text-center text-base sm:text-lg font-bold bg-darkBg border border-darkBorder rounded-md sm:rounded-lg focus:outline-none focus:border-accentBlue text-slate-200 transition-colors"
                     />
                   ))}
                 </div>
@@ -302,7 +300,7 @@ const ForgotPassword = () => {
               <button
                 type="button"
                 onClick={() => setStep(1)}
-                className="inline-flex items-center text-xs text-slate-400 hover:text-slate-200 font-semibold gap-1 transition-colors cursor-pointer font-bold"
+                className="inline-flex items-center text-xs text-slate-400 hover:text-slate-200 font-bold gap-1 transition-colors cursor-pointer"
               >
                 <ArrowLeft className="w-3.5 h-3.5" /> Back to Email input
               </button>
@@ -353,9 +351,7 @@ const ForgotPassword = () => {
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
                     placeholder="••••••••"
-                    className={`w-full bg-darkBg/60 border ${
-                      errors.password ? 'border-red-500' : 'border-darkBorder'
-                    } pl-10 pr-10 py-2.5 rounded-md text-sm focus:outline-none focus:border-accentBlue transition-colors text-slate-200`}
+                    className="w-full bg-darkBg/60 border border-darkBorder pl-10 pr-10 py-2.5 rounded-md text-sm focus:outline-none focus:border-accentBlue transition-colors text-slate-200"
                   />
                   <button
                     type="button"
@@ -381,9 +377,7 @@ const ForgotPassword = () => {
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     placeholder="••••••••"
-                    className={`w-full bg-darkBg/60 border ${
-                      errors.confirmPassword ? 'border-red-500' : 'border-darkBorder'
-                    } pl-10 pr-10 py-2.5 rounded-md text-sm focus:outline-none focus:border-accentBlue transition-colors text-slate-200`}
+                    className="w-full bg-darkBg/60 border border-darkBorder pl-10 pr-10 py-2.5 rounded-md text-sm focus:outline-none focus:border-accentBlue transition-colors text-slate-200"
                   />
                   <button
                     type="button"

@@ -426,6 +426,7 @@ export const forgotPassword = async (req, res) => {
     // Option B: Generic Secure Response
     // If the user does not exist, we still return success to prevent user enumeration
     if (!user) {
+      console.log(`\n[Forgot Password] Request for UNREGISTERED email: ${email}. No email sent (Security Option B).\n`);
       return res.status(200).json({
         success: true,
         message: 'If this email is registered in our system, a password reset OTP has been sent.'
