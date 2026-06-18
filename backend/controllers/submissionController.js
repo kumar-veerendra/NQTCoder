@@ -25,7 +25,7 @@ const normalizeText = (text) => {
  * Helper to execute code on either local runner or Judge0
  */
 const executeCode = async (code, language, input, timeLimit) => {
-  const mode = process.env.RUN_MODE || 'local';
+  const mode = process.env.RUN_MODE || (process.env.NODE_ENV === 'production' ? 'judge0' : 'local');
   if (mode === 'judge0') {
     return await runJudge0Code(code, language, input, timeLimit);
   } else {
@@ -34,7 +34,7 @@ const executeCode = async (code, language, input, timeLimit) => {
 };
 
 const executeCodeMulti = async (code, language, inputs, timeLimit) => {
-  const mode = process.env.RUN_MODE || 'local';
+  const mode = process.env.RUN_MODE || (process.env.NODE_ENV === 'production' ? 'judge0' : 'local');
   if (mode === 'judge0') {
     const promises = inputs.map(input => runJudge0Code(code, language, input, timeLimit));
     return await Promise.all(promises);
