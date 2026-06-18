@@ -455,6 +455,38 @@ export const forgotPassword = async (req, res) => {
 };
 
 /**
+ * @desc    Verify reset password OTP code
+ * @route   POST /api/auth/verify-reset-code
+ * @access  Public
+ */
+export const verifyResetCode = async (req, res) => {
+  const { email, code } = req.body;
+
+  if (!email || !code) {
+    return res.status(400).json({ message: 'Email and OTP code are required.' });
+  }
+
+  try {
+    const user = await User.findOne({ email });
+
+    if (!user || !user.resetPasswordCode || user.resetPasswordCode !== code) {
+      return res.status(400).json({ message: 'Invalid email or reset OTP code.' });
+    }
+
+    if (new Date() > user.resetPasswordCodeExpires) {
+      return res.status(400).json({ message: 'Reset OTP code has expired. Please request a new one.' });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'OTP code verified successfully.'
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+/**
  * @desc    Reset password using OTP code
  * @route   POST /api/auth/reset-password
  * @access  Public

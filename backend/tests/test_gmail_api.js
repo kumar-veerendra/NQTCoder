@@ -1,6 +1,6 @@
 import dotenv from 'dotenv';
 dotenv.config();
-import { sendVerificationEmail, sendPasswordResetEmail } from './utils/email.js';
+import { sendVerificationEmail, sendPasswordResetEmail } from '../utils/email.js';
 
 const testAllEmails = async () => {
   const email = 'veerendrakumartmsl@gmail.com';

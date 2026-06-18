@@ -45,6 +45,11 @@ export const forgotPassword = async (email) => {
   return response.data;
 };
 
+export const verifyResetCode = async (email, code) => {
+  const response = await api.post('/api/auth/verify-reset-code', { email, code });
+  return response.data;
+};
+
 export const resetPassword = async (email, code, newPassword) => {
   const response = await api.post('/api/auth/reset-password', { email, code, newPassword });
   return response.data;
