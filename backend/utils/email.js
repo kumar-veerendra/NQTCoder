@@ -81,3 +81,67 @@ export const sendVerificationEmail = async (email, code) => {
 
   return getTransporter().sendMail(mailOptions);
 };
+
+/**
+ * Send 6-digit OTP password reset email to user
+ * @param {string} email 
+ * @param {string} code 
+ */
+export const sendPasswordResetEmail = async (email, code) => {
+  const htmlContent = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 30px; border: 1px solid #1e293b; border-radius: 16px; background-color: #0b1329; color: #f1f5f9; text-align: left;">
+        <div style="text-align: center; margin-bottom: 25px;">
+          <h2 style="color: #38bdf8; margin: 0; font-size: 24px; font-weight: 800; letter-spacing: 0.5px;">NQTCoder</h2>
+          <p style="font-size: 13px; color: #94a3b8; margin: 5px 0 0 0; font-weight: 600; text-transform: uppercase; letter-spacing: 1.5px;">Placement Preparation Arena</p>
+        </div>
+        <div style="border-top: 1px solid #1e293b; margin-bottom: 25px;"></div>
+        <p style="font-size: 15px; line-height: 1.6; color: #cbd5e1; font-weight: 500;">Hello,</p>
+        <p style="font-size: 15px; line-height: 1.6; color: #cbd5e1; font-weight: 500;">We received a request to reset the password for your NQTCoder account. Please use the following 6-digit One-Time Password (OTP) to complete the reset process:</p>
+        <div style="text-align: center; margin: 35px 0;">
+          <span style="font-family: 'Courier New', Courier, monospace; font-size: 36px; font-weight: 800; letter-spacing: 8px; color: #ffffff; background-color: #0f172a; padding: 15px 35px; border-radius: 12px; border: 1px solid #38bdf8; display: inline-block; box-shadow: 0 4px 12px rgba(56, 189, 248, 0.15);">${code}</span>
+        </div>
+        <p style="font-size: 13px; color: #94a3b8; line-height: 1.6;">This code is valid for <strong>10 minutes</strong>. If you did not request a password reset, you can safely ignore this email.</p>
+        <div style="border-top: 1px solid #1e293b; margin-top: 35px; margin-bottom: 20px;"></div>
+        <p style="font-size: 11px; color: #64748b; text-align: center; margin: 0; font-weight: 500;">&copy; 2026 NQTCoder. All rights reserved.</p>
+      </div>
+  `;
+
+  if (process.env.BREVO_API_KEY) {
+    console.log("Sending email via Brevo HTTP API...");
+    try {
+      const response = await axios.post('https://api.brevo.com/v3/smtp/email', {
+        sender: {
+          name: "NQTCoder",
+          email: process.env.EMAIL_USER || "veerendrakumartmsl@gmail.com"
+        },
+        to: [
+          {
+            email: email
+          }
+        ],
+        subject: 'NQTCoder - Password Reset Request',
+        htmlContent: htmlContent
+      }, {
+        headers: {
+          'accept': 'application/json',
+          'api-key': process.env.BREVO_API_KEY,
+          'content-type': 'application/json'
+        }
+      });
+      return response.data;
+    } catch (apiErr) {
+      console.error("Brevo API Error Details:", apiErr.response ? apiErr.response.data : apiErr.message);
+      throw apiErr;
+    }
+  }
+
+  console.log("Sending email via local Nodemailer SMTP...");
+  const mailOptions = {
+    from: `"NQTCoder" <${process.env.EMAIL_USER}>`,
+    to: email,
+    subject: 'NQTCoder - Password Reset Request',
+    html: htmlContent
+  };
+
+  return getTransporter().sendMail(mailOptions);
+};
