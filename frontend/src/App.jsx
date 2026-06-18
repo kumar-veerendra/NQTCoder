@@ -30,13 +30,14 @@ import AboutContact from './pages/AboutContact';
 import Resources from './pages/Resources';
 import CompilerSetup from './pages/CompilerSetup';
 import VerifyEmail from './pages/VerifyEmail';
+import ForgotPassword from './pages/ForgotPassword';
 
 const Layout = ({ children }) => {
   const location = useLocation();
   const { user } = useContext(AuthContext);
 
   // Hide navbar on login, register, verify-email, problem arena, and mocktest arena pages
-  const hideNavbar = ['/login', '/register', '/verify-email'].includes(location.pathname) || location.pathname.startsWith('/problem/') || location.pathname.startsWith('/mocktest/arena/');
+  const hideNavbar = ['/login', '/register', '/verify-email', '/forgot-password'].includes(location.pathname) || location.pathname.startsWith('/problem/') || location.pathname.startsWith('/mocktest/arena/');
 
   // Show footer only on the Home page
   const hideFooter = location.pathname !== '/';
@@ -61,6 +62,7 @@ const AppContent = () => {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/verify-email" element={<VerifyEmail />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/about" element={<AboutContact />} />
         <Route path="/contact" element={<AboutContact />} />
         <Route path="/compiler-setup" element={<CompilerSetup />} />

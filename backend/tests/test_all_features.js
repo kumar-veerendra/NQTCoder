@@ -2,8 +2,8 @@ import dotenv from 'dotenv';
 dotenv.config();
 import mongoose from 'mongoose';
 import axios from 'axios';
-import User from './models/User.js';
-import Question from './models/Question.js';
+import User from '../models/User.js';
+import Question from '../models/Question.js';
 
 const BASE_URL = 'http://localhost:5000/api';
 const testUsername = `e2e_tester_${Math.floor(100000 + Math.random() * 900000)}`;

@@ -34,6 +34,12 @@ const userSchema = new mongoose.Schema({
   verificationCodeExpires: {
     type: Date
   },
+  resetPasswordCode: {
+    type: String
+  },
+  resetPasswordCodeExpires: {
+    type: Date
+  },
   solvedQuestions: [{ 
     type: mongoose.Schema.Types.ObjectId, 
     ref: 'Question' 

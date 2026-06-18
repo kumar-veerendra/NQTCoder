@@ -7,7 +7,9 @@ import {
   updateUserProfile,
   verifyEmail,
   resendVerificationCode,
-  checkUsername
+  checkUsername,
+  forgotPassword,
+  resetPassword
 } from '../controllers/authController.js';
 import { protect } from '../middleware/authMiddleware.js';
 
@@ -19,6 +21,8 @@ router.post('/google', googleLogin);
 router.post('/verify', verifyEmail);
 router.post('/resend-code', resendVerificationCode);
 router.get('/check-username', checkUsername);
+router.post('/forgot-password', forgotPassword);
+router.post('/reset-password', resetPassword);
 router.get('/profile', protect, getUserProfile);
 router.put('/profile', protect, updateUserProfile);
 

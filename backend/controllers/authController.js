@@ -3,7 +3,7 @@ import Question from '../models/Question.js';
 import jwt from 'jsonwebtoken';
 import { OAuth2Client } from 'google-auth-library';
 import { validateRegister, validateLogin } from '../utils/validator.js';
-import { sendVerificationEmail } from '../utils/email.js';
+import { sendVerificationEmail, sendPasswordResetEmail } from '../utils/email.js';
 
 // Initialize Google OAuth2 Client
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
@@ -403,6 +403,98 @@ export const checkUsername = async (req, res) => {
     }
 
     return res.json({ available: true });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+/**
+ * @desc    Request password reset OTP code (Forgot Password)
+ * @route   POST /api/auth/forgot-password
+ * @access  Public
+ */
+export const forgotPassword = async (req, res) => {
+  const { email } = req.body;
+
+  if (!email) {
+    return res.status(400).json({ message: 'Email is required.' });
+  }
+
+  try {
+    const user = await User.findOne({ email });
+
+    // Option B: Generic Secure Response
+    // If the user does not exist, we still return success to prevent user enumeration
+    if (!user) {
+      return res.status(200).json({
+        success: true,
+        message: 'If this email is registered in our system, a password reset OTP has been sent.'
+      });
+    }
+
+    // Generate 6-digit code
+    const resetCode = Math.floor(100000 + Math.random() * 900000).toString();
+    const resetCodeExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+
+    user.resetPasswordCode = resetCode;
+    user.resetPasswordCodeExpires = resetCodeExpires;
+    await user.save();
+
+    // Send email (async in background)
+    sendPasswordResetEmail(user.email, resetCode).catch((emailErr) => {
+      console.error('Failed to send password reset email:', emailErr.message);
+    });
+
+    res.status(200).json({
+      success: true,
+      message: 'If this email is registered in our system, a password reset OTP has been sent.'
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+/**
+ * @desc    Reset password using OTP code
+ * @route   POST /api/auth/reset-password
+ * @access  Public
+ */
+export const resetPassword = async (req, res) => {
+  const { email, code, newPassword } = req.body;
+
+  if (!email || !code || !newPassword) {
+    return res.status(400).json({ message: 'Email, OTP code, and new password are required.' });
+  }
+
+  if (newPassword.length < 6) {
+    return res.status(400).json({ message: 'Password must be at least 6 characters long.' });
+  }
+
+  try {
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(400).json({ message: 'Invalid email or reset OTP code.' });
+    }
+
+    if (!user.resetPasswordCode || user.resetPasswordCode !== code) {
+      return res.status(400).json({ message: 'Invalid email or reset OTP code.' });
+    }
+
+    if (new Date() > user.resetPasswordCodeExpires) {
+      return res.status(400).json({ message: 'Reset OTP code has expired. Please request a new one.' });
+    }
+
+    // Update password
+    user.password = newPassword;
+    user.resetPasswordCode = undefined;
+    user.resetPasswordCodeExpires = undefined;
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: 'Password has been reset successfully! You can now log in with your new password.'
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

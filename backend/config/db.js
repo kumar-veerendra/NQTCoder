@@ -47,11 +47,28 @@ const seedAdmin = async () => {
 };
 
 const connectDB = async () => {
+  const primaryURI = process.env.MONGO_URI;
+  const fallbackURI = 'mongodb://127.0.0.1:27017/nqtcoder';
+
+  if (primaryURI) {
+    try {
+      console.log('Attempting primary database connection (Atlas)...');
+      // Set serverSelectionTimeoutMS to 3000ms (3s) to detect offline states quickly
+      const conn = await mongoose.connect(primaryURI, {
+        serverSelectionTimeoutMS: 3000
+      });
+      console.log(`MongoDB Connected (Primary): ${conn.connection.host}`);
+      await seedAdmin();
+      return;
+    } catch (error) {
+      console.warn(`Primary Database connection failed (${error.message}). Trying fallback local database...`);
+    }
+  }
+
   try {
-    const conn = await mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/nqtcoder');
-    console.log(`MongoDB Connected: ${conn.connection.host}`);
-    
-    // Seed default admin account
+    console.log('Connecting to local fallback database...');
+    const conn = await mongoose.connect(fallbackURI);
+    console.log(`MongoDB Connected (Local Fallback): ${conn.connection.host}`);
     await seedAdmin();
   } catch (error) {
     console.error(`Database Connection Error: ${error.message}`);
