@@ -14,7 +14,10 @@
     "test:e2e": "node tests/test_all_features.js",
     "test:leaderboard": "node tests/test_leaderboard.js",
     "test:security": "node tests/test_security.js",
-    "test:mocktest": "node tests/test_mocktest.js"
+    "test:mocktest": "node tests/test_mocktest.js",
+    "test:feedback": "node tests/test_feedback.js",
+    "test:resources": "node tests/test_resources.js",
+    "test:tracks": "node tests/test_tracks.js"
   },
   "dependencies": {
     "axios": "^1.7.2",
