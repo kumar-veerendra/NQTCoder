@@ -514,7 +514,7 @@ const Home = () => {
 
         <div className="flex flex-col sm:flex-row gap-4 mt-6 w-full sm:w-auto">
           <Link
-            to={user ? "/practice" : "/register"}
+            to="/practice"
             className="bg-accentBtn hover:bg-accentBtnHover text-white font-bold text-xs uppercase tracking-wider px-8 py-3.5 rounded-lg transition-all shadow-md shadow-accentBtn/15 text-center flex items-center justify-center space-x-2"
           >
             <span>Start Practicing</span>
@@ -896,7 +896,7 @@ const Home = () => {
         </p>
         <div className="flex flex-col sm:flex-row gap-4 mt-8 w-full sm:w-auto">
           <Link
-            to={user ? "/practice" : "/register"}
+            to="/practice"
             className="bg-accentBtn hover:bg-accentBtnHover text-white font-bold text-xs uppercase tracking-wider px-8 py-3.5 rounded-lg transition-all shadow-md shadow-accentBtn/10"
           >
             Practice Now
