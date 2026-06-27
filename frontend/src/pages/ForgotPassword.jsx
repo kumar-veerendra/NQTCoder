@@ -214,7 +214,7 @@ const ForgotPassword = () => {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full bg-accentBlue hover:bg-accentBlue/90 text-white py-2.5 rounded-md text-sm font-semibold tracking-wide flex items-center justify-center space-x-2 transition-all disabled:opacity-50 cursor-pointer"
+                className="w-full bg-accentBtn hover:bg-accentBtnHover text-white py-2.5 rounded-md text-sm font-semibold tracking-wide flex items-center justify-center space-x-2 transition-all disabled:opacity-50 cursor-pointer"
               >
                 {isSubmitting ? (
                   <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white"></div>
@@ -286,7 +286,7 @@ const ForgotPassword = () => {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full bg-accentBlue hover:bg-accentBlue/90 text-white py-2.5 rounded-md text-sm font-semibold tracking-wide flex items-center justify-center space-x-2 transition-all disabled:opacity-50 cursor-pointer"
+                className="w-full bg-accentBtn hover:bg-accentBtnHover text-white py-2.5 rounded-md text-sm font-semibold tracking-wide flex items-center justify-center space-x-2 transition-all disabled:opacity-50 cursor-pointer"
               >
                 {isSubmitting ? (
                   <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white"></div>
@@ -393,7 +393,7 @@ const ForgotPassword = () => {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full bg-accentBlue hover:bg-accentBlue/90 text-white py-2.5 rounded-md text-sm font-semibold tracking-wide flex items-center justify-center space-x-2 transition-all disabled:opacity-50 cursor-pointer"
+                className="w-full bg-accentBtn hover:bg-accentBtnHover text-white py-2.5 rounded-md text-sm font-semibold tracking-wide flex items-center justify-center space-x-2 transition-all disabled:opacity-50 cursor-pointer"
               >
                 {isSubmitting ? (
                   <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white"></div>

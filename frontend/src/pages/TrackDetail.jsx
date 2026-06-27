@@ -34,15 +34,15 @@ const TrackDetail = () => {
     }
   };
 
-  const handleSolveQuestion = async (qId) => {
+  const handleSolveQuestion = async (q) => {
     try {
       // Record access tracking
-      await trackService.updateTrackLastAccessed(id, qId);
-      navigate(`/problem/${qId}`);
+      await trackService.updateTrackLastAccessed(id, q._id);
+      navigate(`/problem/${q.slug || q._id}`);
     } catch (err) {
       console.error('Failed to log last accessed question', err);
       // Navigate anyway to not block user
-      navigate(`/problem/${qId}`);
+      navigate(`/problem/${q.slug || q._id}`);
     }
   };
 
@@ -213,7 +213,7 @@ const TrackDetail = () => {
 
                 {/* Solve Action Button */}
                 <button
-                  onClick={() => handleSolveQuestion(question._id)}
+                  onClick={() => handleSolveQuestion(question)}
                   className={`shrink-0 ml-4 px-3 py-1.5 rounded-md text-xs font-bold uppercase tracking-wider flex items-center space-x-1 transition-colors ${
                     question.solved
                       ? 'bg-darkBg hover:bg-darkCard text-slate-300 border border-darkBorder'

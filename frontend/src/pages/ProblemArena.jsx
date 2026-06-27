@@ -9,7 +9,8 @@ import ProblemDescription from '../components/ProblemDescription';
 import CodeEditor from '../components/CodeEditor';
 import Console from '../components/Console';
 import Timer from '../components/Timer';
-import { Play, Send, ChevronLeft, Terminal, AlertTriangle, ShieldCheck, Sun, Moon, CheckCircle2, Search, Users, Zap } from 'lucide-react';
+import AuthModal from '../components/AuthModal';
+import { Play, Send, ChevronLeft, Terminal, AlertTriangle, ShieldCheck, Sun, Moon, CheckCircle2, Search, Users, Zap, X } from 'lucide-react';
 
 const ProblemArena = () => {
   const { id } = useParams();
@@ -28,6 +29,17 @@ const ProblemArena = () => {
   const [code, setCode] = useState('');
   const [fontSize, setFontSize] = useState(14);
   const [isLocked, setIsLocked] = useState(false);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [authModalMode, setAuthModalMode] = useState('run'); // 'run' | 'submit'
+  const [toast, setToast] = useState(null);
+  const [isGuestBannerDismissed, setIsGuestBannerDismissed] = useState(
+    sessionStorage.getItem('nqt_guest_banner_dismissed') === 'true'
+  );
+
+  const handleDismissGuestBanner = () => {
+    sessionStorage.setItem('nqt_guest_banner_dismissed', 'true');
+    setIsGuestBannerDismissed(true);
+  };
 
   // Console states
   const [customInput, setCustomInput] = useState('');
@@ -97,7 +109,7 @@ const ProblemArena = () => {
     if (window.confirm(`Do you want to switch to "${q.title}"? Your active coding progress for the current question will be lost.`)) {
       setShowDropdown(false);
       setSearchQuery('');
-      navigate(`/problem/${q._id}`);
+      navigate(`/problem/${q.slug || q._id}`);
     }
   };
 
@@ -119,6 +131,43 @@ const ProblemArena = () => {
     fetchQuestionDetails();
     fetchCompilerStatus();
   }, [id]);
+
+  // Restore guest code if redirected back from login
+  useEffect(() => {
+    if (!question) return;
+
+    const guestCode = sessionStorage.getItem('guest_code');
+    const guestLanguage = sessionStorage.getItem('guest_language');
+    const guestProblemId = sessionStorage.getItem('guest_problem_id');
+
+    const clearGuestSession = () => {
+      sessionStorage.removeItem('guest_code');
+      sessionStorage.removeItem('guest_language');
+      sessionStorage.removeItem('guest_problem_id');
+      sessionStorage.removeItem('guest_redirect_url');
+    };
+
+    if (guestCode || guestLanguage || guestProblemId) {
+      const isLangSupported = question.languagesSupported && question.languagesSupported.includes(guestLanguage);
+      const isProblemMatch = guestProblemId === id;
+
+      if (guestCode && guestCode.trim() !== '' && isLangSupported && isProblemMatch) {
+        setCode(guestCode);
+        setLanguage(guestLanguage);
+        localStorage.setItem('nqtcoder_selected_language', guestLanguage);
+        
+        // Show success toast
+        setToast('Welcome back! Your code is ready to continue.');
+        const timer = setTimeout(() => setToast(null), 4000);
+        
+        clearGuestSession();
+        return () => clearTimeout(timer);
+      } else {
+        // Validation failed - clear silently
+        clearGuestSession();
+      }
+    }
+  }, [id, question]);
 
   // Poll server load every 8 seconds
   useEffect(() => {
@@ -156,6 +205,16 @@ const ProblemArena = () => {
   };
 
   const handleRunCode = async () => {
+    if (!user) {
+      if (isAuthModalOpen) return;
+      sessionStorage.setItem('guest_code', code);
+      sessionStorage.setItem('guest_language', language);
+      sessionStorage.setItem('guest_problem_id', id);
+      sessionStorage.setItem('guest_redirect_url', window.location.pathname);
+      setAuthModalMode('run');
+      setIsAuthModalOpen(true);
+      return;
+    }
     if (!code.trim()) return;
     setIsExecuting(true);
     setConsoleTab('output');
@@ -196,6 +255,16 @@ const ProblemArena = () => {
   };
 
   const handleSubmitCode = async () => {
+    if (!user) {
+      if (isAuthModalOpen) return;
+      sessionStorage.setItem('guest_code', code);
+      sessionStorage.setItem('guest_language', language);
+      sessionStorage.setItem('guest_problem_id', id);
+      sessionStorage.setItem('guest_redirect_url', window.location.pathname);
+      setAuthModalMode('submit');
+      setIsAuthModalOpen(true);
+      return;
+    }
     if (!code.trim()) return;
     setIsExecuting(true);
     setConsoleTab('output');
@@ -485,6 +554,30 @@ const ProblemArena = () => {
 
       </div>
 
+      {/* Guest Mode Banner */}
+      {!user && !isGuestBannerDismissed && (
+        <div className="bg-[#1e1b4b]/80 border-b border-amber-500/20 text-amber-300 px-4 py-2.5 text-xs flex items-center justify-between gap-4 select-none animate-fadeIn shrink-0">
+          <div className="flex items-center gap-2">
+            <span className="bg-amber-500/20 border border-amber-500/30 text-amber-400 px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider shrink-0">Guest Mode</span>
+            <span>You're exploring NQTCoder. Sign in to run code, submit solutions, and save your progress.</span>
+          </div>
+          <div className="flex items-center gap-3 shrink-0">
+            <button 
+              onClick={() => { if (!isAuthModalOpen) setIsAuthModalOpen(true); }} 
+              className="text-accentBlue hover:text-accentBlue/90 font-black uppercase tracking-wider text-[10px] transition-colors cursor-pointer"
+            >
+              Sign In
+            </button>
+            <button 
+              onClick={handleDismissGuestBanner} 
+              className="text-slate-400 hover:text-slate-200 font-bold text-[10px] uppercase transition-colors cursor-pointer"
+            >
+              Continue Exploring
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Mobile Tab Bar */}
       <div className="flex md:hidden bg-darkCard border-b border-darkBorder p-1.5 justify-around z-10 shrink-0 select-none">
         <button
@@ -614,6 +707,30 @@ const ProblemArena = () => {
         </div>
 
       </div>
+
+      {/* Toast Notification */}
+      {toast && (
+        <div className="fixed z-[9999] bg-[#0b1329] border border-emerald-500/30 text-emerald-400 px-4 py-3 rounded-xl shadow-2xl flex items-center justify-between gap-3 select-none animate-fadeIn font-sans text-xs font-bold
+          top-5 left-1/2 -translate-x-1/2 md:top-auto md:left-auto md:translate-x-0 md:bottom-5 md:right-5 shrink-0"
+        >
+          <div className="flex items-center gap-2">
+            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+            <span>{toast}</span>
+          </div>
+          <button 
+            onClick={() => setToast(null)}
+            className="text-slate-400 hover:text-white transition-colors cursor-pointer shrink-0"
+          >
+            <X className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      )}
+
+      <AuthModal 
+        isOpen={isAuthModalOpen} 
+        onClose={() => setIsAuthModalOpen(false)} 
+        mode={authModalMode}
+      />
 
     </div>
   );

@@ -71,7 +71,11 @@ export const getQuestions = async (req, res) => {
  */
 export const getQuestionById = async (req, res) => {
   try {
-    const question = await Question.findById(req.params.id);
+    let question = await Question.findOne({ slug: req.params.id });
+
+    if (!question && /^[0-9a-fA-F]{24}$/.test(req.params.id)) {
+      question = await Question.findById(req.params.id);
+    }
 
     if (!question) {
       return res.status(404).json({ message: 'Question not found' });

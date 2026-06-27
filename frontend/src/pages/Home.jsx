@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import * as questionService from '../services/questionService';
@@ -8,6 +8,39 @@ import {
   Cpu, Briefcase, FileText, Database, Server, Network, Layers,
   AlertTriangle, X, ChevronDown, Terminal, Award
 } from 'lucide-react';
+
+// ── Count-up animation hook ──────────────────────────────────────────────────
+const useCountUp = (target, duration = 1800) => {
+  const [count, setCount] = useState(0);
+  const frameRef = useRef(null);
+  const startTimeRef = useRef(null);
+
+  useEffect(() => {
+    if (target === 0) return;
+    // Ease-out cubic: starts fast, slows near the end
+    const easeOut = (t) => 1 - Math.pow(1 - t, 3);
+
+    const animate = (timestamp) => {
+      if (!startTimeRef.current) startTimeRef.current = timestamp;
+      const elapsed = timestamp - startTimeRef.current;
+      const progress = Math.min(elapsed / duration, 1);
+      setCount(Math.floor(easeOut(progress) * target));
+      if (progress < 1) {
+        frameRef.current = requestAnimationFrame(animate);
+      } else {
+        setCount(target);
+      }
+    };
+
+    frameRef.current = requestAnimationFrame(animate);
+    return () => {
+      if (frameRef.current) cancelAnimationFrame(frameRef.current);
+      startTimeRef.current = null;
+    };
+  }, [target, duration]);
+
+  return count;
+};
 
 const faqs = [
   {
@@ -34,15 +67,15 @@ const faqs = [
   },
   {
     category: 'Code Execution',
-    color: 'text-emerald-400',
+    color: 'text-accentBlue',
     items: [
       {
         q: 'Which programming languages are supported?',
-        a: 'The platform supports C++ (GCC), Java 8, and Python 3. You can switch languages from the dropdown inside the Problem Arena. The editor remembers your last-used language across sessions.'
+        a: 'The platform supports C++ (GCC), Java 11, and Python 3. You can switch languages from the dropdown inside the Problem Arena. The editor remembers your last-used language across sessions.'
       },
       {
         q: 'Why does my code show a "System Error" or compiler not found warning?',
-        a: 'NQTCoder runs code locally on the server using native compilers. If the server does not have the required compiler installed, you will see a [System Error] banner. The banner includes download links for GCC (via MSYS2 MinGW for C++), Adoptium JDK 8 (for Java), and Python 3. Contact the platform admin if the server-side compilers are missing.'
+        a: 'NQTCoder runs code locally on the server using native compilers. If the server does not have the required compiler installed, you will see a [System Error] banner. The banner includes download links for GCC (via MSYS2 MinGW for C++), Adoptium JDK 11 (for Java), and Python 3. Contact the platform admin if the server-side compilers are missing.'
       },
       {
         q: 'My code is correct but the verdict shows Wrong Answer — why?',
@@ -56,7 +89,7 @@ const faqs = [
   },
   {
     category: 'Mock Tests',
-    color: 'text-amber-400',
+    color: 'text-accentBlue',
     items: [
       {
         q: 'How do Mock Tests work?',
@@ -74,7 +107,7 @@ const faqs = [
   },
   {
     category: 'Profile & Activity',
-    color: 'text-rose-400',
+    color: 'text-accentBlue',
     items: [
       {
         q: 'What does the Activity Calendar on my profile show?',
@@ -88,7 +121,7 @@ const faqs = [
   },
   {
     category: 'Platform & Resources',
-    color: 'text-purple-400',
+    color: 'text-accentBlue',
     items: [
       {
         q: 'Are the study resources (SQL Notes, DBMS, OS etc.) free?',
@@ -295,7 +328,7 @@ const TUTORIAL_DATA = {
 const Home = () => {
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
-  const [totalQuestions, setTotalQuestions] = useState(286);
+  const [totalQuestions, setTotalQuestions] = useState(290);
   const [selectedResource, setSelectedResource] = useState(null);
   const [modalLogs, setModalLogs] = useState([]);
   const [compilationProgress, setCompilationProgress] = useState(0);
@@ -393,10 +426,14 @@ const Home = () => {
     });
   }, []);
 
+  const animatedQuestions = useCountUp(totalQuestions, 1600);
+  const animatedCompanies = useCountUp(15, 1200);
+  const animatedTopics   = useCountUp(12, 1000);
+
   const stats = [
-    { label: 'Total Questions', value: `${totalQuestions}+` },
-    { label: 'Companies Covered', value: '15+' },
-    { label: 'Topics Covered', value: '12+' }
+    { label: 'Total Questions', animated: animatedQuestions, suffix: '+' },
+    { label: 'Companies Covered', animated: animatedCompanies, suffix: '+' },
+    { label: 'Topics Covered', animated: animatedTopics, suffix: '+' }
   ];
 
   const companies = [
@@ -478,7 +515,7 @@ const Home = () => {
         <div className="flex flex-col sm:flex-row gap-4 mt-6 w-full sm:w-auto">
           <Link
             to={user ? "/practice" : "/register"}
-            className="bg-accentBlue hover:bg-accentBlue/95 text-white font-bold text-xs uppercase tracking-wider px-8 py-3.5 rounded-lg transition-all shadow-md shadow-accentBlue/15 text-center flex items-center justify-center space-x-2"
+            className="bg-accentBtn hover:bg-accentBtnHover text-white font-bold text-xs uppercase tracking-wider px-8 py-3.5 rounded-lg transition-all shadow-md shadow-accentBtn/15 text-center flex items-center justify-center space-x-2"
           >
             <span>Start Practicing</span>
             <ArrowRight className="w-4 h-4" />
@@ -495,7 +532,9 @@ const Home = () => {
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-px bg-darkBorder/60 border border-darkBorder rounded-xl overflow-hidden mt-10 w-full max-w-4xl shadow-2xl">
           {stats.map((s, idx) => (
             <div key={idx} className="bg-darkCard py-6 px-6 text-center">
-              <div className="text-3xl font-extrabold text-white">{s.value}</div>
+              <div className="text-3xl font-extrabold text-white tabular-nums">
+                {s.animated}{s.suffix}
+              </div>
               <div className="text-xs font-bold text-slate-400 uppercase tracking-widest mt-2">{s.label}</div>
             </div>
           ))}
@@ -581,7 +620,7 @@ const Home = () => {
               <div className="mt-6">
                 <Link
                   to={user ? `/practice?company=${c.query}` : "/login"}
-                  className="w-full inline-block bg-darkBg hover:bg-accentBlue text-slate-200 hover:text-white text-center font-bold text-[10px] uppercase tracking-wider py-2.5 rounded-lg border border-darkBorder transition-all"
+                  className="w-full inline-block bg-darkBg hover:bg-accentBtn text-slate-200 hover:text-white text-center font-bold text-[10px] uppercase tracking-wider py-2.5 rounded-lg border border-darkBorder transition-all"
                 >
                   Practice {c.name} PYQs
                 </Link>
@@ -664,7 +703,7 @@ const Home = () => {
                   }}
                   className={`flex-grow py-2 rounded-lg text-xs font-black uppercase tracking-wider transition-all cursor-pointer border ${
                     tutorialLang === lang
-                      ? 'bg-accentBlue text-white border-accentBlue/35 shadow-md shadow-accentBlue/10'
+                      ? 'bg-accentBtn text-white border-accentBtn/35 shadow-md shadow-accentBtn/10'
                       : 'text-slate-400 border-transparent hover:text-slate-200'
                   }`}
                 >
@@ -725,12 +764,12 @@ const Home = () => {
                   <div className="w-3 h-3 rounded-full bg-rose-500/85 border border-rose-600/35"></div>
                   <div className="w-3 h-3 rounded-full bg-amber-500/85 border border-amber-600/35"></div>
                   <div className="w-3 h-3 rounded-full bg-emerald-500/85 border border-emerald-600/35"></div>
-                  <span className="text-[10px] font-bold text-slate-500 font-mono tracking-wider ml-2">
+                  <span className="text-[10px] font-bold text-slate-400 font-mono tracking-wider ml-2">
                     code_structure_guide.{tutorialLang === 'python' ? 'py' : tutorialLang === 'cpp' ? 'cpp' : 'java'}
                   </span>
                 </div>
                 <div className="flex items-center space-x-1">
-                  <span className="text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded bg-darkBg text-slate-500 border border-darkBorder select-none">
+                  <span className="text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded bg-darkBg text-slate-400 border border-darkBorder select-none">
                     PS Core
                   </span>
                 </div>
@@ -804,7 +843,7 @@ const Home = () => {
             return (
               <div key={r._id || idx} className="bg-darkCard border border-darkBorder p-6 rounded-xl flex items-center justify-between shadow-sm group">
                 <div className="flex items-center space-x-3.5">
-                  <div className="text-accentBlue bg-accentBlue/10 p-2.5 rounded-lg border border-accentBlue/10 group-hover:bg-accentBlue group-hover:text-white transition-all">
+                  <div className="text-accentBlue bg-accentBlue/10 p-2.5 rounded-lg border border-accentBlue/10 group-hover:bg-accentBtn group-hover:text-white transition-all">
                     <Icon className="w-4 h-4" />
                   </div>
                   <span className="text-xs sm:text-sm font-black text-white uppercase tracking-wider">{r.name}</span>
@@ -814,7 +853,7 @@ const Home = () => {
                     href={r.link}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="bg-darkBg hover:bg-accentBlue border border-darkBorder hover:border-accentBlue text-slate-300 hover:text-white text-[10px] uppercase font-bold tracking-wider px-3.5 py-2 rounded-lg transition-all flex items-center space-x-1"
+                    className="bg-darkBg hover:bg-accentBtn border border-darkBorder hover:border-accentBtn text-slate-300 hover:text-white text-[10px] uppercase font-bold tracking-wider px-3.5 py-2 rounded-lg transition-all flex items-center space-x-1"
                   >
                     <span>Open</span>
                     <ArrowRight className="w-3 h-3" />
@@ -822,7 +861,7 @@ const Home = () => {
                 ) : (
                   <button
                     onClick={(e) => handleOpenResource(e, r)}
-                    className="bg-darkBg hover:bg-accentBlue border border-darkBorder hover:border-accentBlue text-slate-300 hover:text-white text-[10px] uppercase font-bold tracking-wider px-3.5 py-2 rounded-lg transition-all flex items-center space-x-1 cursor-pointer"
+                    className="bg-darkBg hover:bg-accentBtn border border-darkBorder hover:border-accentBtn text-slate-300 hover:text-white text-[10px] uppercase font-bold tracking-wider px-3.5 py-2 rounded-lg transition-all flex items-center space-x-1 cursor-pointer"
                   >
                     <span>Open</span>
                     <ArrowRight className="w-3 h-3" />
@@ -858,7 +897,7 @@ const Home = () => {
         <div className="flex flex-col sm:flex-row gap-4 mt-8 w-full sm:w-auto">
           <Link
             to={user ? "/practice" : "/register"}
-            className="bg-accentBlue hover:bg-accentBlue/95 text-white font-bold text-xs uppercase tracking-wider px-8 py-3.5 rounded-lg transition-all shadow-md shadow-accentBlue/10"
+            className="bg-accentBtn hover:bg-accentBtnHover text-white font-bold text-xs uppercase tracking-wider px-8 py-3.5 rounded-lg transition-all shadow-md shadow-accentBtn/10"
           >
             Practice Now
           </Link>
@@ -921,13 +960,13 @@ const Home = () => {
             <div className="space-y-1 mb-4 select-none">
               <div className="flex justify-between text-[9px] uppercase font-bold tracking-wider">
                 <span className="text-slate-400">Compiling Cheatsheet Assets</span>
-                <span className={`${compilationProgress === 100 ? 'text-rose-400' : 'text-[#6366F1]'}`}>
+                <span className={`${compilationProgress === 100 ? 'text-rose-400' : 'text-accentBlue'}`}>
                   {compilationProgress}%
                 </span>
               </div>
               <div className="w-full bg-[#1F2937] h-1.5 rounded-full overflow-hidden">
                 <div 
-                  className={`h-full rounded-full transition-all duration-300 ${compilationProgress === 100 ? 'bg-rose-500' : 'bg-gradient-to-r from-[#6366F1] to-indigo-400'}`} 
+                  className={`h-full rounded-full transition-all duration-300 ${compilationProgress === 100 ? 'bg-rose-500' : 'bg-gradient-to-r from-accentBlue to-indigo-400'}`} 
                   style={{ width: `${compilationProgress}%` }}
                 ></div>
               </div>
@@ -946,7 +985,7 @@ const Home = () => {
                   setSelectedResource(null);
                   navigate('/practice');
                 }}
-                className="w-full bg-[#6366F1] hover:bg-[#6366F1]/95 text-white font-bold text-xs uppercase tracking-wider py-3 rounded-xl transition-all shadow-md shadow-[#6366F1]/10 flex items-center justify-center space-x-1.5 cursor-pointer"
+                className="w-full bg-accentBtn hover:bg-accentBtnHover text-white font-bold text-xs uppercase tracking-wider py-3 rounded-xl transition-all shadow-md shadow-accentBtn/10 flex items-center justify-center space-x-1.5 cursor-pointer"
               >
                 <span>Navigate to Practice Arena</span>
                 <ArrowRight className="w-3.5 h-3.5" />

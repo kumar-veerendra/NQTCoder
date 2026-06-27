@@ -216,8 +216,8 @@ export const runLocalCodeMulti = async (code, language, inputs, timeLimit = 2) =
     const filepath = path.join(jobDir, filename);
     fs.writeFileSync(filepath, code);
 
-    // Dynamic paths for Java 8 bin override from .env
-    const javaBin = process.env.JAVA_8_BIN ? process.env.JAVA_8_BIN : '';
+    // Dynamic paths for Java 11/8 bin override from .env
+    const javaBin = process.env.JAVA_11_BIN || process.env.JAVA_8_BIN || '';
     const javacCmd = javaBin ? path.join(javaBin, 'javac') : 'javac';
     const javaCmd = javaBin ? path.join(javaBin, 'java') : 'java';
 
@@ -227,21 +227,21 @@ export const runLocalCodeMulti = async (code, language, inputs, timeLimit = 2) =
       console.timeEnd(`[Job ${jobId}] Total Time`);
       return {
         status: 'Compilation Error',
-        error: '[System Error] Java Compiler (javac/java) was not detected on this machine.\n\nTo run Java 8 code, please download and install JDK 8 (Java Development Kit) and ensure its "bin" path is added to your system Environment Variables.'
+        error: '[System Error] Java Compiler (javac/java) was not detected on this machine.\n\nTo run Java 11 code, please download and install JDK 11 (Java Development Kit) and ensure its "bin" path is added to your system Environment Variables.'
       };
     }
 
-    // Compile targeting Java 8 using --release 8 parameter if supported
+    // Compile targeting Java 11 using --release 11 parameter if supported
     console.time(`[Job ${jobId}] Java Compilation`);
     let compiled = false;
     let compileError = '';
 
     try {
       // We wrap compiler paths in quotes to support Windows paths with spaces
-      execSync(`"${javacCmd}" --release 8 "${filepath}"`, { stdio: 'pipe' });
+      execSync(`"${javacCmd}" --release 11 "${filepath}"`, { stdio: 'pipe' });
       compiled = true;
     } catch (err) {
-      // Fallback compilation without --release flag if using a pure Java 8 JDK (which doesn't support --release)
+      // Fallback compilation without --release flag if using a pure Java 11 JDK (which doesn't support --release or doesn't need it)
       try {
         execSync(`"${javacCmd}" "${filepath}"`, { stdio: 'pipe' });
         compiled = true;
@@ -395,7 +395,7 @@ export const getCompilerVersions = async () => {
 
   // 3. Check Java (javac)
   try {
-    const javaBin = process.env.JAVA_8_BIN ? process.env.JAVA_8_BIN : '';
+    const javaBin = process.env.JAVA_11_BIN || process.env.JAVA_8_BIN || '';
     const javacCmd = javaBin ? path.join(javaBin, 'javac') : 'javac';
     const javaCmd = javaBin ? path.join(javaBin, 'java') : 'java';
 
@@ -405,7 +405,7 @@ export const getCompilerVersions = async () => {
       const verOutput = (stdout || stderr || '').trim();
       // Match the version number (e.g., javac 1.8.0_202)
       const match = verOutput.match(/javac\s+([0-9\.\_\-]+)/i);
-      versions.java.version = match ? `Java ${match[1]}` : verOutput || 'Java 8';
+      versions.java.version = match ? `Java ${match[1]}` : verOutput || 'Java 11';
     }
   } catch (e) {
     versions.java.version = '';

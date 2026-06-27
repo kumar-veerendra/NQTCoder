@@ -93,7 +93,7 @@ const NotFound = () => {
             <span>Diagnostic Alert: Status 404</span>
           </div>
           <h1 className="text-3xl sm:text-5xl font-black tracking-tight text-white mt-2">
-            Compilation <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#6366F1] to-indigo-400">Failed</span>
+            Compilation <span className="text-transparent bg-clip-text bg-gradient-to-r from-accentBlue to-indigo-400">Failed</span>
           </h1>
           <p className="text-sm text-slate-400 max-w-xl font-medium">
             The requested module could not be compiled. The memory address is missing, or the route was never registered.
@@ -123,7 +123,7 @@ const NotFound = () => {
               </div>
 
               <div className="hidden sm:block text-right font-mono text-[10px] text-slate-500 bg-[#090d16]/60 p-4 border border-darkBorder/40 rounded-xl max-w-[240px]">
-                <div className="text-[#6366F1] mb-1 font-bold">// route_resolver.cpp</div>
+                <div className="text-accentBlue mb-1 font-bold">// route_resolver.cpp</div>
                 <span className="text-rose-400">#include</span> &lt;iostream&gt;<br />
                 <span className="text-slate-400">int main() &#123;</span><br />
                 &nbsp;&nbsp;std::string err = <span className="text-emerald-400">"404"</span>;<br />
@@ -197,7 +197,7 @@ const NotFound = () => {
                   className={`w-full sm:w-auto px-5 py-2 rounded-xl text-xs font-black uppercase tracking-wider flex items-center justify-center space-x-2 shadow-lg transition-all ${
                     diagnosticsState !== 'idle'
                       ? 'bg-darkBg text-slate-500 cursor-not-allowed border border-darkBorder/40'
-                      : 'bg-gradient-to-r from-[#6366F1] to-indigo-600 hover:from-[#6366F1]/95 hover:to-indigo-600/95 text-white shadow-[#6366F1]/20 cursor-pointer hover:scale-[1.02]'
+                      : 'bg-gradient-to-r from-accentBtn to-indigo-600 hover:from-accentBtnHover hover:to-indigo-600/95 text-white shadow-accentBtn/20 cursor-pointer hover:scale-[1.02]'
                   }`}
                 >
                   <RefreshCw className={`w-4 h-4 ${diagnosticsState === 'scanning' ? 'animate-spin' : ''}`} />
@@ -222,17 +222,17 @@ const NotFound = () => {
                 {/* Outlets Option 1: Practice Arena */}
                 <div 
                   onClick={() => navigate('/practice')}
-                  className="glass-card bg-darkCard/40 border border-darkBorder hover:border-[#6366F1]/40 rounded-2xl p-5 sm:p-6 flex items-start space-x-4 cursor-pointer group transition-all duration-300 hover:bg-darkCard hover:-translate-y-0.5"
+                  className="glass-card bg-darkCard/40 border border-darkBorder hover:border-accentBlue/40 rounded-2xl p-5 sm:p-6 flex items-start space-x-4 cursor-pointer group transition-all duration-300 hover:bg-darkCard hover:-translate-y-0.5"
                 >
-                  <div className="bg-indigo-500/10 text-[#6366F1] p-3 rounded-xl flex-shrink-0 group-hover:bg-[#6366F1] group-hover:text-white transition-all duration-300">
+                  <div className="bg-indigo-500/10 text-accentBlue p-3 rounded-xl flex-shrink-0 group-hover:bg-accentBtn group-hover:text-white transition-all duration-300">
                     <Code className="w-5 h-5" />
                   </div>
                   <div className="flex-grow">
                     <div className="flex items-center justify-between">
-                      <h3 className="text-sm font-bold text-white group-hover:text-[#6366F1] transition-colors">
+                      <h3 className="text-sm font-bold text-white group-hover:text-accentBlue transition-colors">
                         Practice Arena
                       </h3>
-                      <ArrowRight className="w-4 h-4 text-slate-600 group-hover:text-[#6366F1] group-hover:translate-x-1 transition-all" />
+                      <ArrowRight className="w-4 h-4 text-slate-600 group-hover:text-accentBlue group-hover:translate-x-1 transition-all" />
                     </div>
                     <p className="text-xs text-slate-400 mt-1.5 leading-relaxed">
                       Practice 100+ curated shifting placement challenges from top companies like TCS.

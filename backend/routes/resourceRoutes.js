@@ -24,7 +24,7 @@ router.route('/categories/:id')
 
 // Resources routes
 router.route('/')
-  .get(protect, getResources)
+  .get(getResources)
   .post(protect, admin, createResource);
 
 router.route('/:id')

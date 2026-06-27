@@ -1,9 +1,10 @@
 // Frontend entrypoint - authored by Satyam
 import React, { useContext } from 'react';
-import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation, useNavigate } from 'react-router-dom';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import { AuthProvider, AuthContext } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
+import { AlertTriangle, X } from 'lucide-react';
 
 // Components
 import Navbar from './components/Navbar';
@@ -32,6 +33,55 @@ import CompilerSetup from './pages/CompilerSetup';
 import VerifyEmail from './pages/VerifyEmail';
 import ForgotPassword from './pages/ForgotPassword';
 
+const UnverifiedBanner = () => {
+  const { user } = useContext(AuthContext);
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [isDismissed, setIsDismissed] = React.useState(false);
+
+  // Google OAuth users are already verified by Google — never show this banner to them
+  if (!user || user.isVerified || user.googleId || isDismissed) return null;
+  
+  // Don't show on login/register/verify pages
+  if (['/login', '/register', '/verify-email', '/forgot-password'].includes(location.pathname)) return null;
+
+  const handleVerify = () => {
+    navigate(`/verify-email?email=${encodeURIComponent(user.email)}`);
+  };
+
+  return (
+    <div className="bg-gradient-to-r from-amber-500/20 via-orange-500/15 to-amber-500/20 border-b border-amber-500/30 px-4 py-2 text-xs flex items-center justify-between gap-4 select-none animate-fadeIn text-amber-300 font-medium z-[100] shrink-0">
+      <div className="flex items-center gap-2">
+        <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0 animate-pulse" />
+        <span>Your email is not verified yet. Please verify your email to unlock all features.</span>
+      </div>
+      <div className="flex items-center gap-3 shrink-0">
+        <button 
+          onClick={handleVerify}
+          className="bg-amber-500 hover:bg-amber-600 text-white font-black uppercase tracking-wider text-[10px] px-3 py-1 rounded-md transition-colors cursor-pointer"
+        >
+          Verify Email
+        </button>
+        <a 
+          href="https://mail.google.com" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="text-accentBlue hover:text-accentBlue/90 hover:underline font-black uppercase tracking-wider text-[10px] transition-all"
+        >
+          Go to Gmail
+        </a>
+        <button 
+          onClick={() => setIsDismissed(true)}
+          className="text-slate-400 hover:text-white transition-colors cursor-pointer"
+          title="Dismiss notification"
+        >
+          <X className="w-4 h-4" />
+        </button>
+      </div>
+    </div>
+  );
+};
+
 const Layout = ({ children }) => {
   const location = useLocation();
   const { user } = useContext(AuthContext);
@@ -44,6 +94,7 @@ const Layout = ({ children }) => {
 
   return (
     <div className="min-h-screen flex flex-col bg-darkBg text-slate-100 font-sans">
+      <UnverifiedBanner />
       {!hideNavbar && <Navbar />}
       <main className="flex-grow">
         {children}
@@ -66,32 +117,11 @@ const AppContent = () => {
         <Route path="/about" element={<AboutContact />} />
         <Route path="/contact" element={<AboutContact />} />
         <Route path="/compiler-setup" element={<CompilerSetup />} />
-        <Route
-          path="/resources"
-          element={
-            <ProtectedRoute>
-              <Resources />
-            </ProtectedRoute>
-          }
-        />
+        <Route path="/resources" element={<Resources />} />
 
         {/* Protected User Routes */}
-        <Route
-          path="/practice"
-          element={
-            <ProtectedRoute>
-              <CompanyDashboard />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/problem/:id"
-          element={
-            <ProtectedRoute>
-              <ProblemArena />
-            </ProtectedRoute>
-          }
-        />
+        <Route path="/practice" element={<CompanyDashboard />} />
+        <Route path="/problem/:id" element={<ProblemArena />} />
         <Route
           path="/profile"
           element={
@@ -100,30 +130,9 @@ const AppContent = () => {
             </ProtectedRoute>
           }
         />
-        <Route
-          path="/leaderboard"
-          element={
-            <ProtectedRoute>
-              <Leaderboard />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/tracks"
-          element={
-            <ProtectedRoute>
-              <Tracks />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/tracks/:id"
-          element={
-            <ProtectedRoute>
-              <TrackDetail />
-            </ProtectedRoute>
-          }
-        />
+        <Route path="/leaderboard" element={<Leaderboard />} />
+        <Route path="/tracks" element={<Tracks />} />
+        <Route path="/tracks/:id" element={<TrackDetail />} />
         <Route
           path="/mocktest"
           element={

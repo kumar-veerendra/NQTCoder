@@ -37,7 +37,13 @@ const Login = () => {
     setIsSubmitting(false);
 
     if (res.success) {
-      navigate('/');
+      const redirectUrl = sessionStorage.getItem('guest_redirect_url');
+      if (redirectUrl) {
+        sessionStorage.removeItem('guest_redirect_url');
+        navigate(redirectUrl);
+      } else {
+        navigate('/');
+      }
     } else {
       setErrors(res.error);
     }
@@ -47,7 +53,13 @@ const Login = () => {
     setErrors({});
     const res = await loginWithGoogle(credentialResponse.credential);
     if (res.success) {
-      navigate('/');
+      const redirectUrl = sessionStorage.getItem('guest_redirect_url');
+      if (redirectUrl) {
+        sessionStorage.removeItem('guest_redirect_url');
+        navigate(redirectUrl);
+      } else {
+        navigate('/');
+      }
     } else {
       setErrors({ auth: res.error });
     }

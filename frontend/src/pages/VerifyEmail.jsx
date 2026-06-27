@@ -104,7 +104,13 @@ const VerifyEmail = () => {
     if (res.success) {
       setSuccess(true);
       setTimeout(() => {
-        navigate('/');
+        const redirectUrl = sessionStorage.getItem('guest_redirect_url');
+        if (redirectUrl) {
+          sessionStorage.removeItem('guest_redirect_url');
+          navigate(redirectUrl);
+        } else {
+          navigate('/');
+        }
       }, 1500);
     } else {
       setError(res.error?.code || res.error?.message || 'Verification failed. Try again.');
@@ -204,7 +210,7 @@ const VerifyEmail = () => {
               </button>
             </form>
 
-            <div className="text-center pt-2">
+            <div className="text-center pt-2 space-y-4">
               <p className="text-xs text-slate-500 font-medium">
                 Didn't receive the code?{' '}
                 {canResend ? (
@@ -218,6 +224,12 @@ const VerifyEmail = () => {
                   <span className="text-slate-400">Resend in {timer}s</span>
                 )}
               </p>
+
+              {/* Temporary Google Auth Bug Notification */}
+              <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-3 text-[11px] text-amber-300/90 text-left leading-relaxed">
+                <span className="font-bold block mb-1 text-amber-400">⚠️ Having trouble getting the OTP?</span>
+                There might be a delivery issue with some email providers which we are currently fixing. You can go back and sign in instantly using <strong>Google Auth</strong> instead.
+              </div>
             </div>
           </div>
         )}

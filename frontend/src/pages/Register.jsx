@@ -24,14 +24,37 @@ const Register = () => {
   
   const navigate = useNavigate();
 
-  // Debounced check for username uniqueness
+  // Debounced check for username uniqueness & real-time format validation
   useEffect(() => {
-    if (!username.trim()) {
+    const trimmed = username.trim();
+    if (!trimmed) {
       setUsernameAvailable(null);
       setIsCheckingUsername(false);
+      setErrors(prev => {
+        const copy = { ...prev };
+        delete copy.username;
+        return copy;
+      });
       return;
     }
 
+    const usernameRegex = /^[a-zA-Z0-9_-]{3,20}$/;
+    if (!usernameRegex.test(username)) {
+      setUsernameAvailable(null);
+      setIsCheckingUsername(false);
+      setErrors(prev => ({
+        ...prev,
+        username: 'Username must be 3-20 characters [a-z, 0-9, _, -] with no spaces.'
+      }));
+      return;
+    }
+
+    // Clear validation error and check uniqueness on backend
+    setErrors(prev => {
+      const copy = { ...prev };
+      delete copy.username;
+      return copy;
+    });
     setIsCheckingUsername(true);
     setUsernameAvailable(null);
 
@@ -52,6 +75,92 @@ const Register = () => {
     return () => clearTimeout(delayDebounce);
   }, [username]);
 
+  // Real-time email validation
+  useEffect(() => {
+    const trimmed = email.trim();
+    if (!trimmed) {
+      setErrors(prev => {
+        const copy = { ...prev };
+        delete copy.email;
+        return copy;
+      });
+      return;
+    }
+
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!emailRegex.test(email)) {
+      setErrors(prev => ({
+        ...prev,
+        email: 'Please enter a valid email address.'
+      }));
+    } else {
+      setErrors(prev => {
+        const copy = { ...prev };
+        delete copy.email;
+        return copy;
+      });
+    }
+  }, [email]);
+
+  // Real-time password validation
+  useEffect(() => {
+    if (!password) {
+      setErrors(prev => {
+        const copy = { ...prev };
+        delete copy.password;
+        return copy;
+      });
+      return;
+    }
+
+    if (password.length < 8 || password.length > 100) {
+      setErrors(prev => ({
+        ...prev,
+        password: 'Password must be between 8 and 100 characters.'
+      }));
+      return;
+    }
+
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    if (!passwordRegex.test(password)) {
+      setErrors(prev => ({
+        ...prev,
+        password: 'Password must contain at least 8 characters, an uppercase letter, a lowercase letter, a digit, and a special character (@$!%*?&).'
+      }));
+    } else {
+      setErrors(prev => {
+        const copy = { ...prev };
+        delete copy.password;
+        return copy;
+      });
+    }
+  }, [password]);
+
+  // Real-time confirm password validation
+  useEffect(() => {
+    if (!confirmPassword) {
+      setErrors(prev => {
+        const copy = { ...prev };
+        delete copy.confirmPassword;
+        return copy;
+      });
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setErrors(prev => ({
+        ...prev,
+        confirmPassword: 'Passwords do not match.'
+      }));
+    } else {
+      setErrors(prev => {
+        const copy = { ...prev };
+        delete copy.confirmPassword;
+        return copy;
+      });
+    }
+  }, [confirmPassword, password]);
+
   useEffect(() => {
     if (user) {
       navigate('/');
@@ -61,6 +170,12 @@ const Register = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErrors({});
+
+    const usernameRegex = /^[a-zA-Z0-9_-]{3,20}$/;
+    if (!usernameRegex.test(username)) {
+      setErrors({ username: 'Username must be 3-20 characters [a-z, 0-9, _, -] with no spaces.' });
+      return;
+    }
 
     if (usernameAvailable === false) {
       setErrors({ username: 'Username is already taken.' });

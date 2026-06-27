@@ -165,9 +165,20 @@ export const googleLogin = async (req, res) => {
     let user = await User.findOne({ $or: [{ googleId }, { email }] });
 
     if (user) {
+      let isModified = false;
       // If user exists by email but googleId is not linked, link it
       if (!user.googleId) {
         user.googleId = googleId;
+        isModified = true;
+      }
+      // If the user was registered manually but not verified, mark them verified since they logged in via Google
+      if (!user.isVerified) {
+        user.isVerified = true;
+        user.verificationCode = undefined;
+        user.verificationCodeExpires = undefined;
+        isModified = true;
+      }
+      if (isModified) {
         await user.save();
       }
     } else {
@@ -196,6 +207,8 @@ export const googleLogin = async (req, res) => {
       username: user.username,
       email: user.email,
       role: user.role,
+      isVerified: user.isVerified,
+      googleId: user.googleId || null,
       solvedQuestions: user.solvedQuestions || [],
       solvedCount: user.solvedCount || { easy: 0, medium: 0, hard: 0 },
       fullName: user.fullName || '',

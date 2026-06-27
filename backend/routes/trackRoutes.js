@@ -7,16 +7,16 @@ import {
   deleteTrack,
   updateTrackLastAccessed
 } from '../controllers/trackController.js';
-import { protect, admin } from '../middleware/authMiddleware.js';
+import { protect, admin, optionalProtect } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
 router.route('/')
-  .get(protect, getTracks)
+  .get(optionalProtect, getTracks)
   .post(protect, admin, createTrack);
 
 router.route('/:id')
-  .get(protect, getTrackById)
+  .get(optionalProtect, getTrackById)
   .put(protect, admin, updateTrack)
   .delete(protect, admin, deleteTrack);
 

@@ -66,7 +66,7 @@ const Tracks = () => {
       await trackService.updateTrackLastAccessed(trackId, targetQuestion._id);
       
       // Navigate to problem arena
-      navigate(`/problem/${targetQuestion._id}`);
+      navigate(`/problem/${targetQuestion.slug || targetQuestion._id}`);
     } catch (err) {
       console.error('Failed to resolve track target', err);
       alert('Error continuing practice track.');

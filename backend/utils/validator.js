@@ -18,6 +18,8 @@ export const validateRegister = (data) => {
 
   if (!data.username || data.username.trim() === '') {
     errors.username = 'Username is required';
+  } else if (!/^[a-zA-Z0-9_-]{3,20}$/.test(data.username)) {
+    errors.username = 'Username must be 3-20 characters [a-z, 0-9, _, -] with no spaces.';
   }
 
   if (!data.email || !EMAIL_REGEX.test(data.email)) {
