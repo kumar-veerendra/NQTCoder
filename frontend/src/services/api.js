@@ -1,7 +1,17 @@
 import axios from 'axios';
 
+const getBaseURL = () => {
+  if (typeof window !== 'undefined') {
+    const hostname = window.location.hostname;
+    if (hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '::1' || hostname === '[::1]') {
+      return ''; // Use Vite dev proxy
+    }
+  }
+  return import.meta.env.VITE_API_URL || '';
+};
+
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || '', // Uses environment variable in production, fallback to proxy in local dev
+  baseURL: getBaseURL(),
 });
 
 // Interceptor to inject JWT from localStorage

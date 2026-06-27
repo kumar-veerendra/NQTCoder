@@ -4,7 +4,7 @@ import { AuthContext } from '../context/AuthContext';
 import { submitFeedback } from '../services/feedbackService';
 import { 
   Terminal, Mail, Github, MessageSquare, Bug, HelpCircle, 
-  Send, CheckCircle2, Award, Shield, BookOpen, ExternalLink, ArrowRight
+  Send, CheckCircle2, Award, Shield, BookOpen, ExternalLink, ArrowRight, Linkedin
 } from 'lucide-react';
 
 const AboutContact = () => {
@@ -85,10 +85,10 @@ const AboutContact = () => {
       case 'feedback':
       default:
         return {
-          border: 'border-[#6366F1]/30 focus:border-[#6366F1]',
-          bg: 'bg-[#6366F1]/10',
-          text: 'text-[#6366F1]',
-          glow: 'shadow-[#6366F1]/10'
+          border: 'border-accentBlue/30 focus:border-accentBlue',
+          bg: 'bg-accentBlue/10',
+          text: 'text-accentBlue',
+          glow: 'shadow-accentBlue/10'
         };
     }
   };
@@ -101,12 +101,12 @@ const AboutContact = () => {
         
         {/* Section 1: Page Header */}
         <div className="text-center space-y-4 max-w-3xl mx-auto">
-          <div className="inline-flex items-center space-x-2 bg-[#6366F1]/10 text-[#6366F1] border border-[#6366F1]/20 px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider">
+          <div className="inline-flex items-center space-x-2 bg-accentBlue/10 text-accentBlue border border-accentBlue/20 px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider">
             <Terminal className="w-3.5 h-3.5" />
             <span>Connecting & Improving</span>
           </div>
           <h1 className="text-4xl md:text-5xl font-black tracking-tight text-white">
-            About NQT<span className="text-[#6366F1]">Coder</span> & Support
+            About NQT<span className="text-accentBlue">Coder</span> & Support
           </h1>
           <p className="text-slate-400 text-sm md:text-base leading-relaxed">
             Welcome to the ultimate preparation arena. We are building a modern workspace to help students crack campus coding rounds. Submit feedback or report bugs to help us build a better platform.
@@ -177,7 +177,7 @@ const AboutContact = () => {
                   rel="noopener noreferrer" 
                   className="flex items-center space-x-3 p-2 rounded hover:bg-darkBg/50 transition-colors group"
                 >
-                  <Mail className="w-4 h-4 text-slate-400 group-hover:text-[#6366F1] transition-colors" />
+                  <Mail className="w-4 h-4 text-slate-400 group-hover:text-accentBlue transition-colors" />
                   <span>veerendrakumartmsl@gmail.com</span>
                 </a>
 
@@ -187,9 +187,35 @@ const AboutContact = () => {
                   rel="noreferrer" 
                   className="flex items-center space-x-3 p-2 rounded hover:bg-darkBg/50 transition-colors group"
                 >
-                  <Github className="w-4 h-4 text-slate-400 group-hover:text-[#6366F1] transition-colors" />
+                  <Github className="w-4 h-4 text-slate-400 group-hover:text-accentBlue transition-colors" />
                   <span className="flex items-center space-x-1">
                     <span>GitHub Repository</span>
+                    <ExternalLink className="w-3 h-3 text-slate-500" />
+                  </span>
+                </a>
+
+                <a 
+                  href="https://linkedin.com/in/kumar-veerendra" 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="flex items-center space-x-3 p-2 rounded hover:bg-darkBg/50 transition-colors group"
+                >
+                  <Linkedin className="w-4 h-4 text-slate-400 group-hover:text-accentBlue transition-colors" />
+                  <span className="flex items-center space-x-1">
+                    <span>LinkedIn Profile</span>
+                    <ExternalLink className="w-3 h-3 text-slate-500" />
+                  </span>
+                </a>
+
+                <a 
+                  href="https://t.me/nqtcodersupport" 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="flex items-center space-x-3 p-2 rounded hover:bg-darkBg/50 transition-colors group"
+                >
+                  <Send className="w-4 h-4 text-slate-400 group-hover:text-accentBlue transition-colors" />
+                  <span className="flex items-center space-x-1">
+                    <span>Telegram Channel</span>
                     <ExternalLink className="w-3 h-3 text-slate-500" />
                   </span>
                 </a>
@@ -222,7 +248,7 @@ const AboutContact = () => {
                     </button>
                     <button
                       onClick={() => navigate('/')}
-                      className="px-5 py-2.5 rounded-xl bg-[#6366F1] hover:bg-[#6366F1]/90 text-white text-xs font-bold uppercase tracking-wider flex items-center justify-center space-x-1 shadow-lg shadow-[#6366F1]/20 transition-all"
+                      className="px-5 py-2.5 rounded-xl bg-accentBtn hover:bg-accentBtnHover text-white text-xs font-bold uppercase tracking-wider flex items-center justify-center space-x-1 shadow-lg shadow-accentBtn/20 transition-all"
                     >
                       <span>Return Home</span>
                       <ArrowRight className="w-3.5 h-3.5" />
@@ -256,7 +282,7 @@ const AboutContact = () => {
                         onClick={() => handleTypeSelect('feedback')}
                         className={`flex flex-col items-center justify-center p-3 rounded-xl border text-center transition-all ${
                           formData.type === 'feedback'
-                            ? 'bg-[#6366F1]/10 border-[#6366F1] text-[#6366F1] shadow-lg shadow-[#6366F1]/5'
+                            ? 'bg-accentBlue/10 border-accentBlue text-accentBlue shadow-lg shadow-accentBlue/5'
                             : 'bg-darkBg/60 border-darkBorder text-slate-400 hover:text-slate-200 hover:border-slate-700'
                         }`}
                       >
@@ -307,7 +333,7 @@ const AboutContact = () => {
                         onChange={handleChange}
                         disabled={user !== null}
                         placeholder="e.g. Rahul Kumar"
-                        className="w-full bg-darkBg border border-darkBorder px-4 py-2.5 rounded-xl text-xs focus:outline-none focus:border-[#6366F1] text-slate-200 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
+                        className="w-full bg-darkBg border border-darkBorder px-4 py-2.5 rounded-xl text-xs focus:outline-none focus:border-accentBlue text-slate-200 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
                       />
                     </div>
 
@@ -321,7 +347,7 @@ const AboutContact = () => {
                         onChange={handleChange}
                         disabled={user !== null}
                         placeholder="e.g. rahul@example.com"
-                        className="w-full bg-darkBg border border-darkBorder px-4 py-2.5 rounded-xl text-xs focus:outline-none focus:border-[#6366F1] text-slate-200 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
+                        className="w-full bg-darkBg border border-darkBorder px-4 py-2.5 rounded-xl text-xs focus:outline-none focus:border-accentBlue text-slate-200 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
                       />
                     </div>
                   </div>
@@ -336,7 +362,7 @@ const AboutContact = () => {
                       value={formData.subject}
                       onChange={handleChange}
                       placeholder="e.g. Trouble running Python compilers, Feature request for mock tests"
-                      className="w-full bg-darkBg border border-darkBorder px-4 py-2.5 rounded-xl text-xs focus:outline-none focus:border-[#6366F1] text-slate-200 transition-colors"
+                      className="w-full bg-darkBg border border-darkBorder px-4 py-2.5 rounded-xl text-xs focus:outline-none focus:border-accentBlue text-slate-200 transition-colors"
                     />
                   </div>
 
@@ -350,7 +376,7 @@ const AboutContact = () => {
                       value={formData.message}
                       onChange={handleChange}
                       placeholder="Write your explanation or step-by-step bug reproduction here..."
-                      className="w-full bg-darkBg border border-darkBorder px-4 py-2.5 rounded-xl text-xs focus:outline-none focus:border-[#6366F1] text-slate-200 transition-colors"
+                      className="w-full bg-darkBg border border-darkBorder px-4 py-2.5 rounded-xl text-xs focus:outline-none focus:border-accentBlue text-slate-200 transition-colors"
                     />
                   </div>
 
@@ -371,7 +397,7 @@ const AboutContact = () => {
                           ? 'bg-rose-500 hover:bg-rose-500/90 shadow-rose-500/10' 
                           : formData.type === 'general'
                             ? 'bg-sky-500 hover:bg-sky-500/90 shadow-sky-500/10'
-                            : 'bg-[#6366F1] hover:bg-[#6366F1]/90 shadow-[#6366F1]/10'
+                            : 'bg-accentBtn hover:bg-accentBtnHover shadow-accentBtn/10'
                     }`}
                   >
                     {loading ? (
@@ -394,9 +420,9 @@ const AboutContact = () => {
         </div>
 
         {/* ── Compiler Setup FAQ callout ── */}
-        <div className="bg-gradient-to-br from-amber-500/10 to-orange-500/5 border border-amber-500/20 rounded-2xl p-8 space-y-5">
+        <div className="bg-gradient-to-br from-accentBlue/10 to-indigo-500/5 border border-accentBlue/20 rounded-2xl p-8 space-y-5">
           <div className="flex items-start gap-4">
-            <div className="w-10 h-10 rounded-xl bg-amber-500/15 border border-amber-500/25 text-amber-400 flex items-center justify-center shrink-0">
+            <div className="w-10 h-10 rounded-xl bg-accentBlue/15 border border-accentBlue/25 text-accentBlue flex items-center justify-center shrink-0">
               <Terminal className="w-5 h-5" />
             </div>
             <div className="space-y-1">
@@ -411,7 +437,7 @@ const AboutContact = () => {
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             {[
-              { lang: '☕ Java (JDK 8)', note: 'Most important — needed for Java submissions' },
+              { lang: '☕ Java (JDK 11)', note: 'Most important — needed for Java submissions' },
               { lang: '⚙️ C++ (GCC/g++)', note: 'Install MinGW (Windows) or GCC (Linux/Mac)' },
               { lang: '🐍 Python 3', note: 'Easiest to install — just download & check "Add to PATH"' }
             ].map((item, i) => (
@@ -424,7 +450,7 @@ const AboutContact = () => {
 
           <a
             href="/compiler-setup"
-            className="inline-flex items-center gap-2 px-6 py-3 bg-amber-500 hover:bg-amber-600 text-white text-xs font-black uppercase tracking-wider rounded-xl shadow-lg shadow-amber-500/20 transition-all"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-accentBtn hover:bg-accentBtnHover text-white text-xs font-black uppercase tracking-wider rounded-xl shadow-lg shadow-accentBtn/20 transition-all cursor-pointer"
           >
             <Terminal className="w-4 h-4" />
             Read Full Compiler Setup Guide

@@ -55,11 +55,11 @@ const Navbar = () => {
     <nav className="sticky top-0 z-50 bg-darkBg/80 backdrop-blur-md border-b border-darkBorder px-6 py-4 flex items-center justify-between transition-all">
       {/* Left: Brand Logo */}
       <div className="flex items-center space-x-3 select-none">
-        <div className="bg-[#6366F1] p-2 rounded-lg text-white">
+        <div className="bg-accentBtn p-2 rounded-lg text-white">
           <Terminal className="w-4 h-4" />
         </div>
         <Link to="/" className="text-lg font-black tracking-wider text-white">
-          NQT<span className="text-[#6366F1]">Coder</span>
+          NQT<span className="text-accentBlue">Coder</span>
         </Link>
       </div>
 
@@ -68,19 +68,19 @@ const Navbar = () => {
         <div className="hidden md:flex items-center space-x-8 text-xs font-bold uppercase tracking-wider">
           <Link
             to="/"
-            className={`transition-colors ${isActive('/') && !location.hash ? 'text-[#6366F1]' : 'text-slate-400 hover:text-slate-200'}`}
+            className={`transition-colors ${isActive('/') && !location.hash ? 'text-accentBlue' : 'text-slate-400 hover:text-slate-200'}`}
           >
             Home
           </Link>
           <Link
             to="/practice"
-            className={`transition-colors ${isActive('/practice') ? 'text-[#6366F1]' : 'text-slate-400 hover:text-slate-200'}`}
+            className={`transition-colors ${isActive('/practice') ? 'text-accentBlue' : 'text-slate-400 hover:text-slate-200'}`}
           >
             Practice
           </Link>
           <Link
             to="/mocktest"
-            className={`transition-colors ${isActive('/mocktest') ? 'text-[#6366F1]' : 'text-slate-400 hover:text-slate-200'}`}
+            className={`transition-colors ${isActive('/mocktest') ? 'text-accentBlue' : 'text-slate-400 hover:text-slate-200'}`}
           >
             Mock Test
           </Link>
@@ -93,7 +93,7 @@ const Navbar = () => {
           </Link>
           <Link
             to="/leaderboard"
-            className={`transition-colors ${isActive('/leaderboard') ? 'text-[#6366F1]' : 'text-slate-400 hover:text-slate-200'}`}
+            className={`transition-colors ${isActive('/leaderboard') ? 'text-accentBlue' : 'text-slate-400 hover:text-slate-200'}`}
           >
             Leaderboard
           </Link>
@@ -105,7 +105,7 @@ const Navbar = () => {
         {location.pathname.startsWith('/admin') && (
           <Link
             to="/"
-            className="text-[#6366F1] hover:text-[#6366F1]/80 transition-colors flex items-center space-x-1.5 text-xs font-bold uppercase tracking-wider mr-2"
+            className="text-accentBlue hover:text-accentBlueHover transition-colors flex items-center space-x-1.5 text-xs font-bold uppercase tracking-wider mr-2"
           >
             <span>View Site</span>
             <ExternalLink className="w-3.5 h-3.5" />
@@ -117,6 +117,7 @@ const Navbar = () => {
           onClick={toggleTheme}
           className="p-2 text-slate-400 hover:text-white transition-colors"
           title={theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
+          aria-label={theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
         >
           {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
         </button>
@@ -129,8 +130,9 @@ const Navbar = () => {
             <button
               onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
               className="flex items-center space-x-2 focus:outline-none select-none hover:opacity-90 transition-opacity"
+              aria-label="User profile menu"
             >
-              <div className="w-7 h-7 rounded-full bg-[#6366F1] text-white flex items-center justify-center font-bold text-xs uppercase border border-darkBorder">
+              <div className="w-7 h-7 rounded-full bg-accentBtn text-white flex items-center justify-center font-bold text-xs uppercase border border-darkBorder">
                 {(user.username || 'U')[0]}
               </div>
             </button>
@@ -181,7 +183,7 @@ const Navbar = () => {
             </Link>
             <Link
               to="/register"
-              className="bg-[#6366F1] hover:bg-[#6366F1]/90 text-white px-4 py-2 rounded-lg transition-all"
+              className="bg-accentBtn hover:bg-accentBtnHover text-white px-4 py-2 rounded-lg transition-all"
             >
               Register
             </Link>
@@ -194,6 +196,7 @@ const Navbar = () => {
         <button
           onClick={toggleTheme}
           className="p-2 text-slate-400 hover:text-white transition-colors"
+          aria-label={theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
         >
           {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
         </button>
@@ -201,6 +204,7 @@ const Navbar = () => {
         <button
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           className="p-2 text-slate-400 hover:text-white transition-colors"
+          aria-label={mobileMenuOpen ? 'Close mobile menu' : 'Open mobile menu'}
         >
           {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
         </button>
@@ -214,21 +218,21 @@ const Navbar = () => {
               <Link
                 to="/"
                 onClick={() => setMobileMenuOpen(false)}
-                className={`p-2 rounded hover:bg-darkBg/60 transition-colors ${isActive('/') && !location.hash ? 'text-[#6366F1]' : 'text-slate-300'}`}
+                className={`p-2 rounded hover:bg-darkBg/60 transition-colors ${isActive('/') && !location.hash ? 'text-accentBlue' : 'text-slate-300'}`}
               >
                 Home
               </Link>
               <Link
                 to="/practice"
                 onClick={() => setMobileMenuOpen(false)}
-                className={`p-2 rounded hover:bg-darkBg/60 transition-colors ${isActive('/practice') ? 'text-[#6366F1]' : 'text-slate-300'}`}
+                className={`p-2 rounded hover:bg-darkBg/60 transition-colors ${isActive('/practice') ? 'text-accentBlue' : 'text-slate-300'}`}
               >
                 Practice
               </Link>
               <Link
                 to="/mocktest"
                 onClick={() => setMobileMenuOpen(false)}
-                className={`p-2 rounded hover:bg-darkBg/60 transition-colors ${isActive('/mocktest') ? 'text-[#6366F1]' : 'text-slate-300'}`}
+                className={`p-2 rounded hover:bg-darkBg/60 transition-colors ${isActive('/mocktest') ? 'text-accentBlue' : 'text-slate-300'}`}
               >
                 Mock Test
               </Link>
@@ -242,7 +246,7 @@ const Navbar = () => {
               <Link
                 to="/leaderboard"
                 onClick={() => setMobileMenuOpen(false)}
-                className={`p-2 rounded hover:bg-darkBg/60 transition-colors ${isActive('/leaderboard') ? 'text-[#6366F1]' : 'text-slate-300'}`}
+                className={`p-2 rounded hover:bg-darkBg/60 transition-colors ${isActive('/leaderboard') ? 'text-accentBlue' : 'text-slate-300'}`}
               >
                 Leaderboard
               </Link>
@@ -251,7 +255,7 @@ const Navbar = () => {
             <Link
               to="/"
               onClick={() => setMobileMenuOpen(false)}
-              className="p-2 rounded hover:bg-darkBg/60 text-[#6366F1] transition-colors flex items-center space-x-1"
+              className="p-2 rounded hover:bg-darkBg/60 text-accentBlue transition-colors flex items-center space-x-1"
             >
               <span>View Site</span>
               <ExternalLink className="w-3.5 h-3.5" />
@@ -267,7 +271,7 @@ const Navbar = () => {
                 onClick={() => setMobileMenuOpen(false)}
                 className="flex items-center space-x-2.5 text-slate-200"
               >
-                <div className="w-8 h-8 rounded-full bg-[#6366F1] text-white flex items-center justify-center font-bold text-sm uppercase border border-darkBorder">
+                <div className="w-8 h-8 rounded-full bg-accentBtn text-white flex items-center justify-center font-bold text-sm uppercase border border-darkBorder">
                   {(user.username || 'U')[0]}
                 </div>
                 <span className="normal-case">{user.username}</span>
@@ -293,7 +297,7 @@ const Navbar = () => {
               <Link
                 to="/register"
                 onClick={() => setMobileMenuOpen(false)}
-                className="w-full text-center bg-[#6366F1] text-white py-2.5 rounded-lg transition-all"
+                className="w-full text-center bg-accentBtn hover:bg-accentBtnHover text-white py-2.5 rounded-lg transition-all"
               >
                 Register
               </Link>

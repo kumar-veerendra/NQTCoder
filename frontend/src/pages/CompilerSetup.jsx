@@ -11,7 +11,7 @@ import {
 const COMPILERS = [
   {
     id: 'java',
-    name: 'Java (JDK 8)',
+    name: 'Java (JDK 11)',
     icon: Coffee,
     color: 'amber',
     badge: 'Most Important',
@@ -19,9 +19,9 @@ const COMPILERS = [
     iconBg: 'bg-amber-500/15 border-amber-500/25 text-amber-400',
     steps: [
       {
-        title: 'Download JDK 8',
-        desc: 'Go to the official Adoptium (Eclipse Temurin) website and download JDK 8 for your OS.',
-        action: { label: 'Download JDK 8 (Temurin)', url: 'https://adoptium.net/temurin/releases/?version=8' }
+        title: 'Download JDK 11',
+        desc: 'Go to the official Adoptium (Eclipse Temurin) website and download JDK 11 for your OS.',
+        action: { label: 'Download JDK 11 (Temurin)', url: 'https://adoptium.net/temurin/releases/?version=11' }
       },
       {
         title: 'Run the Installer',
@@ -29,8 +29,8 @@ const COMPILERS = [
       },
       {
         title: 'Set JAVA_HOME (Windows only)',
-        desc: 'Search "Environment Variables" in Start Menu → Edit the system environment variables → New → Name: JAVA_HOME, Value: C:\\Program Files\\Java\\jdk-1.8 (or wherever JDK was installed).',
-        code: 'JAVA_HOME = C:\\Program Files\\Java\\jdk-1.8'
+        desc: 'Search "Environment Variables" in Start Menu → Edit the system environment variables → New → Name: JAVA_HOME, Value: C:\\Program Files\\Java\\jdk-11 (or wherever JDK was installed).',
+        code: 'JAVA_HOME = C:\\Program Files\\Java\\jdk-11'
       },
       {
         title: 'Add to PATH (Windows only)',
@@ -39,8 +39,8 @@ const COMPILERS = [
       },
       {
         title: 'Update .env file',
-        desc: 'Open the backend/.env file and update the JAVA_8_BIN path to match where your JDK bin folder is located.',
-        code: 'JAVA_8_BIN=C:\\Program Files\\Java\\jdk-1.8\\bin'
+        desc: 'Open the backend/.env file and update the JAVA_11_BIN path to match where your JDK bin folder is located.',
+        code: 'JAVA_11_BIN=C:\\Program Files\\Java\\jdk-11\\bin'
       },
       {
         title: 'Verify Installation',
@@ -139,7 +139,7 @@ const FAQ_ITEMS = [
   },
   {
     q: 'I installed Java but it still shows offline. What now?',
-    a: 'Make sure the JAVA_8_BIN path in the backend/.env file points to the correct JDK bin directory. After editing .env, restart the backend server (node server.js). Also open a fresh terminal window and run "javac -version" to confirm it is detected.'
+    a: 'Make sure the JAVA_11_BIN path in the backend/.env file points to the correct JDK bin directory. After editing .env, restart the backend server (node server.js). Also open a fresh terminal window and run "javac -version" to confirm it is detected.'
   },
   {
     q: 'PATH variable is set but g++ still shows "not found". Why?',
@@ -300,11 +300,11 @@ const CompilerSetup = () => {
               <div>
                 <h3 className="text-base font-black text-white mb-1">💻 Local Development Only</h3>
                 <p className="text-xs text-slate-400 leading-relaxed">
-                  Running the backend on your own computer? Install compilers manually on <strong className="text-white">your machine</strong> and set <code className="bg-darkBg px-1 rounded">JAVA_8_BIN</code> in your local <code className="bg-darkBg px-1 rounded">.env</code>. Only the server host needs this.
+                  Running the backend on your own computer? Install compilers manually on <strong className="text-white">your machine</strong> and set <code className="bg-darkBg px-1 rounded">JAVA_11_BIN</code> in your local <code className="bg-darkBg px-1 rounded">.env</code>. Only the server host needs this.
                 </p>
               </div>
               <ul className="space-y-1.5 text-xs">
-                {['⚙️ Install Java JDK 8, g++, Python manually', '⚙️ Set JAVA_8_BIN path in backend/.env', '⚙️ Add compilers to system PATH', '⚙️ Restart server after install', '⚠️ Students using the website still need nothing'].map((item, i) => (
+                {['⚙️ Install Java JDK 11, g++, Python manually', '⚙️ Set JAVA_11_BIN path in backend/.env', '⚙️ Add compilers to system PATH', '⚙️ Restart server after install', '⚠️ Students using the website still need nothing'].map((item, i) => (
                   <li key={i} className="text-slate-400 font-medium">{item}</li>
                 ))}
               </ul>
@@ -327,7 +327,7 @@ const CompilerSetup = () => {
               { title: 'Sign up at Render.com', desc: 'Go to render.com and create a free account. Connect your GitHub account.', link: { label: 'Open Render.com', url: 'https://render.com' } },
               { title: 'Create a new Web Service', desc: 'Click "New +" → "Web Service" → Select your GitHub repo → Set root directory to backend.' },
               { title: 'Set Build & Start Commands', desc: 'In Render settings, set exactly:', code: 'Build Command:  chmod +x render-build.sh && ./render-build.sh\nStart Command:  node server.js\nRoot Directory: backend' },
-              { title: 'Add Environment Variables in Render Dashboard', desc: 'Go to Environment tab → Add these (copy values from your local .env file — no file upload needed):', code: 'MONGO_URI        = mongodb+srv://veerendrakumarnqtcoder:...\nJWT_SECRET       = bfyp_jwt_secret_token_key_2026\nGOOGLE_CLIENT_ID = 749223881103-ucpf...\nCLIENT_URL       = https://your-frontend.vercel.app\nRUN_MODE         = local\nNODE_ENV         = production\nJAVA_8_BIN       = (leave empty — auto-detected on Linux)' },
+              { title: 'Add Environment Variables in Render Dashboard', desc: 'Go to Environment tab → Add these (copy values from your local .env file — no file upload needed):', code: 'MONGO_URI        = mongodb+srv://veerendrakumarnqtcoder:...\nJWT_SECRET       = bfyp_jwt_secret_token_key_2026\nGOOGLE_CLIENT_ID = 749223881103-ucpf...\nCLIENT_URL       = https://your-frontend.vercel.app\nRUN_MODE         = local\nNODE_ENV         = production\nJAVA_11_BIN      = (leave empty — auto-detected on Linux)' },
               { title: 'Click Deploy — Done!', desc: 'Render runs render-build.sh which installs g++, Python 3, and Java on their Linux server automatically. The code editor will show Online for all languages after deploy.' },
               { title: 'Deploy Frontend to Vercel (Free)', desc: 'Go to vercel.com → Import your GitHub repo → Set root directory to frontend → Add one environment variable:', code: 'VITE_API_URL = https://your-backend-name.onrender.com', link: { label: 'Open Vercel.com', url: 'https://vercel.com' } },
             ].map((step, i, arr) => (

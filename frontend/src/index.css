@@ -168,11 +168,13 @@
 [data-theme="light"] .bg-sky-500 .text-white, [data-theme="light"] .bg-sky-500.text-white,
 [data-theme="light"] .bg-amber-500 .text-white, [data-theme="light"] .bg-amber-500.text-white,
 [data-theme="light"] .bg-teal-500 .text-white, [data-theme="light"] .bg-teal-500.text-white,
-[data-theme="light"] .hover\:bg-rose-500:hover, [data-theme="light"] .hover\:bg-sky-500:hover,
-[data-theme="light"] .hover\:bg-amber-500:hover, [data-theme="light"] .hover\:bg-teal-500:hover,
 [data-theme="light"] .bg-accentBlue .text-white, [data-theme="light"] .bg-accentBlue.text-white,
 [data-theme="light"] .bg-\[\#6366F1\] .text-white, [data-theme="light"] .bg-\[\#6366F1\].text-white,
-[data-theme="light"] .hover\:bg-accentBlue:hover, [data-theme="light"] .hover\:bg-accentBlue\/90:hover, [data-theme="light"] .hover\:bg-accentBlue\/95:hover {
+[data-theme="light"] .bg-accentBtn .text-white, [data-theme="light"] .bg-accentBtn.text-white,
+[data-theme="light"] .hover\:bg-rose-500:hover, [data-theme="light"] .hover\:bg-sky-500:hover,
+[data-theme="light"] .hover\:bg-amber-500:hover, [data-theme="light"] .hover\:bg-teal-500:hover,
+[data-theme="light"] .hover\:bg-accentBlue:hover, [data-theme="light"] .hover\:bg-accentBlue\/90:hover, [data-theme="light"] .hover\:bg-accentBlue\/95:hover,
+[data-theme="light"] .hover\:bg-accentBtn:hover, [data-theme="light"] .hover\:bg-accentBtnHover:hover {
   color: #ffffff !important;
 }
 
@@ -191,6 +193,7 @@
 [data-theme="light"] .bg-amber-500 .text-slate-100, [data-theme="light"] .bg-amber-500.text-slate-100,
 [data-theme="light"] .bg-teal-500 .text-slate-100, [data-theme="light"] .bg-teal-500.text-slate-100,
 [data-theme="light"] .bg-accentBlue .text-slate-100, [data-theme="light"] .bg-accentBlue.text-slate-100,
+[data-theme="light"] .bg-accentBtn .text-slate-100, [data-theme="light"] .bg-accentBtn.text-slate-100,
 [data-theme="light"] .bg-\[\#6366F1\] .text-slate-100, [data-theme="light"] .bg-\[\#6366F1\].text-slate-100 {
   color: #f8fafc !important;
 }
@@ -204,6 +207,8 @@
 
 /* Retain white hover text specifically on purple/solid buttons */
 [data-theme="light"] .bg-accentBlue:hover, [data-theme="light"] .hover\:bg-accentBlue:hover,
+[data-theme="light"] .bg-accentBtn:hover, [data-theme="light"] .hover\:bg-accentBtn:hover,
+[data-theme="light"] .hover\:bg-accentBtnHover:hover,
 [data-theme="light"] .bg-\[\#6366F1\]:hover, [data-theme="light"] .hover\:bg-accentBlue\/90:hover,
 [data-theme="light"] .hover\:bg-accentBlue\/95:hover {
   color: #ffffff !important;

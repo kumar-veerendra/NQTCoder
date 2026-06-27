@@ -9,9 +9,11 @@ import User from '../models/User.js';
  */
 export const createFeedback = async (req, res) => {
   try {
-    const { name, email, type, subject, message } = req.body;
+    const { type, subject, message } = req.body;
+    const name = req.user.username;
+    const email = req.user.email;
 
-    if (!name || !email || !type || !subject || !message) {
+    if (!type || !subject || !message) {
       return res.status(400).json({ message: 'All fields are required.' });
     }
 
@@ -19,32 +21,14 @@ export const createFeedback = async (req, res) => {
       return res.status(400).json({ message: 'Invalid feedback type.' });
     }
 
-    // Optional authentication check
-    let user = null;
-    if (
-      req.headers.authorization &&
-      req.headers.authorization.startsWith('Bearer')
-    ) {
-      try {
-        const token = req.headers.authorization.split(' ')[1];
-        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'nqtcoder_super_secret_jwt_key_2026');
-        user = await User.findById(decoded.id).select('-password');
-      } catch (err) {
-        console.warn('Optional auth token validation failed:', err.message);
-      }
-    }
-
     const feedbackData = {
       name,
       email,
       type,
       subject,
-      message
+      message,
+      user: req.user._id
     };
-
-    if (user) {
-      feedbackData.user = user._id;
-    }
 
     const feedback = new Feedback(feedbackData);
     const createdFeedback = await feedback.save();

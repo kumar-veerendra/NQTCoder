@@ -42,7 +42,7 @@ const SubmissionsLog = ({ userSubmissions = [], getRelativeTime }) => {
                     <td className="py-3 px-5">
                       {sub.question ? (
                         <Link 
-                          to={`/problem/${sub.question._id}`}
+                          to={`/problem/${sub.question.slug || sub.question._id}`}
                           className="text-xs font-bold text-slate-200 hover:text-accentBlue transition-colors tracking-wide font-sans"
                         >
                           {sub.question.title}

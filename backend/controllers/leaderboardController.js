@@ -10,7 +10,10 @@ export const getLeaderboard = async (req, res) => {
     // Aggregate to count the size of solvedQuestions array
     const rankings = await User.aggregate([
       {
-        $match: { role: { $ne: 'admin' } }
+        $match: { 
+          role: { $ne: 'admin' },
+          isVerified: true
+        }
       },
       {
         $project: {

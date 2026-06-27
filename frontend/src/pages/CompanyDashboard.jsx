@@ -241,7 +241,7 @@ const CompanyDashboard = () => {
                     </td>
                     <td className="py-3.5 px-4 sm:px-6">
                       <Link
-                        to={`/problem/${q._id}`}
+                        to={`/problem/${q.slug || q._id}`}
                         className="text-xs font-bold text-slate-200 hover:text-accentBlue transition-colors tracking-wide"
                       >
                         {q.title}

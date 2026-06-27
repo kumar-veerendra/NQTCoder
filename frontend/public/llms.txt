@@ -1,0 +1,10 @@
+# NQTCoder
+
+NQTCoder is a platform designed to help students prepare for national recruitment coding tests (like TCS NQT, etc.). It replicates actual recruitment coding environments with a proctored test environment and compiler support for C++, Java, and Python.
+
+## Core Features
+- [Practice Arena](https://nqtcoder.vercel.app/practice): Solve programming questions.
+- [Mock Tests](https://nqtcoder.vercel.app/mocktest): Practice real proctored mock exams.
+- [Student Rankings](https://nqtcoder.vercel.app/leaderboard): View top rankers.
+- [Compiler Setup Guide](https://nqtcoder.vercel.app/compiler-setup): Detailed local and cloud compiler instructions.
+- [About Platform](https://nqtcoder.vercel.app/about): Information about the platform support and direct contacts.

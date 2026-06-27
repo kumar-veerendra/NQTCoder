@@ -6,7 +6,7 @@ import User from '../models/User.js';
 import Feedback from '../models/Feedback.js';
 
 const BASE_URL = 'http://localhost:5000/api';
-const testUsername = `feedback_tester_${Math.floor(100000 + Math.random() * 900000)}`;
+const testUsername = `fb_test_${Math.floor(100000 + Math.random() * 900000)}`;
 const testEmail = `${testUsername}@example.com`;
 const testPassword = 'Password@123';
 
@@ -64,19 +64,35 @@ const runFeedbackTests = async () => {
     userHeader = { headers: { Authorization: `Bearer ${userToken}` } };
     console.log('✅ Regular user login successful.');
 
-    // --- Submit feedback anonymously ---
-    console.log('Submitting anonymous feedback...');
-    const feedbackPayload = {
-      name: 'Tester Anon',
-      email: 'anon@example.com',
+    // --- Submit feedback anonymously (should fail with 401) ---
+    console.log('Verifying anonymous feedback submission is blocked...');
+    try {
+      const feedbackPayload = {
+        type: 'bug',
+        subject: 'Test Bug Subject',
+        message: 'Test bug description'
+      };
+      await axios.post(`${BASE_URL}/feedback`, feedbackPayload);
+      throw new Error('FAIL: Anonymous feedback submission was allowed.');
+    } catch (err) {
+      if (err.response && err.response.status === 401) {
+        console.log('✅ Blocked: Anonymous submission rejected with 401 Unauthorized.');
+      } else {
+        throw err;
+      }
+    }
+
+    // --- Submit feedback authenticated as User (should succeed) ---
+    console.log('Submitting authenticated user feedback...');
+    const authFeedbackPayload = {
       type: 'bug',
       subject: 'Test Bug Subject',
       message: 'Test bug description'
     };
-    const submitFeedbackRes = await axios.post(`${BASE_URL}/feedback`, feedbackPayload);
+    const submitFeedbackRes = await axios.post(`${BASE_URL}/feedback`, authFeedbackPayload, userHeader);
     if (submitFeedbackRes.status !== 201) throw new Error('Feedback submission failed.');
     const feedbackId = submitFeedbackRes.data.feedback._id;
-    console.log(`✅ Success: Anonymous feedback submitted (ID: ${feedbackId}).`);
+    console.log(`✅ Success: Authenticated feedback submitted (ID: ${feedbackId}).`);
 
     // --- Verify regular user CANNOT view feedback (RBAC) ---
     console.log('Verifying regular user cannot view all feedback (should fail)...');

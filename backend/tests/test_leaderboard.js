@@ -26,6 +26,7 @@ async function runLeaderboardTests() {
       username: 'leaderboard_tester_c',
       email: 'leaderboard_tester_c@example.com',
       password: 'Password@123',
+      isVerified: true,
       solvedQuestions: [
         new mongoose.Types.ObjectId(),
         new mongoose.Types.ObjectId(),
@@ -42,6 +43,7 @@ async function runLeaderboardTests() {
       username: 'leaderboard_tester_b',
       email: 'leaderboard_tester_b@example.com',
       password: 'Password@123',
+      isVerified: true,
       solvedQuestions: [
         new mongoose.Types.ObjectId(),
         new mongoose.Types.ObjectId(),
@@ -57,6 +59,7 @@ async function runLeaderboardTests() {
       username: 'leaderboard_tester_a',
       email: 'leaderboard_tester_a@example.com',
       password: 'Password@123',
+      isVerified: true,
       solvedQuestions: [
         new mongoose.Types.ObjectId(),
         new mongoose.Types.ObjectId(),
@@ -72,6 +75,7 @@ async function runLeaderboardTests() {
       username: 'leaderboard_tester_admin',
       email: 'leaderboard_tester_admin@example.com',
       password: 'Password@123',
+      isVerified: true,
       role: 'admin',
       solvedQuestions: [
         new mongoose.Types.ObjectId(),
@@ -81,12 +85,30 @@ async function runLeaderboardTests() {
       submissionsCount: 2
     });
 
+    // User Unverified: Solved 10 questions (Should be excluded from leaderboard since isVerified is false)
+    const userUnverified = await User.create({
+      username: 'leaderboard_tester_unverified',
+      email: 'leaderboard_tester_unverified@example.com',
+      password: 'Password@123',
+      isVerified: false,
+      solvedQuestions: [
+        new mongoose.Types.ObjectId(),
+        new mongoose.Types.ObjectId(),
+        new mongoose.Types.ObjectId(),
+        new mongoose.Types.ObjectId()
+      ],
+      submissionsCount: 5
+    });
+
     console.log('✅ Mock users seeded successfully.');
 
     // 2. Fetch Leaderboard (Using aggregation pipeline from controller)
     const rankings = await User.aggregate([
       {
-        $match: { role: { $ne: 'admin' } }
+        $match: { 
+          role: { $ne: 'admin' },
+          isVerified: true
+        }
       },
       {
         $project: {
@@ -115,6 +137,13 @@ async function runLeaderboardTests() {
       throw new Error('FAIL: Administrator was not excluded from rankings.');
     }
     console.log(`${GREEN}✓ Passed: Administrator successfully excluded from leaderboard.${RESET}`);
+
+    // Verify Unverified User is excluded
+    const unverifiedInLeaderboard = filteredRankings.some(u => u.username === 'leaderboard_tester_unverified');
+    if (unverifiedInLeaderboard) {
+      throw new Error('FAIL: Unverified user was not excluded from rankings.');
+    }
+    console.log(`${GREEN}✓ Passed: Unverified user successfully excluded from leaderboard.${RESET}`);
 
     // Verify Rank 1 is User C (solved 6)
     if (filteredRankings[0].username !== 'leaderboard_tester_c') {
