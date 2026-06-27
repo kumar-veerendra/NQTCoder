@@ -76,7 +76,7 @@ const CodeEditor = ({
     onCodeChange(value);
   };
 
-  const monacoOptions = {
+  const monacoOptions = React.useMemo(() => ({
     readOnly: isLocked,
     minimap: { enabled: false },
     fontSize: fontSize,
@@ -133,7 +133,7 @@ const CodeEditor = ({
     lineNumbersMinChars: 3,
     cursorBlinking: 'smooth',
     cursorSmoothCaretAnimation: 'on'
-  };
+  }), [isLocked, fontSize]);
 
   return (
     <div className="h-full flex flex-col bg-darkCard border border-darkBorder rounded-lg overflow-hidden">
