@@ -328,7 +328,7 @@ const TUTORIAL_DATA = {
 const Home = () => {
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
-  const [totalQuestions, setTotalQuestions] = useState(290);
+  const [totalQuestions, setTotalQuestions] = useState(0);
   const [selectedResource, setSelectedResource] = useState(null);
   const [modalLogs, setModalLogs] = useState([]);
   const [compilationProgress, setCompilationProgress] = useState(0);
@@ -380,26 +380,12 @@ const Home = () => {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const questions = await questionService.getQuestions();
-        if (questions && questions.length > 0) {
-          setTotalQuestions(questions.length);
-          
-          // Count questions per company (case-insensitive)
-          const counts = {};
-          questions.forEach(q => {
-            if (Array.isArray(q.company)) {
-              q.company.forEach(c => {
-                if (c) {
-                  const normalized = c.trim().toUpperCase();
-                  counts[normalized] = (counts[normalized] || 0) + 1;
-                }
-              });
-            }
-          });
-          setCompanyCounts(counts);
-        }
+        const { totalQuestions, companyCounts } = await questionService.getQuestionsCount();
+        setTotalQuestions(totalQuestions);
+        setCompanyCounts(companyCounts || {});
       } catch (err) {
         console.error('Could not fetch questions count for homepage:', err);
+        setTotalQuestions(290); // Fallback
       }
     };
     fetchStats();
@@ -491,7 +477,7 @@ const Home = () => {
   };
 
   const solvedCount = user?.solvedQuestions?.length || 0;
-  const userCompletionPercent = Math.min(100, Math.round((solvedCount / totalQuestions) * 100));
+  const userCompletionPercent = totalQuestions > 0 ? Math.min(100, Math.round((solvedCount / totalQuestions) * 100)) : 0;
 
   return (
     <div className="bg-darkBg text-slate-100 min-h-screen selection:bg-accentBlue/30 selection:text-slate-100">
@@ -619,7 +605,7 @@ const Home = () => {
               </div>
               <div className="mt-6">
                 <Link
-                  to={user ? `/practice?company=${c.query}` : "/login"}
+                  to={`/practice?company=${c.query}`}
                   className="w-full inline-block bg-darkBg hover:bg-accentBtn text-slate-200 hover:text-white text-center font-bold text-[10px] uppercase tracking-wider py-2.5 rounded-lg border border-darkBorder transition-all"
                 >
                   Practice {c.name} PYQs
@@ -641,7 +627,7 @@ const Home = () => {
           {topics.map((t, idx) => (
             <Link
               key={idx}
-              to={user ? `/practice?topic=${t}` : "/login"}
+              to={`/practice?topic=${t}`}
               className="bg-darkCard border border-darkBorder hover:border-accentBlue p-5 rounded-lg text-center font-bold text-xs sm:text-sm text-slate-300 hover:text-white transition-all shadow-sm select-none"
             >
               {t}

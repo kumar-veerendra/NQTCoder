@@ -240,7 +240,7 @@ const ProblemArena = () => {
     setExecutionResult(null);
 
     try {
-      const result = await executionService.runCode(code, language, id, customInput, setQueueStatus);
+      const result = await executionService.runCode(code, language, question?._id || id, customInput, setQueueStatus);
       if (result.isCustom) {
         setExecutionResult({
           status: result.runResult.status === 'Success' ? 'Accepted' : result.runResult.status,
@@ -290,7 +290,7 @@ const ProblemArena = () => {
     setExecutionResult(null);
 
     try {
-      const result = await executionService.submitCode(code, language, id, setQueueStatus);
+      const result = await executionService.submitCode(code, language, question?._id || id, setQueueStatus);
       setExecutionResult(result);
 
       if (result.status === 'Accepted') {

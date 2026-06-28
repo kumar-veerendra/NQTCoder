@@ -292,6 +292,38 @@ export const deleteQuestion = async (req, res) => {
 };
 
 /**
+ * @desc    Get total count of questions and counts per company (public, lightweight)
+ * @route   GET /api/questions/count
+ * @access  Public
+ */
+export const getQuestionsCount = async (req, res) => {
+  try {
+    const totalQuestions = await Question.countDocuments({});
+    
+    // Fetch only company field to count questions per company
+    const questions = await Question.find({}).select('company');
+    const companyCounts = {};
+    questions.forEach(q => {
+      if (Array.isArray(q.company)) {
+        q.company.forEach(c => {
+          if (c) {
+            const normalized = c.trim().toUpperCase();
+            companyCounts[normalized] = (companyCounts[normalized] || 0) + 1;
+          }
+        });
+      }
+    });
+
+    res.json({
+      totalQuestions,
+      companyCounts
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+/**
  * @desc    Get admin dashboard metrics/statistics
  * @route   GET /api/questions/admin/stats
  * @access  Private/Admin
