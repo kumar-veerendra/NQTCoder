@@ -1,6 +1,7 @@
 import express from 'express';
 import {
   getQuestions,
+  getQuestionsCount,
   getQuestionById,
   createQuestion,
   updateQuestion,
@@ -14,6 +15,8 @@ const router = express.Router();
 router.route('/')
   .get(getQuestions)
   .post(protect, admin, createQuestion);
+
+router.get('/count', getQuestionsCount);
 
 router.get('/admin/stats', protect, admin, getAdminStats);
 

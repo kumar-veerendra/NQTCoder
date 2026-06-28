@@ -132,10 +132,11 @@ const ProblemArena = () => {
     fetchCompilerStatus();
   }, [id]);
 
-  // Restore guest code if redirected back from login
+  // Auto-load code from localStorage when problem (id) or language changes
   useEffect(() => {
     if (!question) return;
 
+    // First check if there is a pending guest session from redirect
     const guestCode = sessionStorage.getItem('guest_code');
     const guestLanguage = sessionStorage.getItem('guest_language');
     const guestProblemId = sessionStorage.getItem('guest_problem_id');
@@ -155,6 +156,7 @@ const ProblemArena = () => {
         setCode(guestCode);
         setLanguage(guestLanguage);
         localStorage.setItem('nqtcoder_selected_language', guestLanguage);
+        localStorage.setItem(`nqt_saved_code_${id}_${guestLanguage}`, guestCode);
         
         // Show success toast
         setToast('Welcome back! Your code is ready to continue.');
@@ -163,11 +165,28 @@ const ProblemArena = () => {
         clearGuestSession();
         return () => clearTimeout(timer);
       } else {
-        // Validation failed - clear silently
         clearGuestSession();
       }
     }
-  }, [id, question]);
+
+    // Standard load from localStorage if no guest session redirect
+    const savedCode = localStorage.getItem(`nqt_saved_code_${id}_${language}`);
+    if (savedCode !== null) {
+      setCode(savedCode);
+    } else {
+      setCode(''); // Triggers template reload in CodeEditor
+    }
+  }, [id, question, language]);
+
+  // Auto-save code to localStorage as the user types
+  useEffect(() => {
+    if (!question || code === undefined || code === null) return;
+    
+    // Don't save if it's empty string (loading state)
+    if (code === '') return;
+
+    localStorage.setItem(`nqt_saved_code_${id}_${language}`, code);
+  }, [code, id, language, question]);
 
   // Poll server load every 8 seconds
   useEffect(() => {
@@ -221,7 +240,7 @@ const ProblemArena = () => {
     setExecutionResult(null);
 
     try {
-      const result = await executionService.runCode(code, language, id, customInput, setQueueStatus);
+      const result = await executionService.runCode(code, language, question?._id || id, customInput, setQueueStatus);
       if (result.isCustom) {
         setExecutionResult({
           status: result.runResult.status === 'Success' ? 'Accepted' : result.runResult.status,
@@ -271,7 +290,7 @@ const ProblemArena = () => {
     setExecutionResult(null);
 
     try {
-      const result = await executionService.submitCode(code, language, id, setQueueStatus);
+      const result = await executionService.submitCode(code, language, question?._id || id, setQueueStatus);
       setExecutionResult(result);
 
       if (result.status === 'Accepted') {

@@ -37,3 +37,8 @@ export const getAdminStats = async () => {
   const response = await api.get('/api/questions/admin/stats');
   return response.data;
 };
+
+export const getQuestionsCount = async () => {
+  const response = await api.get('/api/questions/count');
+  return response.data;
+};

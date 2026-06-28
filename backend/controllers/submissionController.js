@@ -63,7 +63,10 @@ export const runCode = async (req, res) => {
   }
 
   try {
-    const question = await Question.findById(questionId);
+    let question = await Question.findOne({ slug: questionId });
+    if (!question && /^[0-9a-fA-F]{24}$/.test(questionId)) {
+      question = await Question.findById(questionId);
+    }
     if (!question) {
       return res.status(404).json({ message: 'Question not found' });
     }
@@ -153,7 +156,10 @@ export const submitCode = async (req, res) => {
   }
 
   try {
-    const question = await Question.findById(questionId);
+    let question = await Question.findOne({ slug: questionId });
+    if (!question && /^[0-9a-fA-F]{24}$/.test(questionId)) {
+      question = await Question.findById(questionId);
+    }
     if (!question) {
       return res.status(404).json({ message: 'Question not found' });
     }
@@ -232,13 +238,13 @@ export const submitCode = async (req, res) => {
       // Check if this user already solved this question before (for isFirstAccepted)
       const user = await User.findById(userId);
       const alreadySolved = user.solvedQuestions.some(
-        (id) => id.toString() === questionId.toString()
+        (id) => id.toString() === question._id.toString()
       );
       const isFirstAccepted = isAccepted && !alreadySolved;
 
       const submission = await Submission.create({
         user: userId,
-        question: questionId,
+        question: question._id,
         code,
         language,
         status: overallVerdict,
@@ -250,14 +256,14 @@ export const submitCode = async (req, res) => {
       });
 
       // Auto-update Question stats (totalSubmissions + totalAccepted)
-      await updateQuestionStats(questionId, isAccepted);
+      await updateQuestionStats(question._id, isAccepted);
 
       // Update User statistics
       user.submissionsCount += 1;
 
       if (isAccepted) {
         if (!alreadySolved) {
-          user.solvedQuestions.push(questionId);
+          user.solvedQuestions.push(question._id);
           
           // Update solved difficulty counts
           const diff = question.difficulty.toLowerCase();
@@ -330,9 +336,17 @@ export const getCompilersStatus = async (req, res) => {
  */
 export const getUserQuestionSubmissions = async (req, res) => {
   try {
+    let question = await Question.findOne({ slug: req.params.questionId });
+    if (!question && /^[0-9a-fA-F]{24}$/.test(req.params.questionId)) {
+      question = await Question.findById(req.params.questionId);
+    }
+    if (!question) {
+      return res.status(404).json({ message: 'Question not found' });
+    }
+
     const submissions = await Submission.find({
       user: req.user._id,
-      question: req.params.questionId
+      question: question._id
     }).sort({ createdAt: -1 });
 
     res.json(submissions);
