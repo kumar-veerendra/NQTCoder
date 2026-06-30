@@ -15,10 +15,10 @@ const VerifyEmail = () => {
   const [success, setSuccess] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   
-  // Resend Timer State (default 60s cooldown)
   const [timer, setTimer] = useState(60);
   const [canResend, setCanResend] = useState(false);
   const [resendSuccess, setResendSuccess] = useState('');
+  const [resendCount, setResendCount] = useState(0);
   
   const inputRefs = useRef([]);
 
@@ -124,6 +124,7 @@ const VerifyEmail = () => {
     setResendSuccess('');
     setCanResend(false);
     setTimer(60);
+    setResendCount(prev => prev + 1);
 
     const res = await resendCode(email);
     if (res.success) {
@@ -232,11 +233,13 @@ const VerifyEmail = () => {
                 )}
               </p>
 
-              {/* Temporary Google Auth Bug Notification */}
-              <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-3 text-[11px] text-amber-300/90 text-left leading-relaxed">
-                <span className="font-bold block mb-1 text-amber-400">⚠️ Having trouble getting the OTP?</span>
-                There might be a delivery issue with some email providers which we are currently fixing. You can go back and sign in instantly using <strong>Google Auth</strong> instead.
-              </div>
+              {/* Troubleshoot notification (visible only if user repeatedly requests resend) */}
+              {resendCount >= 2 && (
+                <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-3 text-[11px] text-amber-300/90 text-left leading-relaxed animate-fadeIn">
+                  <span className="font-bold block mb-1 text-amber-400">⚠️ Having trouble getting the OTP?</span>
+                  If there is a delay with your email provider, you can register or sign in instantly using <strong>Google Auth</strong> instead.
+                </div>
+              )}
             </div>
           </div>
         )}
