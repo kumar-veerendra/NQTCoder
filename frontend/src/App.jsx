@@ -36,7 +36,7 @@ import PrivacyPolicy from './pages/PrivacyPolicy';
 import Terms from './pages/Terms';
 
 const UnverifiedBanner = () => {
-  const { user } = useContext(AuthContext);
+  const { user, resendCode } = useContext(AuthContext);
   const location = useLocation();
   const navigate = useNavigate();
   const [isDismissed, setIsDismissed] = React.useState(false);
@@ -48,6 +48,10 @@ const UnverifiedBanner = () => {
   if (['/login', '/register', '/verify-email', '/forgot-password'].includes(location.pathname)) return null;
 
   const handleVerify = () => {
+    // Fire email trigger asynchronously
+    resendCode(user.email).catch((err) => {
+      console.error('Failed to trigger verification code from banner:', err);
+    });
     navigate(`/verify-email?email=${encodeURIComponent(user.email)}`);
   };
 
