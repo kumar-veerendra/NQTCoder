@@ -64,7 +64,7 @@ const CodeEditor = ({
     if (!code || templates.some(t => t.trim() === code.trim())) {
       onCodeChange(CODE_TEMPLATES[language]);
     }
-  }, [language]);
+  }, [language, code]);
 
   const handleResetTemplate = () => {
     if (window.confirm('Are you sure you want to reset your code to the default template? This will erase current changes.')) {
