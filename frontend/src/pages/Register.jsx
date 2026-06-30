@@ -5,6 +5,7 @@ import { ThemeContext } from '../context/ThemeContext';
 import { GoogleLogin } from '@react-oauth/google';
 import { User, Mail, Lock, UserPlus, AlertCircle, Eye, EyeOff } from 'lucide-react';
 import api from '../services/api';
+import SEO from '../components/SEO';
 
 const Register = () => {
   const { register, loginWithGoogle, user } = useContext(AuthContext);
@@ -215,6 +216,12 @@ const Register = () => {
 
   return (
     <div className="min-h-[85vh] flex items-center justify-center px-4 bg-darkBg">
+      <SEO
+        title="Create Account"
+        description="Register for a free NQTCoder account to start practicing placement coding questions, take mock tests, and compete on the leaderboard."
+        path="/register"
+        noIndex={true}
+      />
       <div className="glass-panel w-full max-w-md p-8 rounded-lg shadow-xl relative overflow-hidden">
         
         <div className="text-center space-y-2 mb-6 relative">

@@ -5,6 +5,7 @@ import {
   ChevronLeft, Play, CheckCircle2, Lock, Tag, Compass, Calendar, 
   HelpCircle, ShieldCheck, Award, Target, BookOpen 
 } from 'lucide-react';
+import SEO from '../components/SEO';
 
 const TrackDetail = () => {
   const { id } = useParams();
@@ -85,7 +86,13 @@ const TrackDetail = () => {
   const progressPercent = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-8 space-y-8 bg-darkBg text-slate-100 min-h-screen">
+    <div className="max-w-4xl mx-auto px-4 py-8 space-y-8 bg-darkBg text-slate-100 min-h-screen">
+      <SEO
+        title={track ? `${track.title} Track Detail` : "Track Detail"}
+        description="Structured roadmap timeline and progress tracking for NQTCoder tracks."
+        path={`/tracks/${id}`}
+        noIndex={true}
+      />
       
       {/* 1. Header Navigation Option */}
       <div className="flex items-center space-x-4 border-b border-darkBorder pb-5">

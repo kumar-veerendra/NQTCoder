@@ -111,6 +111,12 @@ const Footer = () => {
           © {new Date().getFullYear()} NQTCoder. All rights reserved.
         </p>
 
+        <div className="flex items-center space-x-3 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+          <Link to="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link>
+          <span>•</span>
+          <Link to="/terms" className="hover:text-white transition-colors">Terms of Service</Link>
+        </div>
+
         {/* Github link */}
         <a 
           href="https://github.com/kumar-veerendra/NQTCoder" 

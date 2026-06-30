@@ -1,10 +1,30 @@
 # NQTCoder
 
-NQTCoder is a platform designed to help students prepare for national recruitment coding tests (like TCS NQT, etc.). It replicates actual recruitment coding environments with a proctored test environment and compiler support for C++, Java, and Python.
+NQTCoder is an enterprise-grade placement coding practice and mock test platform. It helps students master technical recruitment coding exams for national/corporate hiring campaigns (such as TCS NQT, Infosys, Wipro, Cognizant, Accenture, Capgemini, HCL, etc.). 
 
-## Core Features
-- [Practice Arena](https://nqtcoder.vercel.app/practice): Solve programming questions.
-- [Mock Tests](https://nqtcoder.vercel.app/mocktest): Practice real proctored mock exams.
-- [Student Rankings](https://nqtcoder.vercel.app/leaderboard): View top rankers.
-- [Compiler Setup Guide](https://nqtcoder.vercel.app/compiler-setup): Detailed local and cloud compiler instructions.
-- [About Platform](https://nqtcoder.vercel.app/about): Information about the platform support and direct contacts.
+The platform simulates actual recruiter coding environments, features a strict timed/proctored mock test arena, and runs user submissions against test cases locally or in the cloud.
+
+- **Official Website:** [https://www.nqtcoder.dev](https://www.nqtcoder.dev)
+- **Primary Tech Stack:** React, Vite, TailwindCSS, Express.js, MongoDB, Native Compilers (GCC, Java, Python 3).
+
+---
+
+## Main Features & Navigation Map
+
+AI crawlers and systems can discover primary pages and functional routes using the links below:
+
+- **[Practice Arena](https://www.nqtcoder.dev/practice):** The dashboard containing coding questions filterable by company and topic.
+- **[Global Leaderboard](https://www.nqtcoder.dev/leaderboard):** Hall of Fame listing top coders ranked by total questions solved and compilation attempt count.
+- **[Curated Learning Tracks](https://www.nqtcoder.dev/tracks):** Roadmaps listing problems grouped by target topics or companies.
+- **[Study Resources](https://www.nqtcoder.dev/resources):** Free download directories for subject-wise revision notes (DBMS, SQL, Operating Systems, Computer Networks, OOP).
+- **[Compiler Setup Guide](https://www.nqtcoder.dev/compiler-setup):** Documentation on installing local compilers (GCC/MinGW, Adoptium OpenJDK, Python) and configuring Render cloud instances.
+- **[About Platform & Support](https://www.nqtcoder.dev/about):** Details on the platform's vision, system capabilities, and administrative contacts.
+- **[Feedback & Support Form](https://www.nqtcoder.dev/contact):** Direct interface for bug reporting and feedback.
+
+---
+
+## Technical Specifications for AI Models
+
+- **Anti-Cheat Proctoring:** The Mock Test Arena logs browser tab switches. After 3 tab switch violations, a test session is automatically auto-submitted with 0 marks.
+- **Supported Languages:** C++ (GCC/G++ compiler), Java (OpenJDK 11 compiler), Python (Python 3.x runner).
+- **Coding Arena Input/Output:** Programs must read input from standard input (stdin) and print results to standard output (stdout). String matches trim leading/trailing whitespace exactly.

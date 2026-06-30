@@ -253,7 +253,7 @@ export const getUserProfile = async (req, res) => {
   try {
     const user = await User.findById(req.user._id)
       .select('-password')
-      .populate('solvedQuestions', 'title difficulty company topic');
+      .populate('solvedQuestions', 'title difficulty company topic slug');
       
     if (user) {
       const formatted = await formatUserProfile(user);
@@ -283,7 +283,7 @@ export const updateUserProfile = async (req, res) => {
       
       const populatedUser = await User.findById(updatedUser._id)
         .select('-password')
-        .populate('solvedQuestions', 'title difficulty company topic');
+        .populate('solvedQuestions', 'title difficulty company topic slug');
 
       const formatted = await formatUserProfile(populatedUser);
       res.json(formatted);

@@ -20,6 +20,7 @@ import {
   getMonthLabels,
   getBadgesList
 } from '../utils/profileHelpers';
+import SEO from '../components/SEO';
 
 const Profile = () => {
   const { user: authUser } = useContext(AuthContext);
@@ -159,6 +160,12 @@ const Profile = () => {
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8 bg-darkBg text-slate-100 min-h-screen">
+      <SEO
+        title="My Profile"
+        description="View your NQTCoder profile, coding stats, activity calendar, badges, submission history, and mock test results."
+        path="/profile"
+        noIndex={true}
+      />
       <style>{`
         @keyframes float {
           0% { transform: translateY(0px); }

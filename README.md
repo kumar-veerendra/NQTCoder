@@ -1,7 +1,7 @@
 # NQTCoder - Elite MERN Recruitment Practice Arena
 
 ## 🌐 Live Deployments
-* **Frontend Application (Vercel):** [https://nqtcoder.vercel.app](https://nqtcoder.vercel.app)
+* **Frontend Application:** [https://www.nqtcoder.dev](https://www.nqtcoder.dev) *(legacy: [https://nqtcoder.vercel.app](https://nqtcoder.vercel.app))*
 * **Backend REST API (Render):** [https://nqtcoder.onrender.com](https://nqtcoder.onrender.com)
 
 ---

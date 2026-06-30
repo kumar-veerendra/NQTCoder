@@ -14,6 +14,7 @@ import {
   Code,
   CheckCircle
 } from 'lucide-react';
+import SEO from '../components/SEO';
 
 const NotFound = () => {
   const navigate = useNavigate();
@@ -75,6 +76,12 @@ const NotFound = () => {
 
   return (
     <div className="min-h-[calc(100vh-73px)] bg-darkBg text-slate-100 px-6 py-12 relative overflow-hidden flex flex-col items-center justify-center font-sans select-none">
+      <SEO
+        title="404 — Page Not Found"
+        description="The page you are looking for does not exist on NQTCoder. Return to the home page or browse our practice questions."
+        path="/404"
+        noIndex={true}
+      />
       
       {/* Background glow grids */}
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#1f293708_1px,transparent_1px),linear-gradient(to_bottom,#1f293708_1px,transparent_1px)] bg-[size:4rem_4rem] pointer-events-none"></div>

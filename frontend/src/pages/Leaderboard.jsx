@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import * as executionService from '../services/executionService';
 import { Trophy, Award, Search, Sparkles } from 'lucide-react';
+import SEO from '../components/SEO';
 
 const Leaderboard = () => {
   const [rankings, setRankings] = useState([]);
@@ -61,7 +62,22 @@ const Leaderboard = () => {
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8 space-y-8 bg-darkBg text-slate-100">
-      
+      {/* ── SEO ─────────────────────────────────────────────────────────── */}
+      <SEO
+        title="Leaderboard — Top Coders & Student Rankings"
+        description="View the global leaderboard of top NQTCoder students ranked by coding problems solved. See who leads in C++, Java, and Python placement preparation."
+        path="/leaderboard"
+        keywords="coding leaderboard, top coders, placement ranking, student rank, NQT leaderboard, competitive programming rank"
+        jsonLd={{
+          '@context': 'https://schema.org',
+          '@type': 'BreadcrumbList',
+          'itemListElement': [
+            { '@type': 'ListItem', 'position': 1, 'name': 'Home', 'item': 'https://www.nqtcoder.dev/' },
+            { '@type': 'ListItem', 'position': 2, 'name': 'Leaderboard', 'item': 'https://www.nqtcoder.dev/leaderboard' }
+          ]
+        }}
+      />
+
       {/* 1. Header Hero Panel */}
       <div className="bg-darkCard border border-darkBorder p-6 rounded-lg flex items-center justify-between shadow">
         <div className="space-y-2">

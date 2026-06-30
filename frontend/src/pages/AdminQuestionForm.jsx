@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import * as questionService from '../services/questionService';
 import { ChevronLeft, Plus, Trash2, Save, FileText, CheckCircle2, Eye, EyeOff, ShieldAlert } from 'lucide-react';
+import SEO from '../components/SEO';
 
 const AdminQuestionForm = ({ editId, onSave, onCancel }) => {
   const { id: routeId } = useParams();
@@ -176,6 +177,12 @@ const AdminQuestionForm = ({ editId, onSave, onCancel }) => {
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8 space-y-8 bg-darkBg text-slate-100">
+      <SEO
+        title={isEditMode ? "Edit Question" : "Create Question"}
+        description="Admin form to create or edit practice questions on NQTCoder."
+        path={isEditMode ? `/admin/question/edit/${id}` : "/admin/question/new"}
+        noIndex={true}
+      />
       
       {/* Navigation Header */}
       <div className="flex items-center space-x-4 border-b border-darkBorder pb-5">

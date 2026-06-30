@@ -5,6 +5,7 @@ import {
   Code2, Award, BookOpen, ChevronRight, Play, RefreshCw, 
   Tag, Compass, Target, Calendar, CheckCircle2 
 } from 'lucide-react';
+import SEO from '../components/SEO';
 
 const Tracks = () => {
   const navigate = useNavigate();
@@ -80,7 +81,22 @@ const Tracks = () => {
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8 space-y-8 bg-darkBg text-slate-100 min-h-screen">
-      
+      {/* ── SEO ─────────────────────────────────────────────────────────── */}
+      <SEO
+        title="Learning Tracks — Structured Coding Roadmaps"
+        description="Follow structured learning tracks on NQTCoder to master coding topics systematically. Company-wise and topic-wise roadmaps for TCS NQT, Infosys, and Wipro placement."
+        path="/tracks"
+        keywords="coding tracks, learning roadmap, placement preparation path, TCS track, Infosys track, structured learning, coding syllabus"
+        jsonLd={{
+          '@context': 'https://schema.org',
+          '@type': 'BreadcrumbList',
+          'itemListElement': [
+            { '@type': 'ListItem', 'position': 1, 'name': 'Home', 'item': 'https://www.nqtcoder.dev/' },
+            { '@type': 'ListItem', 'position': 2, 'name': 'Learning Tracks', 'item': 'https://www.nqtcoder.dev/tracks' }
+          ]
+        }}
+      />
+
       {/* 1. Header Hero Panel */}
       <div className="bg-darkCard border border-darkBorder p-6 rounded-lg flex flex-col md:flex-row items-center justify-between gap-6">
         <div className="space-y-2 text-center md:text-left">

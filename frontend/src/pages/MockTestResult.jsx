@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import * as mockTestService from '../services/mockTestService';
 import { ChevronLeft, Award, AlertTriangle, ShieldCheck, Clock, FileCode, CheckCircle, XCircle } from 'lucide-react';
+import SEO from '../components/SEO';
 
 const MockTestResult = () => {
   const { id } = useParams();
@@ -71,7 +72,13 @@ const MockTestResult = () => {
   const isCheatDetected = test.tabSwitchesCount >= 3;
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-8 space-y-8 bg-darkBg text-slate-100 min-h-screen">
+    <div className="max-w-4xl mx-auto px-4 py-8 space-y-8 bg-darkBg text-slate-100 min-h-screen">
+      <SEO
+        title="Mock Test Report"
+        description="Detailed result sheet for your NQTCoder Mock Test session."
+        path={`/mocktest/result/${id}`}
+        noIndex={true}
+      />
       
       {/* 1. Header Navigation */}
       <div className="flex items-center space-x-4 border-b border-darkBorder pb-5">

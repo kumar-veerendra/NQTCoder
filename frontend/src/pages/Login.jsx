@@ -4,6 +4,7 @@ import { AuthContext } from '../context/AuthContext';
 import { ThemeContext } from '../context/ThemeContext';
 import { GoogleLogin } from '@react-oauth/google';
 import { Mail, Lock, LogIn, AlertCircle, Eye, EyeOff } from 'lucide-react';
+import SEO from '../components/SEO';
 
 const Login = () => {
   const { login, loginWithGoogle, user } = useContext(AuthContext);
@@ -67,6 +68,12 @@ const Login = () => {
 
   return (
     <div className="min-h-[85vh] flex items-center justify-center px-4 bg-darkBg">
+      <SEO
+        title="Sign In"
+        description="Sign in to your NQTCoder account to access placement coding practice, mock tests, and your personal dashboard."
+        path="/login"
+        noIndex={true}
+      />
       <div className="glass-panel w-full max-w-md p-8 rounded-lg shadow-xl relative overflow-hidden">
         
         <div className="text-center space-y-2 mb-8 relative">
