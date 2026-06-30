@@ -330,6 +330,8 @@ const Home = () => {
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
   const [totalQuestions, setTotalQuestions] = useState(0);
+  const [totalCompanies, setTotalCompanies] = useState(0);
+  const [totalTopics, setTotalTopics] = useState(0);
   const [selectedResource, setSelectedResource] = useState(null);
   const [modalLogs, setModalLogs] = useState([]);
   const [compilationProgress, setCompilationProgress] = useState(0);
@@ -381,12 +383,16 @@ const Home = () => {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const { totalQuestions, companyCounts } = await questionService.getQuestionsCount();
+        const { totalQuestions, companyCounts, totalCompanies, totalTopics } = await questionService.getQuestionsCount();
         setTotalQuestions(totalQuestions);
         setCompanyCounts(companyCounts || {});
+        setTotalCompanies(totalCompanies || 15);
+        setTotalTopics(totalTopics || 12);
       } catch (err) {
         console.error('Could not fetch questions count for homepage:', err);
         setTotalQuestions(290); // Fallback
+        setTotalCompanies(15);
+        setTotalTopics(12);
       }
     };
     fetchStats();
@@ -414,8 +420,8 @@ const Home = () => {
   }, []);
 
   const animatedQuestions = useCountUp(totalQuestions, 1600);
-  const animatedCompanies = useCountUp(15, 1200);
-  const animatedTopics   = useCountUp(12, 1000);
+  const animatedCompanies = useCountUp(totalCompanies, 1200);
+  const animatedTopics   = useCountUp(totalTopics, 1000);
 
   const stats = [
     { label: 'Total Questions', animated: animatedQuestions, suffix: '+' },

@@ -300,6 +300,10 @@ export const getQuestionsCount = async (req, res) => {
   try {
     const totalQuestions = await Question.countDocuments({});
     
+    // Fetch unique topics count from database
+    const uniqueTopics = await Question.distinct('topic');
+    const totalTopics = uniqueTopics.filter(Boolean).length;
+
     // Fetch only company field to count questions per company
     const questions = await Question.find({}).select('company');
     const companyCounts = {};
@@ -314,9 +318,13 @@ export const getQuestionsCount = async (req, res) => {
       }
     });
 
+    const totalCompanies = Object.keys(companyCounts).length;
+
     res.json({
       totalQuestions,
-      companyCounts
+      companyCounts,
+      totalCompanies: totalCompanies || 15, // fallback to typical count if empty
+      totalTopics: totalTopics || 12        // fallback to typical count if empty
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
