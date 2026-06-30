@@ -363,7 +363,7 @@ export const getUserQuestionSubmissions = async (req, res) => {
 export const getUserSubmissions = async (req, res) => {
   try {
     const submissions = await Submission.find({ user: req.user._id })
-      .populate('question', 'title difficulty topic company')
+      .populate('question', 'title difficulty topic company slug')
       .sort({ createdAt: -1 });
 
     res.json(submissions);
