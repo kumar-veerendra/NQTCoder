@@ -1,15 +1,18 @@
 import React, { useState, useContext, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import { submitFeedback } from '../services/feedbackService';
 import { 
   Terminal, Mail, Github, MessageSquare, Bug, HelpCircle, 
   Send, CheckCircle2, Award, Shield, BookOpen, ExternalLink, ArrowRight, Linkedin
 } from 'lucide-react';
+import SEO from '../components/SEO';
 
 const AboutContact = () => {
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
+  const location = useLocation();
+  const isContactPage = location.pathname === '/contact';
 
   // Form states
   const [formData, setFormData] = useState({
@@ -97,6 +100,32 @@ const AboutContact = () => {
 
   return (
     <div className="min-h-[calc(100vh-73px)] bg-darkBg text-slate-100 py-12 px-4 sm:px-6 lg:px-8 font-sans">
+      {/* ── SEO ─────────────────────────────────────────────────────────── */}
+      <SEO
+        title={isContactPage ? 'Contact Us — Feedback & Bug Reports' : 'About NQTCoder — Platform, Team & Mission'}
+        description={isContactPage
+          ? 'Reach out to the NQTCoder team to submit feedback, report a bug, or ask a question. We respond to all queries from placement-aspiring students.'
+          : 'Learn about NQTCoder — a placement coding practice platform built for students preparing for TCS NQT, Infosys, Wipro & more. Meet the team behind it.'}
+        path={isContactPage ? '/contact' : '/about'}
+        keywords="NQTCoder about, contact NQTCoder, feedback, bug report, placement platform team, coding platform India"
+        jsonLd={[
+          {
+            '@context': 'https://schema.org',
+            '@type': 'BreadcrumbList',
+            'itemListElement': [
+              { '@type': 'ListItem', 'position': 1, 'name': 'Home', 'item': 'https://www.nqtcoder.dev/' },
+              { '@type': 'ListItem', 'position': 2, 'name': isContactPage ? 'Contact' : 'About', 'item': `https://www.nqtcoder.dev${isContactPage ? '/contact' : '/about'}` }
+            ]
+          },
+          {
+            '@context': 'https://schema.org',
+            '@type': 'ContactPage',
+            'name': 'NQTCoder — Contact & Feedback',
+            'url': 'https://www.nqtcoder.dev/contact',
+            'description': 'Submit feedback, bug reports, or questions to the NQTCoder team.'
+          }
+        ]}
+      />
       <div className="max-w-6xl mx-auto space-y-16">
         
         {/* Section 1: Page Header */}

@@ -11,6 +11,7 @@ import Console from '../components/Console';
 import Timer from '../components/Timer';
 import AuthModal from '../components/AuthModal';
 import { Play, Send, ChevronLeft, Terminal, AlertTriangle, ShieldCheck, Sun, Moon, CheckCircle2, Search, Users, Zap, X } from 'lucide-react';
+import SEO from '../components/SEO';
 
 const ProblemArena = () => {
   const { id } = useParams();
@@ -426,6 +427,12 @@ const ProblemArena = () => {
         isResizing ? 'cursor-col-resize select-none' : isResizingHeight ? 'cursor-row-resize select-none' : ''
       }`}
     >
+      <SEO
+        title="Problem Arena"
+        description="Solve placement coding problems on NQTCoder in C++, Java, or Python. Real-time code execution with test case verification."
+        path="/problem"
+        noIndex={true}
+      />
       
       {/* 1. Exam Control Bar with LeetCode Aesthetic */}
       <div className="px-3 sm:px-6 py-2 bg-darkCard border-b border-darkBorder flex items-center justify-between shrink-0 z-10 gap-2 select-none">

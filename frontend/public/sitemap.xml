@@ -1,51 +1,82 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <!-- Home Page -->
   <url>
-    <loc>https://nqtcoder.vercel.app/</loc>
-    <lastmod>2026-06-26</lastmod>
+    <loc>https://www.nqtcoder.dev/</loc>
+    <lastmod>2026-07-01</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
+  
+  <!-- Practice / Problems / Companies Dashboard -->
   <url>
-    <loc>https://nqtcoder.vercel.app/compiler-setup</loc>
-    <lastmod>2026-06-26</lastmod>
-    <changefreq>monthly</changefreq>
+    <loc>https://www.nqtcoder.dev/practice</loc>
+    <lastmod>2026-07-01</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+  
+  <!-- Leaderboard -->
+  <url>
+    <loc>https://www.nqtcoder.dev/leaderboard</loc>
+    <lastmod>2026-07-01</lastmod>
+    <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
+  
+  <!-- Learning Tracks -->
   <url>
-    <loc>https://nqtcoder.vercel.app/about</loc>
-    <lastmod>2026-06-26</lastmod>
+    <loc>https://www.nqtcoder.dev/tracks</loc>
+    <lastmod>2026-07-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Study Resources -->
+  <url>
+    <loc>https://www.nqtcoder.dev/resources</loc>
+    <lastmod>2026-07-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Compiler Setup Guide -->
+  <url>
+    <loc>https://www.nqtcoder.dev/compiler-setup</loc>
+    <lastmod>2026-07-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
+
+  <!-- About Page -->
   <url>
-    <loc>https://nqtcoder.vercel.app/contact</loc>
-    <lastmod>2026-06-26</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://nqtcoder.vercel.app/login</loc>
-    <lastmod>2026-06-26</lastmod>
+    <loc>https://www.nqtcoder.dev/about</loc>
+    <lastmod>2026-07-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
+
+  <!-- Contact Page -->
   <url>
-    <loc>https://nqtcoder.vercel.app/register</loc>
-    <lastmod>2026-06-26</lastmod>
+    <loc>https://www.nqtcoder.dev/contact</loc>
+    <lastmod>2026-07-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
+
+  <!-- Privacy Policy -->
   <url>
-    <loc>https://nqtcoder.vercel.app/forgot-password</loc>
-    <lastmod>2026-06-26</lastmod>
+    <loc>https://www.nqtcoder.dev/privacy</loc>
+    <lastmod>2026-07-01</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
+    <priority>0.4</priority>
   </url>
+
+  <!-- Terms of Service -->
   <url>
-    <loc>https://nqtcoder.vercel.app/verify-email</loc>
-    <lastmod>2026-06-26</lastmod>
+    <loc>https://www.nqtcoder.dev/terms</loc>
+    <lastmod>2026-07-01</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
+    <priority>0.4</priority>
   </url>
 </urlset>

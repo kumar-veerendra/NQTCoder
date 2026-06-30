@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import * as mockTestService from '../services/mockTestService';
 import { AuthContext } from '../context/AuthContext';
 import { Award, Zap, AlertTriangle, Code2, ArrowRight, ShieldCheck, Trophy, Layers, Clock } from 'lucide-react';
+import SEO from '../components/SEO';
 
 const MockTestDashboard = () => {
   const navigate = useNavigate();
@@ -56,6 +57,21 @@ const MockTestDashboard = () => {
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8 space-y-6 bg-darkBg text-slate-100 min-h-screen">
+      {/* ── SEO ─────────────────────────────────────────────────────────── */}
+      <SEO
+        title="Proctored Mock Tests — Simulate Real Placement Exams"
+        description="Take timed proctored mock tests on NQTCoder that replicate real TCS NQT, Infosys, and Wipro placement exam conditions. Anti-cheat system, detailed score reports."
+        path="/mocktest"
+        keywords="mock test, proctored exam, placement simulation, TCS NQT mock test, coding exam practice, timed test, anti-cheat proctoring"
+        jsonLd={{
+          '@context': 'https://schema.org',
+          '@type': 'BreadcrumbList',
+          'itemListElement': [
+            { '@type': 'ListItem', 'position': 1, 'name': 'Home', 'item': 'https://www.nqtcoder.dev/' },
+            { '@type': 'ListItem', 'position': 2, 'name': 'Mock Tests', 'item': 'https://www.nqtcoder.dev/mocktest' }
+          ]
+        }}
+      />
       {/* 1. Header Area */}
       <div className="flex flex-col md:flex-row md:items-center justify-between pb-6 border-b border-darkBorder">
         <div className="space-y-1 text-left">

@@ -54,6 +54,32 @@ const sendViaResend = async (to, subject, html) => {
   return data;
 };
 
+// ─── Brevo (Fallback — requires verified domain for sending to any email) ──────
+const sendViaBrevo = async (to, subject, html) => {
+  const apiKey = process.env.BREVO_API_KEY;
+  const senderEmail = process.env.BREVO_SENDER_EMAIL || 'noreply@nqtcoder.dev';
+  const senderName = process.env.BREVO_SENDER_NAME || 'NQTCoder';
+  
+  if (!apiKey) throw new Error('Brevo API key missing.');
+
+  const response = await axios.post(
+    'https://api.brevo.com/v3/smtp/email',
+    {
+      sender: { name: senderName, email: senderEmail },
+      to: [{ email: to }],
+      subject: subject,
+      htmlContent: html
+    },
+    {
+      headers: {
+        'api-key': apiKey,
+        'Content-Type': 'application/json'
+      }
+    }
+  );
+  return response.data;
+};
+
 // ─── OTP HTML template ────────────────────────────────────────────────────────
 const otpTemplate = (code, bodyText) => `
   <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:30px;border:1px solid #1e293b;border-radius:16px;background-color:#0b1329;color:#f1f5f9;">
@@ -76,7 +102,7 @@ const otpTemplate = (code, bodyText) => `
   </div>
 `;
 
-// ─── Master send: Gmail API → Resend fallback ─────────────────────────────────
+// ─── Master send: Gmail API → Brevo → Resend fallback ─────────────────────────
 const sendEmail = async (to, subject, html) => {
   // 1️⃣  Try Gmail API first (works for all recipients, no domain needed)
   if (process.env.GOOGLE_GMAIL_CLIENT_ID) {
@@ -85,11 +111,22 @@ const sendEmail = async (to, subject, html) => {
       console.log(`[EMAIL] ✅ Sent via Gmail API to ${to}`);
       return result;
     } catch (gmailErr) {
-      console.warn('[EMAIL] Gmail API failed, trying Resend fallback:', gmailErr.response?.data?.error || gmailErr.message);
+      console.warn('[EMAIL] Gmail API failed, trying fallbacks:', gmailErr.response?.data?.error || gmailErr.message);
     }
   }
 
-  // 2️⃣  Resend fallback (requires verified domain for non-owner recipients)
+  // 2️⃣  Try Brevo API (requires verified domain or sender)
+  if (process.env.BREVO_API_KEY) {
+    try {
+      const result = await sendViaBrevo(to, subject, html);
+      console.log(`[EMAIL] ✅ Sent via Brevo to ${to}`);
+      return result;
+    } catch (brevoErr) {
+      console.warn('[EMAIL] Brevo failed, trying Resend fallback:', brevoErr.response?.data || brevoErr.message);
+    }
+  }
+
+  // 3️⃣  Resend fallback (requires verified domain for non-owner recipients)
   if (process.env.RESEND_API_KEY) {
     try {
       const result = await sendViaResend(to, subject, html);

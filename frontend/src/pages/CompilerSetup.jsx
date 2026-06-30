@@ -5,6 +5,7 @@ import {
   Download, Settings, Play, Coffee, Code2, Cpu, ArrowRight,
   ExternalLink, Info, Zap, Shield
 } from 'lucide-react';
+import SEO from '../components/SEO';
 
 // ─── Data ───────────────────────────────────────────────────────────────────
 
@@ -212,6 +213,23 @@ const CompilerSetup = () => {
 
   return (
     <div className="min-h-screen bg-darkBg text-slate-100">
+      {/* ── SEO ─────────────────────────────────────────────────────────── */}
+      <SEO
+        title="Compiler Setup Guide — C++, Java & Python on Windows"
+        description="Step-by-step guide to set up C++ (GCC/MinGW), Java 11 (JDK), and Python 3 compilers on Windows and Linux. Also covers cloud deployment on Render for NQTCoder."
+        path="/compiler-setup"
+        keywords="compiler setup, GCC MinGW Windows, Java JDK install, Python 3 setup, NQTCoder compiler, coding environment setup, Render deployment"
+        jsonLd={[
+          {
+            '@context': 'https://schema.org',
+            '@type': 'BreadcrumbList',
+            'itemListElement': [
+              { '@type': 'ListItem', 'position': 1, 'name': 'Home', 'item': 'https://www.nqtcoder.dev/' },
+              { '@type': 'ListItem', 'position': 2, 'name': 'Compiler Setup Guide', 'item': 'https://www.nqtcoder.dev/compiler-setup' }
+            ]
+          }
+        ]}
+      />
 
       {/* ── Hero ───────────────────────────────────────────────── */}
       <div className="relative overflow-hidden border-b border-darkBorder">
@@ -327,7 +345,7 @@ const CompilerSetup = () => {
               { title: 'Sign up at Render.com', desc: 'Go to render.com and create a free account. Connect your GitHub account.', link: { label: 'Open Render.com', url: 'https://render.com' } },
               { title: 'Create a new Web Service', desc: 'Click "New +" → "Web Service" → Select your GitHub repo → Set root directory to backend.' },
               { title: 'Set Build & Start Commands', desc: 'In Render settings, set exactly:', code: 'Build Command:  chmod +x render-build.sh && ./render-build.sh\nStart Command:  node server.js\nRoot Directory: backend' },
-              { title: 'Add Environment Variables in Render Dashboard', desc: 'Go to Environment tab → Add these (copy values from your local .env file — no file upload needed):', code: 'MONGO_URI        = mongodb+srv://veerendrakumarnqtcoder:...\nJWT_SECRET       = bfyp_jwt_secret_token_key_2026\nGOOGLE_CLIENT_ID = 749223881103-ucpf...\nCLIENT_URL       = https://your-frontend.vercel.app\nRUN_MODE         = local\nNODE_ENV         = production\nJAVA_11_BIN      = (leave empty — auto-detected on Linux)' },
+              { title: 'Add Environment Variables in Render Dashboard', desc: 'Go to Environment tab → Add these (copy values from your local .env file — no file upload needed):', code: 'MONGO_URI        = mongodb+srv://veerendrakumarnqtcoder:...\nJWT_SECRET       = bfyp_jwt_secret_token_key_2026\nGOOGLE_CLIENT_ID = 749223881103-ucpf...\nCLIENT_URL       = https://www.nqtcoder.dev\nRUN_MODE         = local\nNODE_ENV         = production\nJAVA_11_BIN      = (leave empty — auto-detected on Linux)' },
               { title: 'Click Deploy — Done!', desc: 'Render runs render-build.sh which installs g++, Python 3, and Java on their Linux server automatically. The code editor will show Online for all languages after deploy.' },
               { title: 'Deploy Frontend to Vercel (Free)', desc: 'Go to vercel.com → Import your GitHub repo → Set root directory to frontend → Add one environment variable:', code: 'VITE_API_URL = https://your-backend-name.onrender.com', link: { label: 'Open Vercel.com', url: 'https://vercel.com' } },
             ].map((step, i, arr) => (

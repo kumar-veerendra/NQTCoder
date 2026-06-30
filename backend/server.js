@@ -19,8 +19,34 @@ connectDB();
 
 const app = express();
 
-// Middlewares
-app.use(cors());
+// ─── CORS ─────────────────────────────────────────────────────────────────────
+// CLIENT_URL is the primary (new) domain; CORS also accepts the legacy Vercel
+// domain and localhost so existing users and local dev are never broken.
+const allowedOrigins = [
+  process.env.CLIENT_URL,           // primary: https://www.nqtcoder.dev
+  'https://www.nqtcoder.dev',       // always allow the production domain
+  'https://nqtcoder.vercel.app',    // legacy domain — keep alive during transition
+  'http://localhost:5173',          // Vite local dev
+  'http://localhost:3000',          // CRA / alternate dev port
+].filter(Boolean); // strip undefined in case CLIENT_URL is not set
+
+const corsOptions = {
+  origin: (origin, callback) => {
+    // Allow server-to-server calls (Postman, curl, render health-checks) which send no Origin
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error(`CORS policy: origin '${origin}' is not allowed.`));
+    }
+  },
+  credentials: true,   // needed if you ever attach cookies / auth headers
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+};
+
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions)); // pre-flight for all routes
 app.use(express.json());
 
 // Base Route

@@ -32,6 +32,8 @@ import Resources from './pages/Resources';
 import CompilerSetup from './pages/CompilerSetup';
 import VerifyEmail from './pages/VerifyEmail';
 import ForgotPassword from './pages/ForgotPassword';
+import PrivacyPolicy from './pages/PrivacyPolicy';
+import Terms from './pages/Terms';
 
 const UnverifiedBanner = () => {
   const { user } = useContext(AuthContext);
@@ -118,6 +120,8 @@ const AppContent = () => {
         <Route path="/contact" element={<AboutContact />} />
         <Route path="/compiler-setup" element={<CompilerSetup />} />
         <Route path="/resources" element={<Resources />} />
+        <Route path="/privacy" element={<PrivacyPolicy />} />
+        <Route path="/terms" element={<Terms />} />
 
         {/* Protected User Routes */}
         <Route path="/practice" element={<CompanyDashboard />} />

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useContext } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import { Mail, CheckCircle, AlertCircle, RefreshCw } from 'lucide-react';
+import SEO from '../components/SEO';
 
 const VerifyEmail = () => {
   const { verifyEmail, resendCode } = useContext(AuthContext);
@@ -136,6 +137,12 @@ const VerifyEmail = () => {
 
   return (
     <div className="min-h-[85vh] flex items-center justify-center px-4 bg-darkBg text-slate-100">
+      <SEO
+        title="Verify Your Email"
+        description="Enter the OTP sent to your email to verify your NQTCoder account and unlock all features."
+        path="/verify-email"
+        noIndex={true}
+      />
       <div className="glass-panel w-full max-w-md p-8 rounded-lg shadow-xl relative overflow-hidden text-center">
         
         {/* Background decorative glows */}

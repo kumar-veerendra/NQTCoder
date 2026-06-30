@@ -11,6 +11,7 @@ import {
   Compass, Calendar, ExternalLink, MessageSquare, Bug, Check,
   Database, Server, Network, Layers, FileText, FolderOpen, Link2
 } from 'lucide-react';
+import SEO from '../components/SEO';
 
 const AdminDashboard = () => {
   const [questions, setQuestions] = useState([]);
@@ -319,6 +320,12 @@ const AdminDashboard = () => {
 
   return (
     <div className="h-[calc(100vh-73px)] flex bg-darkBg text-slate-100 overflow-hidden">
+      <SEO
+        title="Admin Control Center"
+        description="Administrative panel for NQTCoder. Manage questions, learning tracks, and platform settings."
+        path="/admin"
+        noIndex={true}
+      />
       
       {/* 1. Left Sidebar Navigation Panel */}
       <aside className="w-64 bg-darkCard border-r border-darkBorder flex flex-col shrink-0">

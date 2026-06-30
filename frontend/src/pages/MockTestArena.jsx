@@ -8,6 +8,7 @@ import ProblemDescription from '../components/ProblemDescription';
 import CodeEditor from '../components/CodeEditor';
 import Console from '../components/Console';
 import { Play, Send, ChevronLeft, Terminal, AlertTriangle, ShieldCheck, Sun, Moon } from 'lucide-react';
+import SEO from '../components/SEO';
 
 const MockTestArena = () => {
   const { id } = useParams();
@@ -360,6 +361,12 @@ const MockTestArena = () => {
         isResizing ? 'cursor-col-resize' : isResizingHeight ? 'cursor-row-resize' : ''
       }`}
     >
+      <SEO
+        title="Mock Test Arena"
+        description="Proctored mock test session on NQTCoder. Timed exam with anti-cheat monitoring."
+        path="/mocktest/arena"
+        noIndex={true}
+      />
       
       {/* 1. Strict Exam Header bar */}
       <div className="px-3 sm:px-6 py-2 bg-darkCard border-b border-darkBorder flex items-center justify-between shrink-0 z-10 gap-2 select-none">

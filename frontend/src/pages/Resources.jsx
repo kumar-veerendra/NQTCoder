@@ -4,6 +4,7 @@ import {
   Database, Server, Network, Layers, FileText, BookOpen,
   FolderOpen, ExternalLink, Search, ChevronRight, AlertCircle
 } from 'lucide-react';
+import SEO from '../components/SEO';
 
 // Maps icon name string (stored in DB) to a Lucide component
 const ICON_MAP = {
@@ -73,6 +74,21 @@ const Resources = () => {
 
   return (
     <div className="min-h-screen bg-darkBg text-slate-100">
+      {/* ── SEO ─────────────────────────────────────────────────────────── */}
+      <SEO
+        title="Free Study Resources — SQL, DBMS, OS, CN & OOP Notes"
+        description="Access free subject-wise revision notes for placement exams. Covers SQL, DBMS, Operating Systems, Computer Networks, and OOP. Curated for TCS NQT and IT placement prep."
+        path="/resources"
+        keywords="free study resources, SQL notes, DBMS revision, OS notes, computer networks, OOP notes, placement revision material, NQT resources"
+        jsonLd={{
+          '@context': 'https://schema.org',
+          '@type': 'BreadcrumbList',
+          'itemListElement': [
+            { '@type': 'ListItem', 'position': 1, 'name': 'Home', 'item': 'https://www.nqtcoder.dev/' },
+            { '@type': 'ListItem', 'position': 2, 'name': 'Study Resources', 'item': 'https://www.nqtcoder.dev/resources' }
+          ]
+        }}
+      />
 
       {/* ── Hero / Header ─────────────────────────────────────── */}
       <div className="relative overflow-hidden border-b border-darkBorder">

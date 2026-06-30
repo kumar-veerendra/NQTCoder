@@ -37,9 +37,9 @@ services:
       - key: EMAIL_PASS
         sync: false
 
-      # ── Client URL (your frontend URL on Vercel/Netlify) ──────────────────
+      # ── Client URL (your primary frontend domain) ─────────────────────────
       - key: CLIENT_URL
-        sync: false    # e.g. https://nqtcoder.vercel.app
+        sync: false    # Set to: https://www.nqtcoder.dev  (nqtcoder.vercel.app also allowed via CORS allowlist)
 
       # ── Compiler Mode ─────────────────────────────────────────────────────
       # Keep 'local' — compilers are auto-installed by render-build.sh

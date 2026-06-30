@@ -8,6 +8,7 @@ import {
   Cpu, Briefcase, FileText, Database, Server, Network, Layers,
   AlertTriangle, X, ChevronDown, Terminal, Award
 } from 'lucide-react';
+import SEO from '../components/SEO';
 
 // ── Count-up animation hook ──────────────────────────────────────────────────
 const useCountUp = (target, duration = 1800) => {
@@ -481,7 +482,34 @@ const Home = () => {
 
   return (
     <div className="bg-darkBg text-slate-100 min-h-screen selection:bg-accentBlue/30 selection:text-slate-100">
-      
+      {/* ── SEO ──────────────────────────────────────────────────────────── */}
+      <SEO
+        title="Placement Coding Practice — NQT, TCS, Infosys, Wipro"
+        description="Practice 200+ real placement coding questions from TCS NQT, Infosys, Wipro, Cognizant & more. Take proctored mock tests, track your rank on the leaderboard. Free for all students."
+        path="/"
+        keywords="NQT coder, placement coding practice, TCS NQT questions, Infosys coding interview, Wipro coding test, mock test, leaderboard, C++ Java Python, programming placement"
+        jsonLd={[
+          {
+            '@context': 'https://schema.org',
+            '@type': 'FAQPage',
+            'mainEntity': faqs.flatMap(group =>
+              group.items.map(item => ({
+                '@type': 'Question',
+                'name': item.q,
+                'acceptedAnswer': { '@type': 'Answer', 'text': item.a }
+              }))
+            )
+          },
+          {
+            '@context': 'https://schema.org',
+            '@type': 'BreadcrumbList',
+            'itemListElement': [
+              { '@type': 'ListItem', 'position': 1, 'name': 'Home', 'item': 'https://www.nqtcoder.dev/' }
+            ]
+          }
+        ]}
+      />
+
       {/* 1. Hero Section */}
       <section className="relative pt-14 pb-10 px-6 max-w-6xl mx-auto flex flex-col items-center text-center">
         <div className="inline-flex items-center space-x-2 bg-accentBlue/10 text-accentBlue px-3.5 py-1 rounded-full text-xs font-semibold border border-accentBlue/20 mb-5 animate-fade-in select-none">

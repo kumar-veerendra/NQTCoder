@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import * as questionService from '../services/questionService';
 import { AuthContext } from '../context/AuthContext';
 import { Search, Shield, Filter, Code2, Tag, BookOpen, Layers, CheckCircle, ChevronLeft, ChevronRight, RotateCcw } from 'lucide-react';
+import SEO from '../components/SEO';
 
 const COMPANIES = ['TCS', 'Infosys', 'Accenture', 'Wipro', 'Cognizant', 'Capgemini', 'HCL'];
 const TOPICS = [
@@ -102,7 +103,24 @@ const CompanyDashboard = () => {
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8 space-y-6 bg-darkBg text-slate-100 min-h-screen">
-      
+      {/* ── SEO ─────────────────────────────────────────────────────────── */}
+      <SEO
+        title="Practice Coding Questions — TCS, Infosys, Wipro & More"
+        description="Browse and solve 200+ real placement coding questions from TCS NQT, Infosys, Wipro, Cognizant, Accenture & Capgemini. Filter by company, topic, and difficulty."
+        path="/practice"
+        keywords="practice coding questions, TCS NQT problems, placement coding, Infosys questions, Wipro coding, C++ Java Python interview"
+        jsonLd={[
+          {
+            '@context': 'https://schema.org',
+            '@type': 'BreadcrumbList',
+            'itemListElement': [
+              { '@type': 'ListItem', 'position': 1, 'name': 'Home', 'item': 'https://www.nqtcoder.dev/' },
+              { '@type': 'ListItem', 'position': 2, 'name': 'Practice Arena', 'item': 'https://www.nqtcoder.dev/practice' }
+            ]
+          }
+        ]}
+      />
+
       {/* 1. Header Area */}
       <div className="flex flex-col md:flex-row md:items-center justify-between pb-6 border-b border-darkBorder">
         <div className="space-y-1 text-left">

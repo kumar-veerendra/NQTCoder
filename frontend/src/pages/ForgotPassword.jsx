@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Mail, Lock, Key, ArrowLeft, AlertCircle, CheckCircle, Eye, EyeOff } from 'lucide-react';
 import { forgotPassword, verifyResetCode, resetPassword } from '../services/authService';
+import SEO from '../components/SEO';
 
 const ForgotPassword = () => {
   const [step, setStep] = useState(1); // 1: Email, 2: OTP Verification, 3: Password Reset
@@ -165,6 +166,12 @@ const ForgotPassword = () => {
 
   return (
     <div className="min-h-[85vh] flex items-center justify-center px-4 bg-darkBg text-slate-100">
+      <SEO
+        title="Reset Your Password"
+        description="Reset your NQTCoder password securely using a one-time verification code sent to your registered email address."
+        path="/forgot-password"
+        noIndex={true}
+      />
       <div className="glass-panel w-full max-w-md p-6 sm:p-8 rounded-lg shadow-xl relative overflow-hidden">
         
         {/* Background Glows */}
