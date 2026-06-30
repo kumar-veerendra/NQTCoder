@@ -61,7 +61,7 @@ const CodeEditor = ({
   // and handle swapping if the editor contains another language's default template.
   useEffect(() => {
     const templates = Object.values(CODE_TEMPLATES);
-    if (!code || templates.some(t => t.trim() === code.trim())) {
+    if (!code || !code.trim() || templates.some(t => t.trim() === code.trim())) {
       onCodeChange(CODE_TEMPLATES[language]);
     }
   }, [language, code]);
