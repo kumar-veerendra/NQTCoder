@@ -441,7 +441,7 @@ const Home = () => {
 
   const topics = [
     'Arrays', 'Strings', 'Sorting', 'Searching', 
-    'Greedy', 'Dynamic Programming', 'Graphs', 'Mathematics'
+    'Greedy', 'Dynamic Programming', 'Pattern', 'Math'
   ];
 
   const whyFeatures = [

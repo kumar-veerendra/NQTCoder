@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import * as questionService from '../services/questionService';
 import { AuthContext } from '../context/AuthContext';
 import { Search, Shield, Filter, Code2, Tag, BookOpen, Layers, CheckCircle, ChevronLeft, ChevronRight, RotateCcw } from 'lucide-react';
@@ -8,7 +8,7 @@ import SEO from '../components/SEO';
 const COMPANIES = ['TCS', 'Infosys', 'Accenture', 'Wipro', 'Cognizant', 'Capgemini', 'HCL'];
 const TOPICS = [
   'Arrays', 'Strings', 'Sorting', 'Searching', 'Pattern',
-  'Recursion', 'Math', 'HashMap', 'Matrix', 'Greedy', 'Miscellaneous'
+  'Recursion', 'Math', 'HashMap', 'Matrix', 'Greedy', 'Dynamic Programming', 'Miscellaneous'
 ];
 
 const CompanyDashboard = () => {
@@ -16,13 +16,14 @@ const CompanyDashboard = () => {
   const [questions, setQuestions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [searchParams, setSearchParams] = useSearchParams();
 
   // Filters State
-  const [selectedCompany, setSelectedCompany] = useState('');
-  const [selectedTopic, setSelectedTopic] = useState('');
-  const [selectedDifficulty, setSelectedDifficulty] = useState('');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
+  const [selectedCompany, setSelectedCompany] = useState(searchParams.get('company') || '');
+  const [selectedTopic, setSelectedTopic] = useState(searchParams.get('topic') || '');
+  const [selectedDifficulty, setSelectedDifficulty] = useState(searchParams.get('difficulty') || '');
+  const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || '');
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState(searchParams.get('search') || '');
 
   // Pagination State
   const [page, setPage] = useState(1);
@@ -37,6 +38,32 @@ const CompanyDashboard = () => {
     }, 300);
     return () => clearTimeout(handler);
   }, [searchQuery]);
+
+  // Sync filter states back to URL search parameters
+  useEffect(() => {
+    const params = {};
+    if (selectedCompany) params.company = selectedCompany;
+    if (selectedTopic) params.topic = selectedTopic;
+    if (selectedDifficulty) params.difficulty = selectedDifficulty;
+    if (debouncedSearchQuery) params.search = debouncedSearchQuery;
+    setSearchParams(params, { replace: true });
+  }, [selectedCompany, selectedTopic, selectedDifficulty, debouncedSearchQuery]);
+
+  // Sync URL search parameters back to states (handles history changes and direct links)
+  useEffect(() => {
+    const company = searchParams.get('company') || '';
+    const topic = searchParams.get('topic') || '';
+    const difficulty = searchParams.get('difficulty') || '';
+    const search = searchParams.get('search') || '';
+
+    if (company !== selectedCompany) setSelectedCompany(company);
+    if (topic !== selectedTopic) setSelectedTopic(topic);
+    if (difficulty !== selectedDifficulty) setSelectedDifficulty(difficulty);
+    if (search !== searchQuery) {
+      setSearchQuery(search);
+      setDebouncedSearchQuery(search);
+    }
+  }, [searchParams]);
 
   // Reset page to 1 when filters or search change
   useEffect(() => {
