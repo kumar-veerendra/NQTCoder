@@ -272,5 +272,10 @@
   border: 1px solid #4338ca;
 }
 
+/* Fix Google OAuth button iframe white background corners */
+iframe {
+  background: transparent !important;
+}
+
 
 

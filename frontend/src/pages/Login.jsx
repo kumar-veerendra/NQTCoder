@@ -179,8 +179,8 @@ const Login = () => {
           <GoogleLogin
             onSuccess={handleGoogleSuccess}
             onError={() => setErrors({ auth: 'Google Sign-in failed. Try again.' })}
-            theme={theme === 'light' ? 'outline' : 'dark'}
-            shape="circle"
+            theme="outline"
+            shape="pill"
             text="signin_with"
           />
         </div>
