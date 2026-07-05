@@ -2,7 +2,7 @@ import React, { useContext, useState, useEffect, useRef } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import { ThemeContext } from '../context/ThemeContext';
-import { Terminal, Sun, Moon, LogOut, User as UserIcon, Settings, LayoutDashboard, Menu, X, ExternalLink } from 'lucide-react';
+import { Sun, Moon, LogOut, User as UserIcon, Settings, LayoutDashboard, Menu, X, ExternalLink } from 'lucide-react';
 
 const Navbar = () => {
   const { user, logout } = useContext(AuthContext);
@@ -54,12 +54,12 @@ const Navbar = () => {
   return (
     <nav className="sticky top-0 z-50 bg-darkBg/80 backdrop-blur-md border-b border-darkBorder px-6 py-4 flex items-center justify-between transition-all">
       {/* Left: Brand Logo */}
-      <div className="flex items-center space-x-3 select-none">
-        <div className="bg-accentBtn p-2 rounded-lg text-white">
-          <Terminal className="w-4 h-4" />
-        </div>
-        <Link to="/" className="text-lg font-black tracking-wider text-white">
-          NQT<span className="text-accentBlue">Coder</span>
+      <div className="flex items-center select-none">
+        <Link to="/" className="flex items-center space-x-2.5 group">
+          <img src="/logo.svg" alt="NQTCoder Logo" className="h-[38px] w-auto object-contain" />
+          <span className="text-lg font-black tracking-wider text-white group-hover:text-slate-200 transition-colors">
+            NQT<span className="text-accentBlue">Coder</span>
+          </span>
         </Link>
       </div>
 
