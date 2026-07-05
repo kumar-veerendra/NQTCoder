@@ -6,7 +6,7 @@ import api from '../services/api';
 import { AuthContext } from '../context/AuthContext';
 import { ThemeContext } from '../context/ThemeContext';
 import ProblemDescription from '../components/ProblemDescription';
-import CodeEditor from '../components/CodeEditor';
+import CodeEditor, { CODE_TEMPLATES } from '../components/CodeEditor';
 import Console from '../components/Console';
 import Timer from '../components/Timer';
 import AuthModal from '../components/AuthModal';
@@ -172,10 +172,14 @@ const ProblemArena = () => {
 
     // Standard load from localStorage if no guest session redirect
     const savedCode = localStorage.getItem(`nqt_saved_code_${id}_${language}`);
-    if (savedCode !== null) {
+    const normalize = (str) => {
+      if (!str) return '';
+      return str.replace(/\r\n/g, '\n').trim();
+    };
+    if (savedCode !== null && normalize(savedCode) !== '') {
       setCode(savedCode);
     } else {
-      setCode(''); // Triggers template reload in CodeEditor
+      setCode(CODE_TEMPLATES[language] || '');
     }
   }, [id, question, language]);
 
@@ -390,6 +394,19 @@ const ProblemArena = () => {
   }, [isResizingHeight]);
 
   const handleLanguageChange = (newLang) => {
+    const normalize = (str) => {
+      if (!str) return '';
+      return str.replace(/\r\n/g, '\n').trim();
+    };
+
+    const currentNormalized = normalize(code);
+    const templates = Object.values(CODE_TEMPLATES).map(t => normalize(t));
+
+    // If current code is empty or matches one of the templates, swap it to the new language's template
+    if (!code || !currentNormalized || templates.includes(currentNormalized)) {
+      setCode(CODE_TEMPLATES[newLang] || '');
+    }
+
     setLanguage(newLang);
     localStorage.setItem('nqtcoder_selected_language', newLang);
   };
