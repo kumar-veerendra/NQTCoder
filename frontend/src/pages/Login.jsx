@@ -179,7 +179,7 @@ const Login = () => {
           <GoogleLogin
             onSuccess={handleGoogleSuccess}
             onError={() => setErrors({ auth: 'Google Sign-in failed. Try again.' })}
-            theme={theme === 'light' ? 'outline' : 'filled_blue'}
+            theme="outline"
             shape="pill"
             text="signin_with"
           />

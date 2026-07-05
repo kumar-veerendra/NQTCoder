@@ -369,7 +369,7 @@ const Register = () => {
           <GoogleLogin
             onSuccess={handleGoogleSuccess}
             onError={() => setErrors({ message: 'Google Sign-in failed. Try again.' })}
-            theme={theme === 'light' ? 'outline' : 'filled_blue'}
+            theme="outline"
             shape="pill"
             text="signup_with"
           />

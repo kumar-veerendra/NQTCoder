@@ -116,7 +116,7 @@ const AuthModal = ({ isOpen, onClose, mode = 'run' }) => {
             <GoogleLogin
               onSuccess={handleGoogleSuccess}
               onError={() => alert('Google Sign-in failed. Try again.')}
-              theme={theme === 'light' ? 'outline' : 'filled_blue'}
+              theme="outline"
               shape="pill"
               text="continue_with"
             />
