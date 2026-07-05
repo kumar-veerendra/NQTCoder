@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import Editor from '@monaco-editor/react';
 import { Settings, RefreshCw, Type } from 'lucide-react';
 
-const CODE_TEMPLATES = {
+export const CODE_TEMPLATES = {
   python: `# Python 3
 # -----------
 # Instructions:
@@ -57,21 +57,6 @@ const CodeEditor = ({
   disableClipboard = false
 }) => {
 
-  // Set default templates when code is empty or language changes, 
-  // and handle swapping if the editor contains another language's default template.
-  useEffect(() => {
-    const normalize = (str) => {
-      if (!str) return '';
-      return str.replace(/\r\n/g, '\n').trim();
-    };
-
-    const normalizedCode = normalize(code);
-    const templates = Object.values(CODE_TEMPLATES).map(t => normalize(t));
-
-    if (!code || !normalizedCode || templates.includes(normalizedCode)) {
-      onCodeChange(CODE_TEMPLATES[language]);
-    }
-  }, [language, code]);
 
   const handleResetTemplate = () => {
     if (window.confirm('Are you sure you want to reset your code to the default template? This will erase current changes.')) {

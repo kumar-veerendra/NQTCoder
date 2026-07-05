@@ -5,7 +5,7 @@ import * as executionService from '../services/executionService';
 import { AuthContext } from '../context/AuthContext';
 import { ThemeContext } from '../context/ThemeContext';
 import ProblemDescription from '../components/ProblemDescription';
-import CodeEditor from '../components/CodeEditor';
+import CodeEditor, { CODE_TEMPLATES } from '../components/CodeEditor';
 import Console from '../components/Console';
 import { Play, Send, ChevronLeft, Terminal, AlertTriangle, ShieldCheck, Sun, Moon } from 'lucide-react';
 import SEO from '../components/SEO';
@@ -94,18 +94,25 @@ const MockTestArena = () => {
       setMockTest(active);
       setWarningCount(active.tabSwitchesCount);
 
+      const normalize = (str) => {
+        if (!str) return '';
+        return str.replace(/\r\n/g, '\n').trim();
+      };
+
       // Determine active question
       if (active.q1Status === 'started') {
         setQuestionNumber(1);
         setActiveQuestion(active.q1);
-        setLanguage(active.q1Language || 'cpp');
-        setCode(active.q1Code || '');
+        const q1Lang = active.q1Language || 'cpp';
+        setLanguage(q1Lang);
+        setCode(active.q1Code && normalize(active.q1Code) !== '' ? active.q1Code : CODE_TEMPLATES[q1Lang] || '');
         setupTimer(active, 1);
       } else if (active.q2Status === 'started') {
         setQuestionNumber(2);
         setActiveQuestion(active.q2);
-        setLanguage(active.q2Language || 'cpp');
-        setCode(active.q2Code || '');
+        const q2Lang = active.q2Language || 'cpp';
+        setLanguage(q2Lang);
+        setCode(active.q2Code && normalize(active.q2Code) !== '' ? active.q2Code : CODE_TEMPLATES[q2Lang] || '');
         setupTimer(active, 2);
       } else {
         // Mock test already finished
@@ -138,6 +145,23 @@ const MockTestArena = () => {
 
     calculateTimeLeft();
     timerRef.current = setInterval(calculateTimeLeft, 1000);
+  };
+
+  const handleLanguageChange = (newLang) => {
+    const normalize = (str) => {
+      if (!str) return '';
+      return str.replace(/\r\n/g, '\n').trim();
+    };
+
+    const currentNormalized = normalize(code);
+    const templates = Object.values(CODE_TEMPLATES).map(t => normalize(t));
+
+    // If current code is empty or matches one of the templates, swap it to the new language's template
+    if (!code || !currentNormalized || templates.includes(currentNormalized)) {
+      setCode(CODE_TEMPLATES[newLang] || '');
+    }
+
+    setLanguage(newLang);
   };
 
   // Proctoring tab blur event
@@ -505,7 +529,7 @@ const MockTestArena = () => {
           >
             <CodeEditor
               language={language}
-              onLanguageChange={setLanguage}
+              onLanguageChange={handleLanguageChange}
               code={code}
               onCodeChange={setCode}
               isLocked={false}
