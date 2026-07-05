@@ -60,8 +60,15 @@ const CodeEditor = ({
   // Set default templates when code is empty or language changes, 
   // and handle swapping if the editor contains another language's default template.
   useEffect(() => {
-    const templates = Object.values(CODE_TEMPLATES);
-    if (!code || !code.trim() || templates.some(t => t.trim() === code.trim())) {
+    const normalize = (str) => {
+      if (!str) return '';
+      return str.replace(/\r\n/g, '\n').trim();
+    };
+
+    const normalizedCode = normalize(code);
+    const templates = Object.values(CODE_TEMPLATES).map(t => normalize(t));
+
+    if (!code || !normalizedCode || templates.includes(normalizedCode)) {
       onCodeChange(CODE_TEMPLATES[language]);
     }
   }, [language, code]);
