@@ -10,7 +10,7 @@ import CodeEditor from '../components/CodeEditor';
 import Console from '../components/Console';
 import Timer from '../components/Timer';
 import AuthModal from '../components/AuthModal';
-import { Play, Send, ChevronLeft, Terminal, AlertTriangle, ShieldCheck, Sun, Moon, CheckCircle2, Search, Users, Zap, X } from 'lucide-react';
+import { Play, Send, ChevronLeft, AlertTriangle, ShieldCheck, Sun, Moon, CheckCircle2, Search, Users, Zap, X } from 'lucide-react';
 import SEO from '../components/SEO';
 
 const ProblemArena = () => {
@@ -448,9 +448,7 @@ const ProblemArena = () => {
             className="flex items-center space-x-2 cursor-pointer group shrink-0"
             title="Go to Dashboard"
           >
-            <div className="bg-accentBlue p-1.5 rounded-md transition-colors">
-              <Terminal className="w-3.5 h-3.5 text-white" />
-            </div>
+            <img src="/logo.svg" alt="NQTCoder Logo" className="h-[30px] w-auto object-contain" />
             <span className="text-xs sm:text-sm font-bold tracking-wider text-slate-200 group-hover:text-white transition-colors">
               NQTCoder
             </span>

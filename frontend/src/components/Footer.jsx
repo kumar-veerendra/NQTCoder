@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Terminal, Github, Heart } from 'lucide-react';
+import { Github, Heart } from 'lucide-react';
 
 const Footer = () => {
   const location = useLocation();
@@ -21,12 +21,12 @@ const Footer = () => {
         
         {/* Col 1: Brand details */}
         <div className="space-y-4 col-span-1 md:col-span-2">
-          <div className="flex items-center space-x-3">
-            <div className="bg-accentBtn p-1.5 rounded-lg text-white">
-              <Terminal className="w-3.5 h-3.5" />
-            </div>
-            <Link to="/" className="text-base font-black tracking-wider text-white">
-              NQT<span className="text-accentBlue">Coder</span>
+          <div className="flex items-center select-none">
+            <Link to="/" className="flex items-center space-x-2.5 group">
+              <img src="/logo.svg" alt="NQTCoder Logo" className="h-[32px] w-auto object-contain" />
+              <span className="text-base font-black tracking-wider text-white group-hover:text-slate-200 transition-colors">
+                NQT<span className="text-accentBlue">Coder</span>
+              </span>
             </Link>
           </div>
           <p className="text-xs text-slate-400 max-w-sm leading-relaxed">
