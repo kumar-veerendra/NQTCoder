@@ -31,4 +31,28 @@ api.interceptors.request.use(
   }
 );
 
+// Interceptor to catch 401 Unauthorized and redirect to login
+api.interceptors.response.use(
+  (response) => {
+    return response;
+  },
+  (error) => {
+    if (error.response && error.response.status === 401) {
+      localStorage.removeItem('userInfo');
+      const path = typeof window !== 'undefined' ? window.location.pathname : '';
+      // Don't force-redirect guests on public-browsable pages
+      const isPublicBrowsable = path.startsWith('/aptitude');
+      if (
+        typeof window !== 'undefined' &&
+        !isPublicBrowsable &&
+        !path.startsWith('/login') &&
+        !path.startsWith('/register')
+      ) {
+        window.location.href = '/login';
+      }
+    }
+    return Promise.reject(error);
+  }
+);
+
 export default api;

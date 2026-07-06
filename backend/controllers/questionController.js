@@ -1,15 +1,22 @@
-import Question from '../models/Question.js';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import Question, { MCQQuestion, CodingQuestion } from '../models/Question.js';
 import Submission from '../models/Submission.js';
 import { validateQuestion } from '../utils/validator.js';
 
-/**
- * @desc    Get all questions (with filters)
- * @route   GET /api/questions
- * @access  Public
- */
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 export const getQuestions = async (req, res) => {
-  const { company, topic, difficulty, page, limit, search } = req.query;
+  const { company, topic, difficulty, page, limit, search, domain } = req.query;
   const filter = {};
+
+  if (domain && domain !== 'all') {
+    filter.domain = domain;
+  } else if (!domain) {
+    filter.domain = 'coding';
+  }
 
   if (company) {
     // Matches if the company array contains the queried company (case-insensitive)
@@ -128,58 +135,104 @@ export const createQuestion = async (req, res) => {
     return res.status(400).json({ errors });
   }
 
-  const {
-    title,
-    description,
-    inputFormat,
-    outputFormat,
-    company,
-    difficulty,
-    topic,
-    tags,
-    constraints,
-    examDate,
-    examples,
-    languagesSupported,
-    visibleTestCases,
-    hiddenTestCases,
-    hints,
-    timeLimit,
-    memoryLimit,
-    timerDuration,
-    timerEnabled,
-    status
-  } = req.body;
+  const isMcq = req.body.domain === 'aptitude';
 
   try {
     // Auto-assign next question number
     const lastQuestion = await Question.findOne({}).sort({ questionNo: -1 }).select('questionNo');
     const nextQuestionNo = lastQuestion ? (lastQuestion.questionNo || 0) + 1 : 1;
 
-    const question = new Question({
-      questionNo: nextQuestionNo,
-      title,
-      description,
-      inputFormat,
-      outputFormat,
-      company: Array.isArray(company) ? company : [company],
-      difficulty,
-      topic,
-      tags: Array.isArray(tags) ? tags : [],
-      constraints,
-      examDate,
-      examples,
-      languagesSupported,
-      visibleTestCases,
-      hiddenTestCases,
-      hints,
-      timeLimit,
-      memoryLimit,
-      timerDuration,
-      timerEnabled,
-      status: status || 'active',
-      createdBy: req.user._id
-    });
+    let question;
+
+    if (isMcq) {
+      const {
+        questionId,
+        slug,
+        domain,
+        section,
+        topic,
+        displayName,
+        subTopic,
+        difficulty,
+        applicableCompanies,
+        content,
+        source,
+        meta,
+        options,
+        correctAnswer,
+        explanation
+      } = req.body;
+
+      question = new MCQQuestion({
+        questionNo: nextQuestionNo,
+        questionId,
+        slug,
+        domain,
+        section,
+        topic,
+        displayName,
+        subTopic,
+        difficulty,
+        applicableCompanies: Array.isArray(applicableCompanies) ? applicableCompanies : [applicableCompanies],
+        content,
+        source,
+        meta,
+        options,
+        correctAnswer,
+        explanation,
+        createdBy: req.user ? req.user._id : null
+      });
+    } else {
+      const {
+        title,
+        description,
+        inputFormat,
+        outputFormat,
+        company,
+        difficulty,
+        topic,
+        tags,
+        constraints,
+        examDate,
+        examples,
+        languagesSupported,
+        visibleTestCases,
+        hiddenTestCases,
+        hints,
+        timeLimit,
+        memoryLimit,
+        timerDuration,
+        timerEnabled,
+        status
+      } = req.body;
+
+      question = new CodingQuestion({
+        questionNo: nextQuestionNo,
+        title,
+        description,
+        inputFormat,
+        outputFormat,
+        company: Array.isArray(company) ? company : [company],
+        difficulty,
+        topic,
+        tags,
+        constraints,
+        examDate,
+        examples,
+        languagesSupported,
+        visibleTestCases,
+        hiddenTestCases,
+        hints,
+        timeLimit,
+        memoryLimit,
+        timerDuration,
+        timerEnabled,
+        status: status || 'active',
+        domain: 'coding',
+        section: 'programming',
+        createdBy: req.user ? req.user._id : null
+      });
+    }
 
     const createdQuestion = await question.save();
     res.status(201).json(createdQuestion);
@@ -206,49 +259,85 @@ export const updateQuestion = async (req, res) => {
       return res.status(404).json({ message: 'Question not found' });
     }
 
-    const {
-      title,
-      description,
-      inputFormat,
-      outputFormat,
-      company,
-      difficulty,
-      topic,
-      tags,
-      constraints,
-      examDate,
-      examples,
-      languagesSupported,
-      visibleTestCases,
-      hiddenTestCases,
-      hints,
-      timeLimit,
-      memoryLimit,
-      timerDuration,
-      timerEnabled,
-      status
-    } = req.body;
+    const isMcq = question.kind === 'MCQQuestion';
 
-    question.title           = title;
-    question.description     = description;
-    question.inputFormat     = inputFormat     ?? question.inputFormat;
-    question.outputFormat    = outputFormat    ?? question.outputFormat;
-    question.company         = Array.isArray(company) ? company : [company];
-    question.difficulty      = difficulty;
-    question.topic           = topic;
-    question.tags            = Array.isArray(tags) ? tags : question.tags;
-    question.constraints     = constraints;
-    question.examDate        = examDate        ?? question.examDate;
-    question.examples        = examples;
-    question.languagesSupported = languagesSupported;
-    question.visibleTestCases   = visibleTestCases;
-    question.hiddenTestCases    = hiddenTestCases;
-    question.hints           = hints           ?? question.hints;
-    question.timeLimit       = timeLimit;
-    question.memoryLimit     = memoryLimit;
-    question.timerDuration   = timerDuration;
-    question.timerEnabled    = timerEnabled;
-    question.status          = status          ?? question.status;
+    if (isMcq) {
+      const {
+        questionId,
+        slug,
+        section,
+        topic,
+        displayName,
+        subTopic,
+        difficulty,
+        applicableCompanies,
+        content,
+        source,
+        meta,
+        options,
+        correctAnswer,
+        explanation
+      } = req.body;
+
+      question.questionId = questionId ?? question.questionId;
+      question.slug = slug ?? question.slug;
+      question.section = section ?? question.section;
+      question.topic = topic ?? question.topic;
+      question.displayName = displayName ?? question.displayName;
+      question.subTopic = subTopic ?? question.subTopic;
+      question.difficulty = difficulty ?? question.difficulty;
+      question.applicableCompanies = Array.isArray(applicableCompanies) ? applicableCompanies : [applicableCompanies];
+      question.content = content ?? question.content;
+      question.source = source ?? question.source;
+      question.meta = meta ?? question.meta;
+      question.options = options ?? question.options;
+      question.correctAnswer = correctAnswer ?? question.correctAnswer;
+      question.explanation = explanation ?? question.explanation;
+    } else {
+      const {
+        title,
+        description,
+        inputFormat,
+        outputFormat,
+        company,
+        difficulty,
+        topic,
+        tags,
+        constraints,
+        examDate,
+        examples,
+        languagesSupported,
+        visibleTestCases,
+        hiddenTestCases,
+        hints,
+        timeLimit,
+        memoryLimit,
+        timerDuration,
+        timerEnabled,
+        status
+      } = req.body;
+
+      question.title           = title;
+      question.description     = description;
+      question.inputFormat     = inputFormat     ?? question.inputFormat;
+      question.outputFormat    = outputFormat    ?? question.outputFormat;
+      question.company         = Array.isArray(company) ? company : [company];
+      question.difficulty      = difficulty;
+      question.topic           = topic;
+      question.tags            = Array.isArray(tags) ? tags : question.tags;
+      question.constraints     = constraints;
+      question.examDate        = examDate        ?? question.examDate;
+      question.examples        = examples;
+      question.languagesSupported = languagesSupported;
+      question.visibleTestCases   = visibleTestCases;
+      question.hiddenTestCases    = hiddenTestCases;
+      question.hints           = hints           ?? question.hints;
+      question.timeLimit       = timeLimit;
+      question.memoryLimit     = memoryLimit;
+      question.timerDuration   = timerDuration;
+      question.timerEnabled    = timerEnabled;
+      question.status          = status          ?? question.status;
+    }
 
     const updatedQuestion = await question.save();
     res.json(updatedQuestion);
@@ -298,14 +387,14 @@ export const deleteQuestion = async (req, res) => {
  */
 export const getQuestionsCount = async (req, res) => {
   try {
-    const totalQuestions = await Question.countDocuments({});
+    const totalQuestions = await Question.countDocuments({ domain: 'coding' });
     
     // Fetch unique topics count from database
-    const uniqueTopics = await Question.distinct('topic');
+    const uniqueTopics = await Question.distinct('topic', { domain: 'coding' });
     const totalTopics = uniqueTopics.filter(Boolean).length;
 
     // Fetch only company field to count questions per company
-    const questions = await Question.find({}).select('company');
+    const questions = await Question.find({ domain: 'coding' }).select('company');
     const companyCounts = {};
     questions.forEach(q => {
       if (Array.isArray(q.company)) {
@@ -318,13 +407,56 @@ export const getQuestionsCount = async (req, res) => {
       }
     });
 
+    // Fetch counts from local quant and logical json files
+    const quantPath = path.join(__dirname, '../config/data/quantQue.json');
+    const logicalPath = path.join(__dirname, '../config/data/logicalQue.json');
+    
+    let totalQuantQuestions = 0;
+    let totalLogicalQuestions = 0;
+    
+    try {
+      if (fs.existsSync(quantPath)) {
+        const quantData = JSON.parse(fs.readFileSync(quantPath, 'utf8'));
+        totalQuantQuestions = Array.isArray(quantData) ? quantData.length : 0;
+      }
+    } catch (e) {
+      console.error('Error reading quantQue.json:', e.message);
+    }
+    
+    try {
+      if (fs.existsSync(logicalPath)) {
+        const logicalData = JSON.parse(fs.readFileSync(logicalPath, 'utf8'));
+        totalLogicalQuestions = Array.isArray(logicalData) ? logicalData.length : 0;
+      }
+    } catch (e) {
+      console.error('Error reading logicalQue.json:', e.message);
+    }
+
+    // Fetch counts for verbal questions
+    let totalVerbalQuestions = await Question.countDocuments({ domain: 'verbal' });
+    if (totalVerbalQuestions === 0) {
+      const verbalPath = path.join(__dirname, '../config/data/verbalQue.json');
+      try {
+        if (fs.existsSync(verbalPath)) {
+          const verbalData = JSON.parse(fs.readFileSync(verbalPath, 'utf8'));
+          totalVerbalQuestions = Array.isArray(verbalData) ? verbalData.length : 0;
+        }
+      } catch (e) {
+        console.error('Error reading verbalQue.json:', e.message);
+      }
+    }
+
     const totalCompanies = Object.keys(companyCounts).length;
 
     res.json({
       totalQuestions,
+      totalCodingQuestions: totalQuestions,
+      totalQuantQuestions,
+      totalLogicalQuestions,
+      totalVerbalQuestions,
       companyCounts,
-      totalCompanies: totalCompanies || 15, // fallback to typical count if empty
-      totalTopics: totalTopics || 12        // fallback to typical count if empty
+      totalCompanies: totalCompanies || 15,
+      totalTopics: totalTopics || 12
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -350,11 +482,85 @@ export const getAdminStats = async (req, res) => {
     // Set baseline at 1 user to count the active administrator session
     const liveUsers = Math.max(1, activeSubmissionsCount.length);
 
+    // Calculate user registration trend for the last 7 days
+    const userTrend = await User.aggregate([
+      {
+        $match: {
+          role: 'user',
+          createdAt: { $gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) }
+        }
+      },
+      {
+        $group: {
+          _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
+          count: { $sum: 1 }
+        }
+      },
+      { $sort: { _id: 1 } }
+    ]);
+
+    const startCount = await User.countDocuments({
+      role: 'user',
+      createdAt: { $lt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) }
+    });
+
+    const trendData = [];
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      const dateStr = d.toISOString().split('T')[0];
+      const match = userTrend.find(t => t._id === dateStr);
+      trendData.push({
+        date: d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+        users: match ? match.count : 0
+      });
+    }
+
+    let cumulative = startCount;
+    const userRegistrationTrend = trendData.map(item => {
+      cumulative += item.users;
+      return {
+        label: item.date,
+        count: cumulative
+      };
+    });
+
+    // Calculate compilation workload / language share
+    const languageCounts = await Submission.aggregate([
+      {
+        $group: {
+          _id: "$language",
+          count: { $sum: 1 }
+        }
+      }
+    ]);
+
+    const languageShare = {
+      cpp: 15, // Baseline to prevent empty charts
+      java: 10,
+      python: 20
+    };
+
+    languageCounts.forEach(item => {
+      if (item._id) {
+        const lang = item._id.toLowerCase();
+        if (lang.includes('cpp') || lang.includes('c++') || lang === 'c') {
+          languageShare.cpp += item.count;
+        } else if (lang.includes('java')) {
+          languageShare.java += item.count;
+        } else if (lang.includes('python') || lang.includes('py')) {
+          languageShare.python += item.count;
+        }
+      }
+    });
+
     res.json({
       totalUsers,
       totalQuestions,
       totalSubmissions,
-      liveUsers
+      liveUsers,
+      userRegistrationTrend,
+      languageShare
     });
   } catch (error) {
     res.status(500).json({ message: error.message });

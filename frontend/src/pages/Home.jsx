@@ -6,7 +6,8 @@ import * as resourceService from '../services/resourceService';
 import { 
   ArrowRight, BookOpen, CheckCircle, Flame, Target, 
   Cpu, Briefcase, FileText, Database, Server, Network, Layers,
-  AlertTriangle, X, ChevronDown, Terminal, Award
+  AlertTriangle, X, ChevronDown, Terminal, Award,
+  Calculator, Brain, MessageSquare, BarChart2
 } from 'lucide-react';
 import SEO from '../components/SEO';
 
@@ -330,6 +331,10 @@ const Home = () => {
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
   const [totalQuestions, setTotalQuestions] = useState(0);
+  const [totalCoding, setTotalCoding] = useState(0);
+  const [totalQuant, setTotalQuant] = useState(0);
+  const [totalLogical, setTotalLogical] = useState(0);
+  const [totalVerbal, setTotalVerbal] = useState(0);
   const [totalCompanies, setTotalCompanies] = useState(0);
   const [totalTopics, setTotalTopics] = useState(0);
   const [selectedResource, setSelectedResource] = useState(null);
@@ -383,14 +388,20 @@ const Home = () => {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const { totalQuestions, companyCounts, totalCompanies, totalTopics } = await questionService.getQuestionsCount();
-        setTotalQuestions(totalQuestions);
+        const { totalCodingQuestions, totalQuantQuestions, totalLogicalQuestions, totalVerbalQuestions, companyCounts, totalCompanies, totalTopics } = await questionService.getQuestionsCount();
+        setTotalCoding(totalCodingQuestions || 0);
+        setTotalQuant(totalQuantQuestions || 0);
+        setTotalLogical(totalLogicalQuestions || 0);
+        setTotalVerbal(totalVerbalQuestions || 0);
         setCompanyCounts(companyCounts || {});
         setTotalCompanies(totalCompanies || 15);
         setTotalTopics(totalTopics || 12);
       } catch (err) {
         console.error('Could not fetch questions count for homepage:', err);
-        setTotalQuestions(290); // Fallback
+        setTotalCoding(290); // Fallback
+        setTotalQuant(65);
+        setTotalLogical(10);
+        setTotalVerbal(6);
         setTotalCompanies(15);
         setTotalTopics(12);
       }
@@ -419,14 +430,15 @@ const Home = () => {
     });
   }, []);
 
-  const animatedQuestions = useCountUp(totalQuestions, 1600);
-  const animatedCompanies = useCountUp(totalCompanies, 1200);
-  const animatedTopics   = useCountUp(totalTopics, 1000);
+  const animatedCoding  = useCountUp(totalCoding, 1600);
+  const animatedQuant   = useCountUp(totalQuant, 1400);
+  const animatedLogical = useCountUp(totalLogical, 1200);
+  const animatedVerbal  = useCountUp(totalVerbal, 1000);
 
   const stats = [
-    { label: 'Total Questions', animated: animatedQuestions, suffix: '+' },
-    { label: 'Companies Covered', animated: animatedCompanies, suffix: '+' },
-    { label: 'Topics Covered', animated: animatedTopics, suffix: '+' }
+    { label: 'Coding PYQs', animated: animatedCoding, suffix: '+' },
+    { label: 'Quant Questions', animated: animatedQuant, suffix: '+' },
+    { label: 'Logical Reasoning', animated: animatedLogical, suffix: '+' }
   ];
 
   const companies = [
@@ -484,7 +496,7 @@ const Home = () => {
   };
 
   const solvedCount = user?.solvedQuestions?.length || 0;
-  const userCompletionPercent = totalQuestions > 0 ? Math.min(100, Math.round((solvedCount / totalQuestions) * 100)) : 0;
+  const userCompletionPercent = totalCoding > 0 ? Math.min(100, Math.round((solvedCount / totalCoding) * 100)) : 0;
 
   return (
     <div className="bg-darkBg text-slate-100 min-h-screen selection:bg-accentBlue/30 selection:text-slate-100">
@@ -528,8 +540,8 @@ const Home = () => {
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-gradientFrom via-gradientVia to-accentBlue">Coding Questions</span>
         </h1>
 
-        <p className="text-slate-400 mt-3 text-sm sm:text-base md:text-lg max-w-2xl font-medium leading-relaxed">
-          Prepare for TCS, Infosys, Wipro, Cognizant, Accenture, and other placement coding rounds using previously asked questions.
+        <p className="text-slate-400 mt-3 text-sm sm:text-base md:text-lg max-w-3xl font-medium leading-relaxed">
+          Prepare for top recruitment drives. Solve interactive <strong className="text-white">Coding Problems</strong> with our proctored compiler workspace, or master <strong className="text-white">Aptitude & Logical MCQs</strong> tailored to TCS, Infosys, and Accenture syllabus.
         </p>
 
         <div className="flex flex-col sm:flex-row gap-4 mt-6 w-full sm:w-auto">
@@ -537,15 +549,16 @@ const Home = () => {
             to="/practice"
             className="bg-accentBtn hover:bg-accentBtnHover text-white font-bold text-xs uppercase tracking-wider px-8 py-3.5 rounded-lg transition-all shadow-md shadow-accentBtn/15 text-center flex items-center justify-center space-x-2"
           >
-            <span>Start Practicing</span>
+            <span>Practice Coding</span>
             <ArrowRight className="w-4 h-4" />
           </Link>
-          <button
-            onClick={() => handleScrollTo('companies')}
-            className="bg-transparent border border-darkBorder hover:border-slate-600 text-slate-300 hover:text-white font-bold text-xs uppercase tracking-wider px-8 py-3.5 rounded-lg transition-all text-center"
+          <Link
+            to="/aptitude"
+            className="bg-transparent border border-darkBorder hover:border-accentBlue text-slate-300 hover:text-white font-bold text-xs uppercase tracking-wider px-8 py-3.5 rounded-lg transition-all text-center flex items-center justify-center space-x-2"
           >
-            Browse Companies
-          </button>
+            <span>Practice Aptitude</span>
+            <ArrowRight className="w-4 h-4" />
+          </Link>
         </div>
 
         {/* Statistics Grid */}
@@ -567,17 +580,17 @@ const Home = () => {
         <section className="border-t border-darkBorder py-16 px-6 max-w-6xl mx-auto">
           <div className="mb-10 text-left">
             <h2 className="text-xs font-black text-accentBlue uppercase tracking-widest mb-1.5 flex items-center gap-1.5">
-              <Target className="w-4 h-4" /> Your Preparation Metrics
+              <Target className="w-4 h-4" /> Your Coding Preparation Metrics
             </h2>
-            <h3 className="text-2xl font-extrabold text-white">Track Your Progress</h3>
+            <h3 className="text-2xl font-extrabold text-white">Track Your Coding Progress</h3>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {/* Card 1: Solved Count */}
             <div className="bg-darkCard border border-darkBorder p-6 rounded-xl flex items-center justify-between shadow-lg">
               <div className="space-y-1.5">
-                <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Problems Solved</span>
-                <div className="text-3xl font-extrabold text-white">{solvedCount} / {totalQuestions}</div>
+                <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Coding Problems Solved</span>
+                <div className="text-3xl font-extrabold text-white">{solvedCount} / {totalCoding}</div>
               </div>
               <div className="bg-accentBlue/10 p-3 rounded-lg border border-accentBlue/20 text-accentBlue">
                 <CheckCircle className="w-6 h-6" />
@@ -647,6 +660,120 @@ const Home = () => {
               </div>
             </div>
           ))}
+        </div>
+      </section>
+
+      {/* 3.5 Aptitude & Cognitive Sections */}
+      <section className="border-t border-darkBorder py-16 px-6 max-w-6xl mx-auto">
+        <div className="mb-12 text-center sm:text-left">
+          <h2 className="text-xs font-black text-accentBlue uppercase tracking-widest mb-1.5">Cognitive Skills</h2>
+          <h3 className="text-3xl font-extrabold text-white">Aptitude & Reasoning Arena</h3>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {/* Card 1: Quantitative Aptitude */}
+          <div className="bg-darkCard border border-darkBorder p-6 rounded-xl flex flex-col justify-between hover:border-accentBlue transition-all group shadow-md">
+            <div className="space-y-4">
+              <div className="text-accentBlue bg-accentBlue/10 w-10 h-10 rounded-lg flex items-center justify-center border border-accentBlue/10">
+                <Calculator className="w-5 h-5" />
+              </div>
+              <div>
+                <h4 className="text-lg font-extrabold text-white group-hover:text-accentBlue transition-colors">Quantitative Aptitude</h4>
+                <p className="text-slate-400 text-xs mt-2 leading-relaxed">
+                  Arithmetic, Percentage, HCF/LCM, Profit & Loss, Speed & Distance, and Alligation.
+                </p>
+                <span className="inline-block mt-3 text-[10px] bg-accentBlue/10 text-accentBlue px-2.5 py-0.5 rounded-full font-bold border border-accentBlue/20">
+                  {totalQuant}+ Solved Questions
+                </span>
+              </div>
+            </div>
+            <div className="mt-6">
+              <Link
+                to="/aptitude?section=quant"
+                className="w-full inline-block bg-darkBg hover:bg-accentBtn text-slate-200 hover:text-white text-center font-bold text-[10px] uppercase tracking-wider py-2.5 rounded-lg border border-darkBorder transition-all"
+              >
+                Practice Quant
+              </Link>
+            </div>
+          </div>
+
+          {/* Card 2: Logical Reasoning */}
+          <div className="bg-darkCard border border-darkBorder p-6 rounded-xl flex flex-col justify-between hover:border-accentBlue transition-all group shadow-md">
+            <div className="space-y-4">
+              <div className="text-accentBlue bg-accentBlue/10 w-10 h-10 rounded-lg flex items-center justify-center border border-accentBlue/10">
+                <Brain className="w-5 h-5" />
+              </div>
+              <div>
+                <h4 className="text-lg font-extrabold text-white group-hover:text-accentBlue transition-colors">Logical Reasoning</h4>
+                <p className="text-slate-400 text-xs mt-2 leading-relaxed">
+                  Coding-Decoding, Blood Relations, Circular & Hexagonal Arrangements, and Syllogisms.
+                </p>
+                <span className="inline-block mt-3 text-[10px] bg-accentBlue/10 text-accentBlue px-2.5 py-0.5 rounded-full font-bold border border-accentBlue/20">
+                  {totalLogical}+ Solved Questions
+                </span>
+              </div>
+            </div>
+            <div className="mt-6">
+              <Link
+                to="/aptitude?section=logical"
+                className="w-full inline-block bg-darkBg hover:bg-accentBtn text-slate-200 hover:text-white text-center font-bold text-[10px] uppercase tracking-wider py-2.5 rounded-lg border border-darkBorder transition-all"
+              >
+                Practice Logical
+              </Link>
+            </div>
+          </div>
+
+          {/* Card 3: Verbal Ability */}
+          <div className="bg-darkCard border border-darkBorder p-6 rounded-xl flex flex-col justify-between hover:border-accentBlue transition-all group shadow-md">
+            <div className="space-y-4">
+              <div className="text-accentBlue bg-accentBlue/10 w-10 h-10 rounded-lg flex items-center justify-center border border-accentBlue/10">
+                <MessageSquare className="w-5 h-5 text-accentBlue" />
+              </div>
+              <div>
+                <h4 className="text-lg font-extrabold text-white group-hover:text-accentBlue transition-colors">Verbal Ability</h4>
+                <p className="text-slate-400 text-xs mt-2 leading-relaxed">
+                  Sentence Completion, Passage Recall, and AI-evaluated Email Writing scenarios.
+                </p>
+                <span className="inline-block mt-3 text-[10px] bg-accentBlue/10 text-accentBlue px-2.5 py-0.5 rounded-full font-bold border border-accentBlue/20">
+                  {totalVerbal}+ Solved Questions
+                </span>
+              </div>
+            </div>
+            <div className="mt-6">
+              <Link
+                to="/aptitude?section=verbal"
+                className="w-full inline-block bg-darkBg hover:bg-accentBtn text-slate-200 hover:text-white text-center font-bold text-[10px] uppercase tracking-wider py-2.5 rounded-lg border border-darkBorder transition-all"
+              >
+                Practice Verbal
+              </Link>
+            </div>
+          </div>
+
+          {/* Card 4: Data Interpretation */}
+          <div className="bg-darkCard border border-darkBorder/45 p-6 rounded-xl flex flex-col justify-between opacity-80 shadow-md">
+            <div className="space-y-4">
+              <div className="text-slate-500 bg-slate-800/50 w-10 h-10 rounded-lg flex items-center justify-center border border-slate-700/50">
+                <BarChart2 className="w-5 h-5" />
+              </div>
+              <div>
+                <h4 className="text-lg font-extrabold text-slate-300">Data Interpretation</h4>
+                <p className="text-slate-500 text-xs mt-2 leading-relaxed">
+                  Data sufficiency, charts, graphs, tables, and analytical reasoning puzzles.
+                </p>
+                <span className="inline-block mt-3 text-[10px] bg-slate-800 text-slate-500 px-2.5 py-0.5 rounded-full font-bold border border-slate-700/50">
+                  Coming Soon
+                </span>
+              </div>
+            </div>
+            <div className="mt-6">
+              <button
+                disabled
+                className="w-full cursor-not-allowed bg-transparent text-slate-500 text-center font-bold text-[10px] uppercase tracking-wider py-2.5 rounded-lg border border-darkBorder/40"
+              >
+                Unavailable
+              </button>
+            </div>
+          </div>
         </div>
       </section>
 

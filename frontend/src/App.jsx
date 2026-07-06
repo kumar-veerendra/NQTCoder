@@ -34,6 +34,12 @@ import VerifyEmail from './pages/VerifyEmail';
 import ForgotPassword from './pages/ForgotPassword';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import Terms from './pages/Terms';
+import AptitudeDashboard from './pages/AptitudeDashboard';
+import AptitudeArena from './pages/AptitudeArena';
+import AptitudeMockArena from './pages/AptitudeMockArena';
+import AptitudeMockResult from './pages/AptitudeMockResult';
+import AdminMCQQuestionForm from './pages/AdminMCQQuestionForm';
+import AdminVerbalQuestionForm from './pages/AdminVerbalQuestionForm';
 
 const UnverifiedBanner = () => {
   const { user, resendCode } = useContext(AuthContext);
@@ -92,8 +98,8 @@ const Layout = ({ children }) => {
   const location = useLocation();
   const { user } = useContext(AuthContext);
 
-  // Hide navbar on login, register, verify-email, problem arena, and mocktest arena pages
-  const hideNavbar = ['/login', '/register', '/verify-email', '/forgot-password'].includes(location.pathname) || location.pathname.startsWith('/problem/') || location.pathname.startsWith('/mocktest/arena/');
+  // Hide navbar on login, register, verify-email, problem arena, mocktest arena, aptitude arena, and V2 mocktest arena pages
+  const hideNavbar = ['/login', '/register', '/verify-email', '/forgot-password'].includes(location.pathname) || location.pathname.startsWith('/problem/') || location.pathname.startsWith('/mocktest/arena/') || location.pathname.startsWith('/aptitude/arena/') || location.pathname.startsWith('/mocktest/arena/v2/');
 
   // Show footer only on the Home page
   const hideFooter = location.pathname !== '/';
@@ -130,6 +136,8 @@ const AppContent = () => {
         {/* Protected User Routes */}
         <Route path="/practice" element={<CompanyDashboard />} />
         <Route path="/problem/:id" element={<ProblemArena />} />
+        <Route path="/aptitude" element={<AptitudeDashboard />} />
+        <Route path="/aptitude/arena/:topicKey" element={<AptitudeArena />} />
         <Route
           path="/profile"
           element={
@@ -158,10 +166,26 @@ const AppContent = () => {
           }
         />
         <Route
+          path="/mocktest/arena/v2/:id"
+          element={
+            <ProtectedRoute>
+              <AptitudeMockArena />
+            </ProtectedRoute>
+          }
+        />
+        <Route
           path="/mocktest/result/:id"
           element={
             <ProtectedRoute>
               <MockTestResult />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/mocktest/result/v2/:id"
+          element={
+            <ProtectedRoute>
+              <AptitudeMockResult />
             </ProtectedRoute>
           }
         />
@@ -188,6 +212,38 @@ const AppContent = () => {
           element={
             <ProtectedRoute adminOnly={true}>
               <AdminQuestionForm />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/mcq/new"
+          element={
+            <ProtectedRoute adminOnly={true}>
+              <AdminMCQQuestionForm />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/mcq/edit/:id"
+          element={
+            <ProtectedRoute adminOnly={true}>
+              <AdminMCQQuestionForm />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/verbal/new"
+          element={
+            <ProtectedRoute adminOnly={true}>
+              <AdminVerbalQuestionForm />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/verbal/edit/:id"
+          element={
+            <ProtectedRoute adminOnly={true}>
+              <AdminVerbalQuestionForm />
             </ProtectedRoute>
           }
         />

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import * as questionService from '../services/questionService';
 import * as trackService from '../services/trackService';
 import * as feedbackService from '../services/feedbackService';
@@ -14,6 +14,7 @@ import {
 import SEO from '../components/SEO';
 
 const AdminDashboard = () => {
+  const navigate = useNavigate();
   const [questions, setQuestions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -45,6 +46,7 @@ const AdminDashboard = () => {
 
   // Search state
   const [searchQuery, setSearchQuery] = useState('');
+  const [domainFilter, setDomainFilter] = useState('all');
 
   const [stats, setStats] = useState({
     totalUsers: 0,
@@ -66,10 +68,13 @@ const AdminDashboard = () => {
   const [resSaveMsg, setResSaveMsg] = useState('');
 
   useEffect(() => {
-    fetchQuestions();
     fetchStats();
     fetchTracks();
   }, []);
+
+  useEffect(() => {
+    fetchQuestions(domainFilter);
+  }, [domainFilter]);
 
   const fetchResCategories = async () => {
     setResLoading(true);
@@ -174,11 +179,135 @@ const AdminDashboard = () => {
     }
   };
 
-  const fetchQuestions = async () => {
+  const renderAreaChart = () => {
+    const trend = stats.userRegistrationTrend || [];
+    if (!trend.length) {
+      return (
+        <div className="flex flex-col items-center justify-center h-full text-slate-500 space-y-2">
+          <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-accentBlue"></div>
+          <span className="text-[10px] uppercase font-bold tracking-wider">Loading trend...</span>
+        </div>
+      );
+    }
+
+    const counts = trend.map(t => t.count);
+    const maxCount = Math.max(...counts, 10);
+    const minCount = Math.min(...counts, 0);
+
+    const points = trend.map((t, i) => {
+      const x = (i * 500) / (trend.length - 1);
+      const ratio = (t.count - minCount) / ((maxCount - minCount) || 1);
+      const y = 165 - ratio * 135; // Fits nicely in 200px height
+      return { x, y, label: t.label, count: t.count };
+    });
+
+    let areaPath = `M ${points[0].x} 165`;
+    let linePath = `M ${points[0].x} ${points[0].y}`;
+
+    for (let i = 1; i < points.length; i++) {
+      linePath += ` L ${points[i].x} ${points[i].y}`;
+    }
+
+    areaPath += linePath.substring(1) + ` L ${points[points.length - 1].x} 165 Z`;
+
+    return (
+      <svg viewBox="0 0 500 200" width="100%" height="100%" className="overflow-visible select-none">
+        <defs>
+          <linearGradient id="regAreaGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#6366F1" stopOpacity="0.35" />
+            <stop offset="100%" stopColor="#6366F1" stopOpacity="0" />
+          </linearGradient>
+        </defs>
+        {/* Horizontal grid lines */}
+        <line x1="0" y1="165" x2="500" y2="165" stroke="var(--color-border)" strokeWidth="1" opacity="0.2" />
+        <line x1="0" y1="115" x2="500" y2="115" stroke="var(--color-border)" strokeWidth="1" opacity="0.15" strokeDasharray="4" />
+        <line x1="0" y1="65" x2="500" y2="65" stroke="var(--color-border)" strokeWidth="1" opacity="0.15" strokeDasharray="4" />
+        <line x1="0" y1="15" x2="500" y2="15" stroke="var(--color-border)" strokeWidth="1" opacity="0.15" strokeDasharray="4" />
+
+        {/* Area fill path */}
+        <path d={areaPath} fill="url(#regAreaGrad)" />
+        
+        {/* Line path */}
+        <path d={linePath} fill="transparent" stroke="#6366F1" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" />
+
+        {/* Node points and tooltips */}
+        {points.map((pt, i) => (
+          <g key={i}>
+            <circle cx={pt.x} cy={pt.y} r="5" fill="#6366F1" stroke="#1e293b" strokeWidth="2.5" />
+            {(i === 0 || i === Math.floor(points.length / 2) || i === points.length - 1) && (
+              <text
+                x={pt.x}
+                y={pt.y - 12}
+                fill="#f8fafc"
+                stroke="#111827"
+                strokeWidth="3.5"
+                paintOrder="stroke fill"
+                fontSize="9.5"
+                fontWeight="black"
+                textAnchor={i === 0 ? 'start' : i === points.length - 1 ? 'end' : 'middle'}
+              >
+                {pt.count} Users
+              </text>
+            )}
+            <text
+              x={pt.x}
+              y="185"
+              fill="var(--color-text-muted)"
+              fontSize="9"
+              fontWeight="bold"
+              textAnchor={i === 0 ? 'start' : i === points.length - 1 ? 'end' : 'middle'}
+            >
+              {pt.label}
+            </text>
+          </g>
+        ))}
+      </svg>
+    );
+  };
+
+  const renderBarChart = () => {
+    const share = stats.languageShare || { cpp: 15, java: 10, python: 20 };
+    const totalSub = share.cpp + share.java + share.python || 1;
+
+    const cppPct = Math.round((share.cpp / totalSub) * 100);
+    const javaPct = Math.round((share.java / totalSub) * 100);
+    const pythonPct = Math.round((share.python / totalSub) * 100);
+
+    const cppH = (cppPct / 100) * 140;
+    const javaH = (javaPct / 100) * 140;
+    const pythonH = (pythonPct / 100) * 140;
+
+    return (
+      <svg viewBox="0 0 400 200" width="100%" height="100%" className="overflow-visible select-none">
+        {/* Horizontal grid lines */}
+        <line x1="40" y1="160" x2="380" y2="160" stroke="var(--color-border)" opacity="0.25" strokeWidth="1" />
+        <line x1="40" y1="110" x2="380" y2="110" stroke="var(--color-border)" opacity="0.15" strokeWidth="1" strokeDasharray="4" />
+        <line x1="40" y1="60" x2="380" y2="60" stroke="var(--color-border)" opacity="0.15" strokeWidth="1" strokeDasharray="4" />
+        <line x1="40" y1="10" x2="380" y2="10" stroke="var(--color-border)" opacity="0.15" strokeWidth="1" strokeDasharray="4" />
+
+        {/* C++ Bar */}
+        <rect x="70" y={160 - cppH} width="45" height={cppH} rx="6" fill="#4f46e5" className="hover:opacity-85 transition-all duration-300 cursor-pointer shadow-md" />
+        <text x="92.5" y={150 - cppH} fill="#f8fafc" stroke="#111827" strokeWidth="3.5" paintOrder="stroke fill" fontSize="9.5" fontWeight="black" textAnchor="middle">{cppPct}% ({share.cpp})</text>
+        <text x="92.5" y="180" fill="var(--color-text-muted)" fontSize="9" fontWeight="bold" textAnchor="middle">C++</text>
+
+        {/* Java Bar */}
+        <rect x="180" y={160 - javaH} width="45" height={javaH} rx="6" fill="#6366f1" className="hover:opacity-85 transition-all duration-300 cursor-pointer shadow-md" />
+        <text x="202.5" y={150 - javaH} fill="#f8fafc" stroke="#111827" strokeWidth="3.5" paintOrder="stroke fill" fontSize="9.5" fontWeight="black" textAnchor="middle">{javaPct}% ({share.java})</text>
+        <text x="202.5" y="180" fill="var(--color-text-muted)" fontSize="9" fontWeight="bold" textAnchor="middle">Java</text>
+
+        {/* Python Bar */}
+        <rect x="295" y={160 - pythonH} width="45" height={pythonH} rx="6" fill="#818cf8" className="hover:opacity-85 transition-all duration-300 cursor-pointer shadow-md" />
+        <text x="317.5" y={150 - pythonH} fill="#f8fafc" stroke="#111827" strokeWidth="3.5" paintOrder="stroke fill" fontSize="9.5" fontWeight="black" textAnchor="middle">{pythonPct}% ({share.python})</text>
+        <text x="317.5" y="180" fill="var(--color-text-muted)" fontSize="9" fontWeight="bold" textAnchor="middle">Python 3</text>
+      </svg>
+    );
+  };
+
+  const fetchQuestions = async (domain = domainFilter) => {
     setLoading(true);
     setError('');
     try {
-      const data = await questionService.getQuestions();
+      const data = await questionService.getQuestions({ domain });
       setQuestions(data);
     } catch (err) {
       console.error(err);
@@ -202,8 +331,15 @@ const AdminDashboard = () => {
   };
 
   const handleEdit = (id) => {
-    setEditQuestionId(id);
-    setActiveTab('add_question');
+    const question = questions.find(q => q._id === id);
+    if (question && question.kind === 'MCQQuestion') {
+      navigate(`/admin/mcq/edit/${id}`);
+    } else if (question && question.kind === 'VerbalQuestion') {
+      navigate(`/admin/verbal/edit/${id}`);
+    } else {
+      setEditQuestionId(id);
+      setActiveTab('add_question');
+    }
   };
 
   const fetchTracks = async () => {
@@ -314,8 +450,8 @@ const AdminDashboard = () => {
 
   // Filter questions based on search query
   const filteredQuestions = questions.filter((q) =>
-    q.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    q.topic.toLowerCase().includes(searchQuery.toLowerCase())
+    (q.title || q.content?.statement || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (q.topic || '').toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
@@ -406,6 +542,32 @@ const AdminDashboard = () => {
               <span>Add Challenge</span>
             </div>
             <ChevronRight className={`w-3.5 h-3.5 opacity-60 ${activeTab === 'add_question' && !editQuestionId ? 'block' : 'hidden'}`} />
+          </button>
+
+          <button
+            onClick={() => {
+              navigate('/admin/mcq/new');
+            }}
+            className="w-full flex items-center justify-between px-4 py-3 rounded-xl text-xs font-black tracking-wider uppercase transition-all border bg-transparent border-transparent text-slate-400 hover:text-slate-200 hover:bg-darkBg/60"
+          >
+            <div className="flex items-center space-x-3">
+              <Plus className="w-4 h-4" />
+              <span>Add MCQ</span>
+            </div>
+            <ChevronRight className="w-3.5 h-3.5 opacity-60 hidden" />
+          </button>
+
+          <button
+            onClick={() => {
+              navigate('/admin/verbal/new');
+            }}
+            className="w-full flex items-center justify-between px-4 py-3 rounded-xl text-xs font-black tracking-wider uppercase transition-all border bg-transparent border-transparent text-slate-400 hover:text-slate-200 hover:bg-darkBg/60"
+          >
+            <div className="flex items-center space-x-3">
+              <Plus className="w-4 h-4" />
+              <span>Add Verbal</span>
+            </div>
+            <ChevronRight className="w-3.5 h-3.5 opacity-60 hidden" />
           </button>
 
           <button
@@ -544,43 +706,7 @@ const AdminDashboard = () => {
                   <span className="text-[10px] bg-accentBlue/15 text-accentBlue border border-accentBlue/20 px-2 py-0.5 rounded font-bold uppercase tracking-wider">Weekly Growth</span>
                 </div>
                 <div className="h-56 w-full flex items-center justify-center pt-2">
-                  <svg viewBox="0 0 500 200" width="100%" height="100%" className="overflow-visible select-none">
-                    <defs>
-                      <linearGradient id="regAreaGrad" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor="#6366F1" stopOpacity="0.35" />
-                        <stop offset="100%" stopColor="#6366F1" stopOpacity="0" />
-                      </linearGradient>
-                    </defs>
-                    {/* Horizontal grid lines */}
-                    <line x1="0" y1="150" x2="500" y2="150" stroke="var(--color-border)" strokeWidth="1" opacity="0.4" strokeDasharray="4" />
-                    <line x1="0" y1="100" x2="500" y2="100" stroke="var(--color-border)" strokeWidth="1" opacity="0.4" strokeDasharray="4" />
-                    <line x1="0" y1="50" x2="500" y2="50" stroke="var(--color-border)" strokeWidth="1" opacity="0.4" strokeDasharray="4" />
-
-                    {/* Area fill path */}
-                    <path d="M 0 150 Q 80 120, 160 135 T 320 85 T 440 45 T 500 20 L 500 200 L 0 200 Z" fill="url(#regAreaGrad)" />
-                    
-                    {/* Smooth curve line */}
-                    <path d="M 0 150 Q 80 120, 160 135 T 320 85 T 440 45 T 500 20" fill="transparent" stroke="#6366F1" strokeWidth="3.5" strokeLinecap="round" />
-
-                    {/* Node points */}
-                    <circle cx="0" cy="150" r="4.5" fill="#6366F1" stroke="var(--color-card-bg)" strokeWidth="2" />
-                    <circle cx="160" cy="135" r="4.5" fill="#6366F1" stroke="var(--color-card-bg)" strokeWidth="2" />
-                    <circle cx="320" cy="85" r="4.5" fill="#6366F1" stroke="var(--color-card-bg)" strokeWidth="2" />
-                    <circle cx="440" cy="45" r="4.5" fill="#6366F1" stroke="var(--color-card-bg)" strokeWidth="2" />
-                    <circle cx="500" cy="20" r="4.5" fill="#6366F1" stroke="var(--color-card-bg)" strokeWidth="2" />
-
-                    {/* Node Tooltips */}
-                    <text x="160" y="115" fill="var(--color-text-highlight)" stroke="var(--color-card-bg)" strokeWidth="3" paintOrder="stroke fill" fontSize="9" fontWeight="bold" textAnchor="middle">12 Users</text>
-                    <text x="320" y="65" fill="var(--color-text-highlight)" stroke="var(--color-card-bg)" strokeWidth="3" paintOrder="stroke fill" fontSize="9" fontWeight="bold" textAnchor="middle">28 Users</text>
-                    <text x="500" y="5" fill="var(--color-text-highlight)" stroke="var(--color-card-bg)" strokeWidth="3" paintOrder="stroke fill" fontSize="9" fontWeight="bold" textAnchor="end">45 Users</text>
-
-                    {/* Axis Labels */}
-                    <text x="0" y="180" fill="var(--color-text-muted)" fontSize="9" fontWeight="bold">Mar 20</text>
-                    <text x="160" y="180" fill="var(--color-text-muted)" fontSize="9" fontWeight="bold" textAnchor="middle">Mar 21</text>
-                    <text x="320" y="180" fill="var(--color-text-muted)" fontSize="9" fontWeight="bold" textAnchor="middle">Mar 26</text>
-                    <text x="440" y="180" fill="var(--color-text-muted)" fontSize="9" fontWeight="bold" textAnchor="middle">Apr 18</text>
-                    <text x="500" y="180" fill="var(--color-text-muted)" fontSize="9" fontWeight="bold" textAnchor="end">Today</text>
-                  </svg>
+                  {renderAreaChart()}
                 </div>
               </div>
 
@@ -593,31 +719,7 @@ const AdminDashboard = () => {
                   <span className="text-[10px] bg-accentBlue/15 text-accentBlue border border-accentBlue/20 px-2 py-0.5 rounded font-bold uppercase tracking-wider">Language Share</span>
                 </div>
                 <div className="h-56 w-full flex items-center justify-center pt-2">
-                  <svg viewBox="0 0 400 200" width="100%" height="100%" className="overflow-visible select-none">
-                    {/* Horizontal grid lines */}
-                    <line x1="40" y1="160" x2="380" y2="160" stroke="var(--color-border)" opacity="0.3" strokeWidth="1" />
-                    <line x1="40" y1="110" x2="380" y2="110" stroke="var(--color-border)" opacity="0.3" strokeWidth="1" strokeDasharray="4" />
-                    <line x1="40" y1="60" x2="380" y2="60" stroke="var(--color-border)" opacity="0.3" strokeWidth="1" strokeDasharray="4" />
-                    <line x1="40" y1="10" x2="380" y2="10" stroke="var(--color-border)" opacity="0.3" strokeWidth="1" strokeDasharray="4" />
-
-                    {/* Bars */}
-                    {/* C++ Bar */}
-                    <rect x="70" y="60" width="45" height="100" rx="6" fill="#4f46e5" className="hover:opacity-85 transition-opacity cursor-pointer shadow-md" />
-                    {/* Java Bar */}
-                    <rect x="180" y="30" width="45" height="130" rx="6" fill="#6366f1" className="hover:opacity-85 transition-opacity cursor-pointer shadow-md" />
-                    {/* Python Bar */}
-                    <rect x="295" y="80" width="45" height="80" rx="6" fill="#818cf8" className="hover:opacity-85 transition-opacity cursor-pointer shadow-md" />
-
-                    {/* Value tags */}
-                    <text x="92.5" y="50" fill="var(--color-text-highlight)" stroke="var(--color-card-bg)" strokeWidth="3" paintOrder="stroke fill" fontSize="9" fontWeight="black" textAnchor="middle">50%</text>
-                    <text x="202.5" y="20" fill="var(--color-text-highlight)" stroke="var(--color-card-bg)" strokeWidth="3" paintOrder="stroke fill" fontSize="9" fontWeight="black" textAnchor="middle">65%</text>
-                    <text x="317.5" y="70" fill="var(--color-text-highlight)" stroke="var(--color-card-bg)" strokeWidth="3" paintOrder="stroke fill" fontSize="9" fontWeight="black" textAnchor="middle">40%</text>
-
-                    {/* X Axis labels */}
-                    <text x="92.5" y="180" fill="var(--color-text-muted)" fontSize="9" fontWeight="bold" textAnchor="middle">C++ (GCC)</text>
-                    <text x="202.5" y="180" fill="var(--color-text-muted)" fontSize="9" fontWeight="bold" textAnchor="middle">Java</text>
-                    <text x="317.5" y="180" fill="var(--color-text-muted)" fontSize="9" fontWeight="bold" textAnchor="middle">Python 3</text>
-                  </svg>
+                  {renderBarChart()}
                 </div>
               </div>
 
@@ -633,7 +735,7 @@ const AdminDashboard = () => {
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-darkBorder pb-5">
               <div>
                 <h1 className="text-3xl font-black text-white tracking-wide">Manage Question Bank</h1>
-                <p className="text-xs text-slate-400 mt-0.5">Quickly edit parameters, add testcases, or delete questions</p>
+                <p className="text-xs text-slate-400 mt-0.5">Configure parameters, edit metadata, or delete challenges by domain</p>
               </div>
 
               {/* Search Challenge input */}
@@ -642,10 +744,34 @@ const AdminDashboard = () => {
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search challenges by title or topic..."
-                  className="w-full bg-darkCard border border-darkBorder px-4 py-2 rounded-xl text-xs focus:outline-none focus:border-accentBlue text-slate-200"
+                  placeholder="Search questions by statement or topic..."
+                  className="w-full bg-darkCard border border-darkBorder px-4 py-2.5 rounded-xl text-xs focus:outline-none focus:border-accentBlue text-slate-200 font-semibold"
                 />
               </div>
+            </div>
+
+            {/* Domain Tabs Bar */}
+            <div className="flex flex-wrap items-center gap-2 border-b border-darkBorder/40 pb-2 select-none">
+              {[
+                { id: 'coding', label: 'Coding Challenges', icon: '💻' },
+                { id: 'aptitude', label: 'Aptitude MCQs', icon: '🧠' },
+                { id: 'verbal', label: 'Verbal Ability', icon: '🗣️' },
+                { id: 'all', label: 'All Domains', icon: '🌐' }
+              ].map(tab => (
+                <button
+                  key={tab.id}
+                  type="button"
+                  onClick={() => setDomainFilter(tab.id)}
+                  className={`px-4 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all border cursor-pointer ${
+                    domainFilter === tab.id
+                      ? 'bg-accentBlue/10 border-accentBlue text-accentBlue shadow-sm shadow-accentBlue/5'
+                      : 'bg-transparent border-transparent text-slate-400 hover:text-slate-200 hover:bg-darkBg/60'
+                  }`}
+                >
+                  <span className="mr-1.5">{tab.icon}</span>
+                  {tab.label}
+                </button>
+              ))}
             </div>
 
             {error && (
@@ -683,8 +809,8 @@ const AdminDashboard = () => {
                           key={q._id}
                           className="hover:bg-darkBg/20 transition-colors"
                         >
-                          <td className="py-4 px-6 font-extrabold text-slate-200 text-sm tracking-wide">
-                            {q.title}
+                          <td className="py-4 px-6 font-extrabold text-slate-200 text-sm tracking-wide max-w-xs truncate" title={q.title || q.content?.statement}>
+                            {q.title || q.content?.statement || 'Untitled Question'}
                           </td>
                           <td className="py-4 px-6">
                             {q.company && q.company.length > 0 ? (
@@ -722,8 +848,8 @@ const AdminDashboard = () => {
                               >
                                 <Edit2 className="w-4 h-4" />
                               </button>
-                              <button
-                                onClick={() => handleDelete(q._id, q.title)}
+                               <button
+                                onClick={() => handleDelete(q._id, q.title || q.content?.statement || 'this question')}
                                 className="p-2 text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 rounded-lg border border-transparent hover:border-rose-500/20 transition-all"
                                 title="Delete Question"
                               >
@@ -1021,8 +1147,8 @@ const AdminDashboard = () => {
                   <div className="max-h-60 overflow-y-auto border border-darkBorder rounded-xl divide-y divide-darkBorder bg-darkBg">
                     {questions
                       .filter(q => 
-                        q.title.toLowerCase().includes(trackQuestionSearch.toLowerCase()) ||
-                        q.topic.toLowerCase().includes(trackQuestionSearch.toLowerCase())
+                        (q.title || q.content?.statement || '').toLowerCase().includes(trackQuestionSearch.toLowerCase()) ||
+                        (q.topic || '').toLowerCase().includes(trackQuestionSearch.toLowerCase())
                       )
                       .map(q => {
                         const isChecked = trackQuestions.includes(q._id);
@@ -1045,7 +1171,7 @@ const AdminDashboard = () => {
                               className="w-4 h-4 rounded border-darkBorder text-accentBlue cursor-pointer bg-darkBg"
                             />
                             <div className="flex-grow min-w-0">
-                              <div className="text-xs font-extrabold text-slate-200 truncate">{q.title}</div>
+                              <div className="text-xs font-extrabold text-slate-200 truncate">{q.title || q.content?.statement || 'Untitled Question'}</div>
                               <div className="flex items-center space-x-2 text-[9px] text-slate-500 font-bold mt-0.5">
                                 <span className="uppercase">{q.topic}</span>
                                 <span>•</span>

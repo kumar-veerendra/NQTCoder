@@ -93,7 +93,7 @@ const ProblemArena = () => {
     setShowDropdown(true);
     if (allQuestions.length === 0) {
       try {
-        const data = await questionService.getQuestions();
+        const data = await questionService.getQuestions({ domain: 'coding' });
         setAllQuestions(data);
       } catch (err) {
         console.error('Failed to load questions for quick search', err);

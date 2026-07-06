@@ -79,6 +79,12 @@ const Navbar = () => {
             Practice
           </Link>
           <Link
+            to="/aptitude"
+            className={`transition-colors ${isActive('/aptitude') ? 'text-accentBlue' : 'text-slate-400 hover:text-slate-200'}`}
+          >
+            Aptitude
+          </Link>
+          <Link
             to="/mocktest"
             className={`transition-colors ${isActive('/mocktest') ? 'text-accentBlue' : 'text-slate-400 hover:text-slate-200'}`}
           >
@@ -228,6 +234,13 @@ const Navbar = () => {
                 className={`p-2 rounded hover:bg-darkBg/60 transition-colors ${isActive('/practice') ? 'text-accentBlue' : 'text-slate-300'}`}
               >
                 Practice
+              </Link>
+              <Link
+                to="/aptitude"
+                onClick={() => setMobileMenuOpen(false)}
+                className={`p-2 rounded hover:bg-darkBg/60 transition-colors ${isActive('/aptitude') ? 'text-accentBlue' : 'text-slate-300'}`}
+              >
+                Aptitude
               </Link>
               <Link
                 to="/mocktest"
