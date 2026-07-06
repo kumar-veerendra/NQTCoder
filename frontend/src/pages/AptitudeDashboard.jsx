@@ -51,20 +51,20 @@ const AptitudeDashboard = () => {
     setLoading(true);
     setError('');
     try {
-      // Topics are public — always fetch
-      const topicsData = await practiceService.getSyllabusTopics();
-      setTopics(topicsData);
-
-      // Progress, bookmarks, revision queue require auth — skip for guests
       if (user) {
-        const [progressData, bookmarksData, revisionData] = await Promise.all([
+        const [topicsData, progressData, bookmarksData, revisionData] = await Promise.all([
+          practiceService.getSyllabusTopics(),
           practiceService.getPracticeProgress(),
           practiceService.getBookmarks(),
           practiceService.getRevisionQueue()
         ]);
+        setTopics(topicsData);
         setProgress(progressData);
         setBookmarks(bookmarksData);
         setRevisionQueue(revisionData);
+      } else {
+        const topicsData = await practiceService.getSyllabusTopics();
+        setTopics(topicsData);
       }
     } catch (err) {
       console.error(err);

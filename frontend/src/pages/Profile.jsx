@@ -57,24 +57,22 @@ const Profile = () => {
     setLoading(true);
     setError('');
     try {
-      const data = await authService.getProfile();
+      const [data, mocks, subs, aptProgress, bmarks, revQ] = await Promise.all([
+        authService.getProfile(),
+        mockTestService.getMockTestHistory(),
+        executionService.getUserSubmissions(),
+        practiceService.getPracticeProgress(),
+        practiceService.getBookmarks(),
+        practiceService.getRevisionQueue()
+      ]);
+
       setProfile(data);
       setFullName(data.fullName || '');
       setBio(data.bio || '');
-      
-      const mocks = await mockTestService.getMockTestHistory();
       setMockHistory(mocks);
-
-      const subs = await executionService.getUserSubmissions();
       setUserSubmissions(subs);
-
-      const aptProgress = await practiceService.getPracticeProgress();
       setAptitudeProgress(aptProgress);
-
-      const bmarks = await practiceService.getBookmarks();
       setBookmarks(bmarks);
-
-      const revQ = await practiceService.getRevisionQueue();
       setRevisionQueue(revQ);
     } catch (err) {
       console.error(err);

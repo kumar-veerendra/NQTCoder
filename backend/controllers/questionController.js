@@ -393,18 +393,16 @@ export const getQuestionsCount = async (req, res) => {
     const uniqueTopics = await Question.distinct('topic', { domain: 'coding' });
     const totalTopics = uniqueTopics.filter(Boolean).length;
 
-    // Fetch only company field to count questions per company
-    const questions = await Question.find({ domain: 'coding' }).select('company');
+    // Aggregate counts of coding questions per company directly on MongoDB Atlas
+    const companyAgg = await Question.aggregate([
+      { $match: { domain: 'coding' } },
+      { $unwind: '$company' },
+      { $group: { _id: { $toUpper: { $trim: { input: '$company' } } }, count: { $sum: 1 } } }
+    ]);
+
     const companyCounts = {};
-    questions.forEach(q => {
-      if (Array.isArray(q.company)) {
-        q.company.forEach(c => {
-          if (c) {
-            const normalized = c.trim().toUpperCase();
-            companyCounts[normalized] = (companyCounts[normalized] || 0) + 1;
-          }
-        });
-      }
+    companyAgg.forEach(c => {
+      if (c._id) companyCounts[c._id] = c.count;
     });
 
     // Fetch counts from MongoDB Atlas dynamically
