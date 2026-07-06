@@ -1,0 +1,49 @@
+name: Continuous Integration Tests
+
+on:
+  push:
+    branches: [ "main", "veeru-dev" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  run-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: 'backend/package-lock.json'
+
+      - name: Install Backend Dependencies
+        run: |
+          cd backend
+          npm install
+
+      - name: Run All Tests
+        env:
+          PORT: 5000
+          NODE_ENV: test
+          RUN_MODE: local
+          MONGO_URI: ${{ secrets.MONGO_URI }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+          ADMIN_EMAIL: ${{ secrets.ADMIN_EMAIL }}
+          ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
+          EMAIL_USER: ${{ secrets.EMAIL_USER }}
+          EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
+          BREVO_API_KEY: ${{ secrets.BREVO_API_KEY }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          GOOGLE_GMAIL_CLIENT_ID: ${{ secrets.GOOGLE_GMAIL_CLIENT_ID }}
+          GOOGLE_GMAIL_CLIENT_SECRET: ${{ secrets.GOOGLE_GMAIL_CLIENT_SECRET }}
+          GOOGLE_GMAIL_REFRESH_TOKEN: ${{ secrets.GOOGLE_GMAIL_REFRESH_TOKEN }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: |
+          cd backend
+          node --experimental-vm-modules tests/run_all_tests.js
