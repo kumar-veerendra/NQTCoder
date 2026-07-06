@@ -101,6 +101,7 @@ const runTest = async () => {
 
   } catch (err) {
     console.error('❌ Test failed:', err.response ? err.response.data : err.message);
+    process.exitCode = 1;
   } finally {
     await mongoose.disconnect();
     console.log('🔌 Disconnected from MongoDB.');

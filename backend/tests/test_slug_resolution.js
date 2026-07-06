@@ -66,6 +66,7 @@ async function testSlugResolution() {
 
   } catch (error) {
     console.error('❌ Test failed with error:', error.message);
+    process.exitCode = 1;
   } finally {
     await mongoose.disconnect();
     console.log('🔌 Disconnected from MongoDB.');

@@ -46,6 +46,9 @@ const runTest = async () => {
     }
     console.log(`Test user: ${testUser.username}`);
 
+    // Clean up any pre-existing mock test instances for this user
+    await TestInstance.deleteMany({ userId: testUser._id });
+
     // Ensure blueprint exists
     const bp = await TestBlueprint.findOne({ blueprintId: 'TCS-NQT-FULL-01' });
     if (!bp) {

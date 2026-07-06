@@ -13,7 +13,7 @@ dotenv.config();
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-const MONGO_URI = process.env.MONGO_URI || 'mongodb+srv://veerendrakumarnqtcoder:veerendrakumarnqtcoder100@nqtcodercluster.nhf7k4g.mongodb.net/?appName=NQTCoderCluster';
+const MONGO_URI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/nqtcoder';
 
 const questionSchema = new mongoose.Schema({}, { strict: false });
 const Question = mongoose.model('Question', questionSchema, 'questions');

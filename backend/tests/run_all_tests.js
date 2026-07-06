@@ -29,15 +29,27 @@ async function runAll() {
   // So we start it in background, then kill it when done.
   console.log(`${YELLOW}Starting temporary local server on port 5000...${RESET}`);
   let serverProcess;
+  let serverExited = false;
+  let serverClosePromise;
   try {
     const { spawn } = await import('child_process');
     serverProcess = spawn('node', ['server.js'], {
       cwd: path.join(__dirname, '..'),
-      env: { ...process.env, PORT: '5000' }
+      env: { ...process.env, PORT: '5000' },
+      stdio: ['ignore', 'inherit', 'inherit']
+    });
+
+    serverClosePromise = new Promise(resolve => serverProcess.once('close', resolve));
+    serverProcess.once('exit', (code, signal) => {
+      serverExited = true;
+      console.warn(`${YELLOW}Temporary server exited early (code: ${code}, signal: ${signal}).${RESET}`);
     });
     
     // Give it 3 seconds to spin up
     await new Promise(resolve => setTimeout(resolve, 3000));
+    if (serverExited) {
+      throw new Error('Temporary server failed to stay running. Check database/env configuration above.');
+    }
     console.log(`${GREEN}Server started!${RESET}\n`);
   } catch (err) {
     console.warn('Could not start server in background, some integration tests might fail.', err.message);
@@ -69,7 +81,10 @@ async function runAll() {
 
   if (serverProcess) {
     console.log(`${YELLOW}Shutting down temporary local server...${RESET}`);
-    serverProcess.kill();
+    if (!serverExited) {
+      serverProcess.kill();
+    }
+    await serverClosePromise;
   }
 
   console.log(`\n${BOLD}=================== MASTER SUMMARY ===================${RESET}`);
@@ -91,4 +106,7 @@ async function runAll() {
   }
 }
 
-runAll().catch(console.error);
+runAll().catch(error => {
+  console.error(error);
+  process.exit(1);
+});

@@ -178,6 +178,7 @@ const runAllTests = async () => {
 
   } catch (err) {
     console.error('\n❌ End-to-End System Test failed:', err.response ? err.response.data : err.message);
+    process.exitCode = 1;
     
     // Attempt cleanup even on failure
     try {

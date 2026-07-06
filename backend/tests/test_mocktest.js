@@ -197,6 +197,7 @@ const runMockTestTests = async () => {
 
   } catch (err) {
     console.error('\n❌ Mock Test E2E Test failed:', err.response ? err.response.data : err.message);
+    process.exitCode = 1;
     // Attempt cleanup
     try {
       const u = await User.findOne({ email: testEmail });
