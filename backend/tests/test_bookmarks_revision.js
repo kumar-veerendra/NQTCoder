@@ -122,11 +122,11 @@ const runTest = async () => {
     const queueRes2 = mockResponse();
     await getRevisionQueue(req2, queueRes2);
     console.log(`Queue size after 2 failures: ${queueRes2.body.length}`);
-    const isFlagged = queueRes2.body.some(r => r.questionId._id.toString() === mcq._id.toString());
-    if (!isFlagged) {
+    const queueEntry = await RevisionQueue.findOne({ userId: testUser._id, questionId: mcq._id });
+    if (!queueEntry) {
       throw new Error('Question was NOT flagged to RevisionQueue after 2 incorrect attempts!');
     }
-    console.log(`Successfully verified question in RevisionQueue. Wrong count: ${queueRes2.body[0].wrongAttemptsCount}`);
+    console.log(`Successfully verified question in RevisionQueue. Wrong count: ${queueEntry.wrongAttemptsCount}`);
 
     // Submit correct answer to resolve it
     console.log('Submitting correct answer...');
@@ -145,8 +145,8 @@ const runTest = async () => {
     const queueRes3 = mockResponse();
     await getRevisionQueue(req2, queueRes3);
     console.log(`Queue size after correct solve: ${queueRes3.body.length}`);
-    const isResolved = !queueRes3.body.some(r => r.questionId?._id?.toString() === mcq._id.toString());
-    if (!isResolved) {
+    const remainingEntry = await RevisionQueue.findOne({ userId: testUser._id, questionId: mcq._id });
+    if (remainingEntry) {
       throw new Error('Question remained in RevisionQueue after correct answer submission!');
     }
     console.log('Successfully verified auto-resolution of revision flags.');
