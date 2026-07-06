@@ -106,11 +106,12 @@ const runTest = async () => {
 
     // --- Step 4: Record Cheating Warning ---
     console.log('\n--- Step 4: Recording Tab Violation ---');
+    const priorTabSwitches = Number(instance.tabSwitchesCount || 0);
     const req4 = { user: testUser, params: { instanceId: instance._id } };
     const res4 = mockResponse();
     await recordMockViolation(req4, res4);
     console.log(`Tab violation registered. Switches Count: ${res4.body.tabSwitchesCount}`);
-    if (res4.body.tabSwitchesCount !== 1) {
+    if (res4.body.tabSwitchesCount !== priorTabSwitches + 1) {
       throw new Error('Violations counter failed to increment!');
     }
 
