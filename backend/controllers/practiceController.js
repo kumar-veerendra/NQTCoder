@@ -61,21 +61,19 @@ export const getPracticeQuestions = async (req, res) => {
     let attemptedSet = new Set();
 
     if (req.user) {
-      // Fetch solved attempt questionIds
-      const userSolvedIds = await UserAttempt.find({
-        userId: req.user._id,
-        questionId: { $in: questions.map(q => q._id) },
-        isCorrect: true
-      }).distinct('questionId');
+      const [userSolvedIds, userAttemptedIds] = await Promise.all([
+        UserAttempt.find({
+          userId: req.user._id,
+          questionId: { $in: questions.map(q => q._id) },
+          isCorrect: true
+        }).distinct('questionId'),
+        UserAttempt.find({
+          userId: req.user._id,
+          questionId: { $in: questions.map(q => q._id) }
+        }).distinct('questionId')
+      ]);
 
       solvedSet = new Set(userSolvedIds.map(id => id.toString()));
-
-      // Fetch all attempted questionIds
-      const userAttemptedIds = await UserAttempt.find({
-        userId: req.user._id,
-        questionId: { $in: questions.map(q => q._id) }
-      }).distinct('questionId');
-
       attemptedSet = new Set(userAttemptedIds.map(id => id.toString()));
     }
     
@@ -117,13 +115,11 @@ export const getPracticeQuestionById = async (req, res) => {
 
     const qId = question._id;
 
-    // Find the latest attempt by the user for this question
-    const lastAttempt = req.user ? await UserAttempt.findOne({
-      userId: req.user._id,
-      questionId: qId
-    }).sort({ attemptedAt: -1 }) : null;
+    const [lastAttempt, bookmarkedDoc] = req.user ? await Promise.all([
+      UserAttempt.findOne({ userId: req.user._id, questionId: qId }).sort({ attemptedAt: -1 }),
+      Bookmark.findOne({ userId: req.user._id, questionId: qId })
+    ]) : [null, null];
 
-    const bookmarkedDoc = req.user ? await Bookmark.findOne({ userId: req.user._id, questionId: qId }) : null;
     const isBookmarked = !!bookmarkedDoc;
 
     const hasAttempted = !!lastAttempt;

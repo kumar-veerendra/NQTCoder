@@ -26,18 +26,15 @@ const MockTestDashboard = () => {
   const fetchDashboardData = async () => {
     setLoading(true);
     try {
-      // Legacy active test
-      const active = await mockTestService.getCurrentMockTest();
+      const [active, hist, bps, histV2] = await Promise.all([
+        mockTestService.getCurrentMockTest(),
+        mockTestService.getMockTestHistory(),
+        mockTestService.getMockBlueprints(),
+        mockTestService.getMockHistoryV2()
+      ]);
       setActiveTest(active);
-      
-      const hist = await mockTestService.getMockTestHistory();
       setHistory(hist);
-
-      // V2 Blueprints & Completed instances
-      const bps = await mockTestService.getMockBlueprints();
       setBlueprints(bps);
-
-      const histV2 = await mockTestService.getMockHistoryV2();
       setHistoryV2(histV2);
 
     } catch (err) {

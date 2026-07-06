@@ -223,9 +223,11 @@ export const googleLogin = async (req, res) => {
 };
 
 const formatUserProfile = async (user) => {
-  const easyTotal = await Question.countDocuments({ difficulty: { $in: ['Easy', 'Easy-Medium'] }, status: 'active' });
-  const mediumTotal = await Question.countDocuments({ difficulty: { $in: ['Medium', 'Medium-Hard'] }, status: 'active' });
-  const hardTotal = await Question.countDocuments({ difficulty: 'Hard', status: 'active' });
+  const [easyTotal, mediumTotal, hardTotal] = await Promise.all([
+    Question.countDocuments({ difficulty: { $in: ['Easy', 'Easy-Medium'] }, status: 'active', domain: 'coding' }),
+    Question.countDocuments({ difficulty: { $in: ['Medium', 'Medium-Hard'] }, status: 'active', domain: 'coding' }),
+    Question.countDocuments({ difficulty: 'Hard', status: 'active', domain: 'coding' })
+  ]);
 
   const solvedEasy = user.solvedQuestions.filter(q => ['Easy', 'Easy-Medium'].includes(q.difficulty)).length;
   const solvedMedium = user.solvedQuestions.filter(q => ['Medium', 'Medium-Hard'].includes(q.difficulty)).length;
