@@ -4,6 +4,24 @@ import Question, { MCQQuestion, CodingQuestion } from '../models/Question.js';
 import Submission from '../models/Submission.js';
 import { findQuestionByIdOrSlug, getMCQByFilter } from '../utils/questionLoader.js';
 
+const buildQuestionMapByIds = async (questionRefs, selectFields = '') => {
+  const questionIds = [...new Set(
+    questionRefs
+      .map(ref => ref?.toString?.())
+      .filter(Boolean)
+  )];
+
+  if (questionIds.length === 0) return new Map();
+
+  let query = Question.find({ _id: { $in: questionIds } });
+  if (selectFields) {
+    query = query.select(selectFields);
+  }
+
+  const docs = await query.lean();
+  return new Map(docs.map(doc => [doc._id.toString(), doc]));
+};
+
 /**
  * @desc    Get all active test blueprints
  * @route   GET /api/mocktests/blueprints
@@ -137,9 +155,28 @@ export const getMockInstance = async (req, res) => {
           // Final section expired! Terminate & grade the session
           let calculatedScore = 0;
           let maximumScore = 0;
+          const questionMap = await buildQuestionMapByIds(instance.questions.map(item => item.questionId));
+          const codingQuestionIds = [];
+          for (const item of instance.questions) {
+            const mappedQuestion = questionMap.get(item.questionId.toString());
+            if (mappedQuestion?.kind === 'CodingQuestion') {
+              codingQuestionIds.push(mappedQuestion._id);
+            }
+          }
+          const acceptedCodingSubmissions = await Submission.find({
+            userId: req.user._id,
+            status: 'Accepted',
+            createdAt: { $gte: instance.startedAt },
+            questionId: { $in: codingQuestionIds }
+          }).select('questionId').lean();
+          const acceptedCodingQuestionSet = new Set(
+            acceptedCodingSubmissions.map(sub => sub.questionId.toString())
+          );
 
           for (const item of instance.questions) {
-            const question = await findQuestionByIdOrSlug(item.questionId);
+            const question =
+              questionMap.get(item.questionId.toString()) ||
+              await findQuestionByIdOrSlug(item.questionId);
             if (!question) continue;
 
             if (question.kind === 'MCQQuestion') {
@@ -157,15 +194,7 @@ export const getMockInstance = async (req, res) => {
             } else if (question.kind === 'CodingQuestion') {
               const itemWeight = 10;
               maximumScore += itemWeight;
-
-              const passSubmission = await Submission.findOne({
-                userId: req.user._id,
-                questionId: question._id,
-                status: 'Accepted',
-                createdAt: { $gte: instance.startedAt }
-              });
-
-              item.isCorrect = !!passSubmission;
+              item.isCorrect = acceptedCodingQuestionSet.has(question._id.toString());
               if (item.isCorrect) {
                 calculatedScore += itemWeight;
               }
@@ -198,13 +227,17 @@ export const getMockInstance = async (req, res) => {
 
     // Populate question details. Strip answer keys if test is in progress
     const selectFields = isCompleted ? '' : '-correctAnswer -explanation -hiddenTestCases';
+    const questionMap = await buildQuestionMapByIds(
+      instance.questions.map(item => item.questionId),
+      selectFields
+    );
     
     // Manual populate to select specific fields based on completed status
     const populatedQuestions = [];
     for (const item of instance.questions) {
-      let questionDoc = await findQuestionByIdOrSlug(item.questionId);
-      if (questionDoc && typeof questionDoc.select === 'function') {
-        questionDoc = await Question.findById(item.questionId).select(selectFields);
+      let questionDoc = questionMap.get(item.questionId.toString());
+      if (!questionDoc) {
+        questionDoc = await findQuestionByIdOrSlug(item.questionId);
       }
       if (questionDoc) {
         const docObj = typeof questionDoc.toObject === 'function' ? questionDoc.toObject() : { ...questionDoc };
@@ -323,9 +356,28 @@ const gradeMockInstanceHelper = async (instance, userId) => {
   
   let calculatedScore = 0;
   let maximumScore = 0;
+  const questionMap = await buildQuestionMapByIds(instance.questions.map(item => item.questionId));
+  const codingQuestionIds = [];
+  for (const item of instance.questions) {
+    const mappedQuestion = questionMap.get(item.questionId.toString());
+    if (mappedQuestion?.kind === 'CodingQuestion') {
+      codingQuestionIds.push(mappedQuestion._id);
+    }
+  }
+  const acceptedCodingSubmissions = await Submission.find({
+    userId,
+    status: 'Accepted',
+    createdAt: { $gte: instance.startedAt },
+    questionId: { $in: codingQuestionIds }
+  }).select('questionId').lean();
+  const acceptedCodingQuestionSet = new Set(
+    acceptedCodingSubmissions.map(sub => sub.questionId.toString())
+  );
 
   for (const item of instance.questions) {
-    const question = await findQuestionByIdOrSlug(item.questionId);
+    const question =
+      questionMap.get(item.questionId.toString()) ||
+      await findQuestionByIdOrSlug(item.questionId);
     if (!question) continue;
 
     if (question.kind === 'MCQQuestion') {
@@ -343,15 +395,7 @@ const gradeMockInstanceHelper = async (instance, userId) => {
     } else if (question.kind === 'CodingQuestion') {
       const itemWeight = 10;
       maximumScore += itemWeight;
-
-      const passSubmission = await Submission.findOne({
-        userId,
-        questionId: question._id,
-        status: 'Accepted',
-        createdAt: { $gte: instance.startedAt }
-      });
-
-      item.isCorrect = !!passSubmission;
+      item.isCorrect = acceptedCodingQuestionSet.has(question._id.toString());
       if (item.isCorrect) {
         calculatedScore += itemWeight;
       }
