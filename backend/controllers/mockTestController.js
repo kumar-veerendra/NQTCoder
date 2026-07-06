@@ -94,13 +94,14 @@ export const startMockTest = async (req, res) => {
 
     // Select Q1: Easy/Medium difficulty
     let q1Candidates = await Question.find({
+      domain: 'coding',
       difficulty: { $in: ['Easy', 'Medium'] },
       _id: { $nin: facedIds }
     });
 
     if (q1Candidates.length === 0) {
       // Fallback: allow repeats if all have been faced
-      q1Candidates = await Question.find({ difficulty: { $in: ['Easy', 'Medium'] } });
+      q1Candidates = await Question.find({ domain: 'coding', difficulty: { $in: ['Easy', 'Medium'] } });
     }
 
     const q1 = q1Candidates[Math.floor(Math.random() * q1Candidates.length)];
@@ -111,6 +112,7 @@ export const startMockTest = async (req, res) => {
 
     // Select Q2: Medium/Hard difficulty (must be distinct from Q1)
     let q2Candidates = await Question.find({
+      domain: 'coding',
       difficulty: { $in: ['Medium', 'Hard'] },
       _id: { $nin: [...facedIds, q1._id.toString()] }
     });
@@ -118,6 +120,7 @@ export const startMockTest = async (req, res) => {
     if (q2Candidates.length === 0) {
       // Fallback: allow repeats excluding Q1
       q2Candidates = await Question.find({
+        domain: 'coding',
         difficulty: { $in: ['Medium', 'Hard'] },
         _id: { $ne: q1._id }
       });

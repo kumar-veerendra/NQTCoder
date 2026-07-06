@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import { ThemeContext } from '../context/ThemeContext';
 import { GoogleLogin } from '@react-oauth/google';
-import { X, Lock, Shield, Award, CheckCircle, Flame, Play, Send } from 'lucide-react';
+import { X, Lock, Shield, Award, CheckCircle, Flame, Play, Send, BookOpen, TrendingUp } from 'lucide-react';
 
 const AuthModal = ({ isOpen, onClose, mode = 'run' }) => {
   const { loginWithGoogle } = useContext(AuthContext);
@@ -12,7 +12,7 @@ const AuthModal = ({ isOpen, onClose, mode = 'run' }) => {
 
   if (!isOpen) return null;
 
-  // ── Context config for run vs submit ────────────────────────────────────────
+  // ── Context config for run vs submit vs aptitude ─────────────────────────────
   const config = {
     run: {
       Icon: Play,
@@ -38,6 +38,19 @@ const AuthModal = ({ isOpen, onClose, mode = 'run' }) => {
         { Icon: Award,       text: 'Earn rank points for correct solutions' },
         { Icon: CheckCircle, text: 'Track solved questions on your profile' },
         { Icon: Flame,       text: 'Climb the leaderboard rankings' },
+      ],
+    },
+    aptitude: {
+      Icon: BookOpen,
+      iconBg: 'bg-violet-500/10 border-violet-500/25 text-violet-400',
+      title: 'Answer This Question',
+      subtitle: 'Sign in to attempt aptitude questions and track your progress.',
+      features: [
+        { Icon: BookOpen,    text: 'Attempt quant & logical MCQs' },
+        { Icon: CheckCircle, text: 'Get instant correct/wrong verdicts' },
+        { Icon: TrendingUp,  text: 'Track your topic-wise accuracy' },
+        { Icon: Award,       text: 'Earn rank points for correct answers' },
+        { Icon: Flame,       text: 'Build your daily practice streak' },
       ],
     },
   };

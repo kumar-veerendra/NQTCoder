@@ -62,6 +62,37 @@ export const validateLogin = (data) => {
 export const validateQuestion = (data) => {
   const errors = {};
 
+  // MCQ Aptitude Validation
+  if (data.domain === 'aptitude') {
+    if (!data.displayName || data.displayName.trim() === '') {
+      errors.displayName = 'Display name is required';
+    }
+    if (!data.topic || data.topic.trim() === '') {
+      errors.topic = 'Topic category is required';
+    }
+    if (!data.difficulty || !['easy', 'medium', 'hard'].includes(data.difficulty)) {
+      errors.difficulty = 'Difficulty must be easy, medium, or hard';
+    }
+    if (!data.content?.statement || data.content.statement.trim() === '') {
+      errors.statement = 'Question statement is required';
+    }
+    if (!data.options || !Array.isArray(data.options) || data.options.length < 2) {
+      errors.options = 'At least two options are required';
+    }
+    if (!data.correctAnswer || !Array.isArray(data.correctAnswer) || data.correctAnswer.length === 0) {
+      errors.correctAnswer = 'Correct answer choice is required';
+    }
+    if (!data.explanation?.summary || data.explanation.summary.trim() === '') {
+      errors.explanation = 'Explanation summary is required';
+    }
+
+    return {
+      errors,
+      isValid: Object.keys(errors).length === 0
+    };
+  }
+
+  // Legacy Coding Validation
   if (!data.title || data.title.trim() === '') {
     errors.title = 'Question title is required';
   }

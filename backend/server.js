@@ -12,6 +12,7 @@ import trackRoutes from './routes/trackRoutes.js';
 import mockTestRoutes from './routes/mockTestRoutes.js';
 import feedbackRoutes from './routes/feedbackRoutes.js';
 import resourceRoutes from './routes/resourceRoutes.js';
+import practiceRoutes from './routes/practiceRoutes.js';
 import { notFound, errorHandler } from './middleware/errorMiddleware.js';
 
 // Connect to database
@@ -63,6 +64,7 @@ app.use('/api/tracks', trackRoutes);
 app.use('/api/mocktests', mockTestRoutes);
 app.use('/api/feedback', feedbackRoutes);
 app.use('/api/resources', resourceRoutes);
+app.use('/api/practice', practiceRoutes);
 
 // Error Middlewares
 app.use(notFound);

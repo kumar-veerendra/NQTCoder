@@ -18,8 +18,8 @@ async function runTests() {
     await mongoose.connect(mongoUri);
     console.log('✅ Connected to MongoDB.');
 
-    const totalCount = await Question.countDocuments({});
-    console.log(`🔍 Total questions in DB: ${totalCount}`);
+    const totalCount = await Question.countDocuments({ domain: 'coding' });
+    console.log(`🔍 Total coding questions in DB: ${totalCount}`);
 
     // Mocking Express response object
     const createMockResponse = () => {

@@ -85,7 +85,8 @@ const CompanyDashboard = () => {
         difficulty: selectedDifficulty,
         search: debouncedSearchQuery,
         page,
-        limit
+        limit,
+        domain: 'coding'
       });
       setQuestions(data.questions || []);
       setTotalPages(data.totalPages || 1);

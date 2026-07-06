@@ -8,6 +8,7 @@ export const getQuestions = async (filters = {}) => {
   if (filters.page) params.page = filters.page;
   if (filters.limit) params.limit = filters.limit;
   if (filters.search) params.search = filters.search;
+  if (filters.domain) params.domain = filters.domain;
 
   const response = await api.get('/api/questions', { params });
   return response.data;

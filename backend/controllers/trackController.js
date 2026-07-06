@@ -15,6 +15,7 @@ const CATEGORY_PARTNERS = {
 const getUnsolvedQuestions = async (userSolvedIds, companyName, category, batchSize = 5) => {
   // Try to find questions from the target company first
   let candidates = await Question.find({
+    domain: 'coding',
     company: { $regex: new RegExp(companyName, 'i') },
     _id: { $nin: userSolvedIds }
   }).select('_id');
@@ -23,6 +24,7 @@ const getUnsolvedQuestions = async (userSolvedIds, companyName, category, batchS
   if (candidates.length < batchSize && category) {
     const partners = CATEGORY_PARTNERS[category.toLowerCase()] || [];
     const extraCandidates = await Question.find({
+      domain: 'coding',
       company: { $in: partners },
       _id: { $nin: [...userSolvedIds, ...candidates.map(c => c._id)] }
     }).select('_id');

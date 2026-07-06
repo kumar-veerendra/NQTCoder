@@ -12,6 +12,9 @@ import BadgesList from '../components/profile/BadgesList';
 import SubmissionsLog from '../components/profile/SubmissionsLog';
 import MockTestHistory from '../components/profile/MockTestHistory';
 import ProfileSettings from '../components/profile/ProfileSettings';
+import AptitudeMetrics from '../components/profile/AptitudeMetrics';
+import * as practiceService from '../services/practiceService';
+import { Bookmark, AlertTriangle, CheckCircle2, ArrowRight, ShieldAlert } from 'lucide-react';
 
 import {
   calculateStreakDetails,
@@ -28,9 +31,12 @@ const Profile = () => {
   const [profile, setProfile] = useState(null);
   const [mockHistory, setMockHistory] = useState([]);
   const [userSubmissions, setUserSubmissions] = useState([]);
+  const [aptitudeProgress, setAptitudeProgress] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [activeTab, setActiveTab] = useState('overview'); // 'overview', 'submissions', 'mocktests', 'settings'
+  const [activeTab, setActiveTab] = useState('overview');
+  const [bookmarks, setBookmarks] = useState([]);
+  const [revisionQueue, setRevisionQueue] = useState([]);
 
   // Settings form states
   const [fullName, setFullName] = useState('');
@@ -41,7 +47,7 @@ const Profile = () => {
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const tabParam = params.get('tab');
-    if (tabParam && ['overview', 'submissions', 'mocktests', 'settings'].includes(tabParam)) {
+    if (tabParam && ['overview', 'submissions', 'mocktests', 'bookmarks', 'revision', 'settings'].includes(tabParam)) {
       setActiveTab(tabParam);
     }
     fetchProfileDetails();
@@ -61,6 +67,15 @@ const Profile = () => {
 
       const subs = await executionService.getUserSubmissions();
       setUserSubmissions(subs);
+
+      const aptProgress = await practiceService.getPracticeProgress();
+      setAptitudeProgress(aptProgress);
+
+      const bmarks = await practiceService.getBookmarks();
+      setBookmarks(bmarks);
+
+      const revQ = await practiceService.getRevisionQueue();
+      setRevisionQueue(revQ);
     } catch (err) {
       console.error(err);
       setError('Could not retrieve user stats. Please check backend.');
@@ -279,18 +294,23 @@ const Profile = () => {
         <div className="lg:col-span-3 space-y-6">
           
           {/* Navigation Tabs */}
-          <div className="flex items-center space-x-2 border-b border-darkBorder pb-px select-none">
-            {['overview', 'submissions', 'mocktests', 'settings'].map((tab) => (
+          <div className="flex items-center space-x-2 border-b border-darkBorder pb-px select-none overflow-x-auto">
+            {['overview', 'submissions', 'mocktests', 'bookmarks', 'revision', 'settings'].map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`px-4 py-3 border-b-2 text-xs font-black uppercase tracking-wider transition-all -mb-px ${
+                className={`px-4 py-3 border-b-2 text-xs font-black uppercase tracking-wider transition-all -mb-px whitespace-nowrap ${
                   activeTab === tab
                     ? 'border-accentBlue text-accentBlue'
                     : 'border-transparent text-slate-400 hover:text-slate-200'
                 }`}
               >
-                {tab === 'overview' ? 'Overview' : tab === 'submissions' ? 'Submissions Log' : tab === 'mocktests' ? 'Mock Test History' : 'Settings'}
+                {tab === 'overview' ? 'Overview' 
+                  : tab === 'submissions' ? 'Submissions Log' 
+                  : tab === 'mocktests' ? 'Mock Test History' 
+                  : tab === 'bookmarks' ? `Bookmarks (${bookmarks.length})`
+                  : tab === 'revision' ? `Revision Queue (${revisionQueue.length})`
+                  : 'Settings'}
               </button>
             ))}
           </div>
@@ -306,11 +326,14 @@ const Profile = () => {
                 monthLabels={monthLabels} 
               />
 
-              {/* Difficulty Breakdown Panel */}
+              {/* Difficulty & Aptitude Breakdown Panel */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
                 <DifficultyMetrics solvedCount={profile.solvedCount} difficultyTotals={profile.difficultyTotals} />
-                <BadgesList badges={badges} />
+                <AptitudeMetrics progress={aptitudeProgress} />
               </div>
+
+              {/* Achievements & Badges */}
+              <BadgesList badges={badges} />
             </div>
           )}
 
@@ -322,6 +345,120 @@ const Profile = () => {
           {/* TAB 3: MOCK TEST HISTORY */}
           {activeTab === 'mocktests' && (
             <MockTestHistory mockHistory={mockHistory} />
+          )}
+
+          {/* TAB: BOOKMARKS */}
+          {activeTab === 'bookmarks' && (
+            <div className="space-y-6">
+              <div className="border-b border-darkBorder pb-2">
+                <h3 className="text-sm font-black text-white uppercase tracking-wider">Your Bookmarked Questions</h3>
+                <p className="text-[10px] text-slate-500 mt-0.5">Flagged questions saved during practice sessions</p>
+              </div>
+              {bookmarks.length === 0 ? (
+                <div className="text-center py-16 bg-darkCard border border-darkBorder rounded-2xl text-slate-500 space-y-3">
+                  <Bookmark className="w-12 h-12 mx-auto text-slate-700" />
+                  <p className="text-xs font-bold">No bookmarks saved yet.</p>
+                  <p className="text-xs text-slate-500">Flag questions inside the solver arena to save them here.</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-fadeIn">
+                  {bookmarks.map((bItem) => {
+                    const q = bItem.questionId;
+                    if (!q) return null;
+
+                    return (
+                      <div 
+                        key={bItem._id} 
+                        className="bg-darkCard border border-darkBorder hover:border-accentBlue rounded-2xl p-6 flex flex-col justify-between shadow transition-all duration-300 group"
+                      >
+                        <div className="space-y-4">
+                          <div className="flex items-center justify-between select-none">
+                            <span className="text-[9px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded bg-darkBg border border-darkBorder text-slate-400">
+                              {q.section || 'quant'}
+                            </span>
+                            <span className={`text-[8px] font-black uppercase tracking-wider px-2 py-0.5 rounded border ${
+                              q.difficulty === 'easy'
+                                ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
+                                : q.difficulty === 'medium'
+                                ? 'bg-amber-500/10 text-amber-400 border-amber-500/20'
+                                : 'bg-rose-500/10 text-rose-400 border-rose-500/20'
+                            }`}>
+                              {q.difficulty}
+                            </span>
+                          </div>
+
+                          <p className="text-slate-200 text-xs font-semibold leading-relaxed line-clamp-3">
+                            {q.content?.statement}
+                          </p>
+                        </div>
+
+                        <Link
+                          to={`/aptitude/arena/${q.topic}`}
+                          className="w-full bg-slate-800 hover:bg-slate-750 text-slate-300 border border-darkBorder hover:border-slate-500 mt-6 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                        >
+                          <span>Solve Bookmarked Set</span>
+                          <ArrowRight className="w-3.5 h-3.5" />
+                        </Link>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* TAB: REVISION QUEUE */}
+          {activeTab === 'revision' && (
+            <div className="space-y-6">
+              <div className="border-b border-darkBorder pb-2">
+                <h3 className="text-sm font-black text-white uppercase tracking-wider">Your Revision Queue</h3>
+                <p className="text-[10px] text-slate-500 mt-0.5">Double-missed questions requiring focus and resolution</p>
+              </div>
+              {revisionQueue.length === 0 ? (
+                <div className="text-center py-16 bg-darkCard border border-darkBorder rounded-2xl text-slate-500 space-y-3">
+                  <CheckCircle2 className="w-12 h-12 mx-auto text-emerald-500 animate-pulse" />
+                  <p className="text-xs font-bold text-emerald-400">Your Revision Queue is Empty!</p>
+                  <p className="text-xs text-slate-500">Double-missed practice questions automatically show up here.</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-fadeIn">
+                  {revisionQueue.map((rItem) => {
+                    const q = rItem.questionId;
+                    if (!q) return null;
+
+                    return (
+                      <div 
+                        key={rItem._id} 
+                        className="bg-darkCard border border-rose-500/20 hover:border-rose-500 rounded-2xl p-6 flex flex-col justify-between shadow transition-all duration-300 group"
+                      >
+                        <div className="space-y-4">
+                          <div className="flex items-center justify-between select-none">
+                            <span className="text-[9px] font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded bg-rose-500/10 border border-rose-500/25 text-rose-400 flex items-center gap-1">
+                              <ShieldAlert className="w-3.5 h-3.5" /> Double-Missed
+                            </span>
+                            <span className="text-[9px] text-slate-500 font-bold uppercase">
+                              Topic: {q.topic}
+                            </span>
+                          </div>
+
+                          <p className="text-slate-300 text-xs leading-relaxed line-clamp-3">
+                            {q.content?.statement}
+                          </p>
+                        </div>
+
+                        <Link
+                          to={`/aptitude/arena/${q.topic}`}
+                          className="w-full bg-rose-950 hover:bg-rose-900 border border-rose-500/35 text-rose-300 mt-6 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                        >
+                          <span>Resolve Flags</span>
+                          <ArrowRight className="w-3.5 h-3.5" />
+                        </Link>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
           )}
 
           {/* TAB 4: SETTINGS */}
