@@ -407,44 +407,10 @@ export const getQuestionsCount = async (req, res) => {
       }
     });
 
-    // Fetch counts from local quant and logical json files
-    const quantPath = path.join(__dirname, '../config/data/quantQue.json');
-    const logicalPath = path.join(__dirname, '../config/data/logicalQue.json');
-    
-    let totalQuantQuestions = 0;
-    let totalLogicalQuestions = 0;
-    
-    try {
-      if (fs.existsSync(quantPath)) {
-        const quantData = JSON.parse(fs.readFileSync(quantPath, 'utf8'));
-        totalQuantQuestions = Array.isArray(quantData) ? quantData.length : 0;
-      }
-    } catch (e) {
-      console.error('Error reading quantQue.json:', e.message);
-    }
-    
-    try {
-      if (fs.existsSync(logicalPath)) {
-        const logicalData = JSON.parse(fs.readFileSync(logicalPath, 'utf8'));
-        totalLogicalQuestions = Array.isArray(logicalData) ? logicalData.length : 0;
-      }
-    } catch (e) {
-      console.error('Error reading logicalQue.json:', e.message);
-    }
-
-    // Fetch counts for verbal questions
-    let totalVerbalQuestions = await Question.countDocuments({ domain: 'verbal' });
-    if (totalVerbalQuestions === 0) {
-      const verbalPath = path.join(__dirname, '../config/data/verbalQue.json');
-      try {
-        if (fs.existsSync(verbalPath)) {
-          const verbalData = JSON.parse(fs.readFileSync(verbalPath, 'utf8'));
-          totalVerbalQuestions = Array.isArray(verbalData) ? verbalData.length : 0;
-        }
-      } catch (e) {
-        console.error('Error reading verbalQue.json:', e.message);
-      }
-    }
+    // Fetch counts from MongoDB Atlas dynamically
+    const totalQuantQuestions = await Question.countDocuments({ section: 'quant' });
+    const totalLogicalQuestions = await Question.countDocuments({ section: 'logical' });
+    const totalVerbalQuestions = await Question.countDocuments({ section: 'verbal' });
 
     const totalCompanies = Object.keys(companyCounts).length;
 
