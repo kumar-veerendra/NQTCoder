@@ -7,7 +7,7 @@ import Resource from '../models/Resource.js';
 import ResourceCategory from '../models/ResourceCategory.js';
 
 const BASE_URL = 'http://localhost:5000/api';
-const testUsername = `resource_tester_${Math.floor(100000 + Math.random() * 900000)}`;
+const testUsername = `res_tester_${Math.floor(100000 + Math.random() * 900000)}`;
 const testEmail = `${testUsername}@example.com`;
 const testPassword = 'Password@123';
 
@@ -30,7 +30,7 @@ const runResourceTests = async () => {
     console.log('✅ Connected to MongoDB.');
 
     // Cleanup lingering test users and categories
-    await User.deleteMany({ email: /resource_tester_.*@example\.com/ });
+    await User.deleteMany({ email: /^(resource_tester|res_tester)_.*@example\.com$/ });
     const oldCategory = await ResourceCategory.findOne({ title: 'E2E Test Category' });
     if (oldCategory) {
       await Resource.deleteMany({ category: oldCategory._id });
@@ -131,6 +131,7 @@ const runResourceTests = async () => {
 
   } catch (err) {
     console.error('\n❌ Resource Test failed:', err.response ? err.response.data : err.message);
+    process.exitCode = 1;
     try {
       if (categoryId) {
         await Resource.deleteMany({ category: categoryId });

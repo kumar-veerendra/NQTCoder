@@ -174,6 +174,7 @@ const runForgotPasswordTests = async () => {
 
   } catch (err) {
     console.error('\n❌ Forgot Password Test failed:', err.response ? err.response.data : err.message);
+    process.exitCode = 1;
     try {
       await User.deleteOne({ email: testEmail });
     } catch {}

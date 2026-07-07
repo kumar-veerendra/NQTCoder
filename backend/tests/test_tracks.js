@@ -135,6 +135,7 @@ const runTrackTests = async () => {
 
   } catch (err) {
     console.error('\n❌ Track Test failed:', err.response ? err.response.data : err.message);
+    process.exitCode = 1;
     try {
       if (trackId) {
         await TrackProgress.deleteMany({ track: trackId });
