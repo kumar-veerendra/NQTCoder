@@ -25,7 +25,7 @@ const getUnsolvedQuestions = async (userSolvedIds, companyName, category, topicN
   }
 
   // Try to find questions matching query first
-  let candidates = await Question.find(query).select('_id');
+  let candidates = await Question.find(query).select('_id difficulty');
 
   // If we don't have enough, pull from partner companies in the same category (only for company queries)
   if (candidates.length < batchSize && category && !topicName) {
@@ -34,13 +34,31 @@ const getUnsolvedQuestions = async (userSolvedIds, companyName, category, topicN
       domain: 'coding',
       company: { $in: partners },
       _id: { $nin: [...userSolvedIds, ...candidates.map(c => c._id)] }
-    }).select('_id');
+    }).select('_id difficulty');
     candidates = [...candidates, ...extraCandidates];
   }
 
-  // Shuffle and pick batchSize questions
+  // Shuffle candidates to randomize selection
   const shuffled = candidates.sort(() => 0.5 - Math.random());
-  return shuffled.slice(0, batchSize).map(c => c._id);
+  
+  // Pick the first batchSize questions
+  const selected = shuffled.slice(0, batchSize);
+
+  // Sort selected questions from Easy -> Medium -> Hard
+  const difficultyOrder = {
+    'easy': 1,
+    'easy-medium': 2,
+    'medium': 3,
+    'medium-hard': 4,
+    'hard': 5
+  };
+  selected.sort((a, b) => {
+    const diffA = (a.difficulty || 'medium').toLowerCase();
+    const diffB = (b.difficulty || 'medium').toLowerCase();
+    return (difficultyOrder[diffA] || 3) - (difficultyOrder[diffB] || 3);
+  });
+
+  return selected.map(c => c._id);
 };
 
 /**
