@@ -595,9 +595,10 @@ const ProblemArena = () => {
 
       </div>
 
-      {/* Guest Mode Banner */}
       {!user && !isGuestBannerDismissed && (
-        <div className="bg-[#1e1b4b]/80 border-b border-amber-500/20 text-amber-300 px-4 py-2.5 text-xs flex items-center justify-between gap-4 select-none animate-fadeIn shrink-0">
+        <div className={`border-b border-amber-500/20 text-amber-300 px-4 py-2.5 text-xs flex items-center justify-between gap-4 select-none animate-fadeIn shrink-0 ${
+          theme === 'light' ? 'bg-amber-50' : 'bg-[#1e1b4b]/80'
+        }`}>
           <div className="flex items-center gap-2">
             <span className="bg-amber-500/20 border border-amber-500/30 text-amber-400 px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider shrink-0">Guest Mode</span>
             <span>You're exploring NQTCoder. Sign in to run code, submit solutions, and save your progress.</span>
