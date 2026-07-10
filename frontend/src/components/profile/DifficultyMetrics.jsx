@@ -1,8 +1,10 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { CircleDot } from 'lucide-react';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from 'recharts';
+import { ThemeContext } from '../../context/ThemeContext';
 
 const DifficultyMetrics = ({ solvedCount = {}, difficultyTotals = {} }) => {
+  const { theme } = useContext(ThemeContext);
   const pieData = [
     { name: 'Easy', value: solvedCount.easy || 0, color: '#10b981' },
     { name: 'Medium', value: solvedCount.medium || 0, color: '#f59e0b' },
@@ -31,7 +33,7 @@ const DifficultyMetrics = ({ solvedCount = {}, difficultyTotals = {} }) => {
                   outerRadius={70}
                   dataKey="value"
                   stroke="none"
-                  fill="rgba(255, 255, 255, 0.08)"
+                  fill={theme === 'light' ? 'rgba(0, 0, 0, 0.08)' : 'rgba(255, 255, 255, 0.08)'}
                   isAnimationActive={false}
                   legendType="none"
                 />
