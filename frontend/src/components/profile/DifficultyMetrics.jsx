@@ -33,6 +33,7 @@ const DifficultyMetrics = ({ solvedCount = {}, difficultyTotals = {} }) => {
                   stroke="none"
                   fill="rgba(255, 255, 255, 0.08)"
                   isAnimationActive={false}
+                  legendType="none"
                 />
               )}
 
