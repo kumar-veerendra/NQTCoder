@@ -1,5 +1,5 @@
 import React from 'react';
-import { Target, Zap, BarChart2, Clock } from 'lucide-react';
+import { Target, Zap, BarChart2, Clock, BookOpen } from 'lucide-react';
 
 const AptitudeMetrics = ({ progress = [] }) => {
   // Sum solved and total questions per section
@@ -8,6 +8,9 @@ const AptitudeMetrics = ({ progress = [] }) => {
   
   const logicalSolved = progress.filter(p => p.section === 'logical').reduce((sum, p) => sum + (p.solved || 0), 0);
   const logicalTotal = progress.filter(p => p.section === 'logical').reduce((sum, p) => sum + (p.totalQuestions || 0), 0);
+
+  const verbalSolved = progress.filter(p => p.section === 'verbal').reduce((sum, p) => sum + (p.solved || 0), 0);
+  const verbalTotal = progress.filter(p => p.section === 'verbal').reduce((sum, p) => sum + (p.totalQuestions || 0), 0);
 
   // Overall accuracy and average time
   const averageAccuracy = progress.length > 0 
@@ -20,6 +23,7 @@ const AptitudeMetrics = ({ progress = [] }) => {
 
   const quantPercent = quantTotal > 0 ? Math.round((quantSolved / quantTotal) * 100) : 0;
   const logicalPercent = logicalTotal > 0 ? Math.round((logicalSolved / logicalTotal) * 100) : 0;
+  const verbalPercent = verbalTotal > 0 ? Math.round((verbalSolved / verbalTotal) * 100) : 0;
 
   return (
     <div className="bg-darkCard border border-darkBorder rounded-lg p-5 space-y-4 shadow-sm">
@@ -60,6 +64,24 @@ const AptitudeMetrics = ({ progress = [] }) => {
             <div 
               className="bg-purple-500 h-full rounded transition-all duration-500" 
               style={{ width: `${logicalPercent}%` }}
+            ></div>
+          </div>
+        </div>
+
+        {/* Verbal Progress Bar */}
+        <div className="space-y-1.5">
+          <div className="flex justify-between text-xs font-semibold select-none">
+            <span className="text-pink-400 flex items-center gap-1">
+              <BookOpen className="w-3.5 h-3.5" /> Verbal Ability
+            </span>
+            <span className="text-slate-300 font-mono">
+              {verbalSolved} / {verbalTotal} Solved
+            </span>
+          </div>
+          <div className="w-full bg-darkBg border border-darkBorder h-2 rounded overflow-hidden">
+            <div 
+              className="bg-pink-500 h-full rounded transition-all duration-500" 
+              style={{ width: `${verbalPercent}%` }}
             ></div>
           </div>
         </div>
