@@ -5,7 +5,8 @@ import {
   createTrack,
   updateTrack,
   deleteTrack,
-  updateTrackLastAccessed
+  updateTrackLastAccessed,
+  resetTrackProgress
 } from '../controllers/trackController.js';
 import { protect, admin, optionalProtect } from '../middleware/authMiddleware.js';
 
@@ -22,5 +23,8 @@ router.route('/:id')
 
 router.route('/:id/access')
   .post(protect, updateTrackLastAccessed);
+
+router.route('/:id/reset')
+  .post(protect, resetTrackProgress);
 
 export default router;

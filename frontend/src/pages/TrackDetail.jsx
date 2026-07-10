@@ -3,7 +3,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import * as trackService from '../services/trackService';
 import { 
   ChevronLeft, Play, CheckCircle2, Lock, Tag, Compass, Calendar, 
-  HelpCircle, ShieldCheck, Award, Target, BookOpen 
+  HelpCircle, ShieldCheck, Award, Target, BookOpen, RotateCcw
 } from 'lucide-react';
 import SEO from '../components/SEO';
 
@@ -44,6 +44,18 @@ const TrackDetail = () => {
       console.error('Failed to log last accessed question', err);
       // Navigate anyway to not block user
       navigate(`/problem/${q.slug || q._id}`);
+    }
+  };
+
+  const handleResetTrack = async () => {
+    if (window.confirm('Are you sure you want to reset this track? This will clear your current question list and generate a new set of 5 unsolved questions.')) {
+      try {
+        await trackService.resetTrack(id);
+        fetchTrackDetails();
+      } catch (err) {
+        console.error('Failed to reset track', err);
+        alert('Error resetting track progress.');
+      }
     }
   };
 
@@ -168,6 +180,19 @@ const TrackDetail = () => {
               ></div>
             </div>
           </div>
+
+          {/* Reset / Regenerate button */}
+          {completedCount > 0 && (
+            <div className="pt-4 border-t border-darkBorder/40">
+              <button
+                onClick={handleResetTrack}
+                className="w-full bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/25 py-2 rounded-md text-xs font-bold uppercase tracking-wider transition-colors flex items-center justify-center space-x-1.5 cursor-pointer"
+              >
+                <RotateCcw className="w-3.5 h-3.5" />
+                <span>Reset Track Progress</span>
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Right Side Question Items List */}

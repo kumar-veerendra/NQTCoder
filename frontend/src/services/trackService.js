@@ -29,3 +29,8 @@ export const updateTrackLastAccessed = async (id, questionId) => {
   const response = await api.post(`/api/tracks/${id}/access`, { questionId });
   return response.data;
 };
+
+export const resetTrack = async (id) => {
+  const response = await api.post(`/api/tracks/${id}/reset`);
+  return response.data;
+};

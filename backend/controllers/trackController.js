@@ -336,3 +336,22 @@ export const updateTrackLastAccessed = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+/**
+ * @desc    Reset user progress on a track (regenerates new questions next time)
+ * @route   POST /api/tracks/:id/reset
+ * @access  Private
+ */
+export const resetTrackProgress = async (req, res) => {
+  try {
+    const track = await Track.findById(req.params.id);
+    if (!track) {
+      return res.status(404).json({ message: 'Track not found' });
+    }
+
+    await TrackProgress.findOneAndDelete({ user: req.user._id, track: track._id });
+    res.json({ message: 'Track progress reset successfully.' });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
