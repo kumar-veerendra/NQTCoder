@@ -49,6 +49,16 @@ const Footer = () => {
               </Link>
             </li>
             <li>
+              <Link to="/aptitude" className="hover:text-white transition-colors">
+                Aptitude Arena
+              </Link>
+            </li>
+            <li>
+              <Link to="/tracks" className="hover:text-white transition-colors">
+                Preparation Tracks
+              </Link>
+            </li>
+            <li>
               <Link to="/mocktest" className="hover:text-white transition-colors">
                 Mock Tests
               </Link>
@@ -81,12 +91,12 @@ const Footer = () => {
               </Link>
             </li>
             <li>
-              <Link to="/about" className="hover:text-white transition-colors">
+              <Link to="/contact" className="hover:text-white transition-colors">
                 Submit Feedback
               </Link>
             </li>
             <li>
-              <Link to="/about" className="hover:text-white transition-colors">
+              <Link to="/contact" className="hover:text-white transition-colors">
                 Report a Bug
               </Link>
             </li>

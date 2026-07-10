@@ -85,7 +85,7 @@ const AuthModal = ({ isOpen, onClose, mode = 'run' }) => {
 
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/75 backdrop-blur-sm px-4 animate-fadeIn">
-      <div className="bg-[#0b1329] border border-[#1e293b] w-full max-w-md rounded-2xl p-6 relative shadow-2xl flex flex-col space-y-5 text-slate-100 font-sans">
+      <div className="bg-darkCard border border-darkBorder w-full max-w-md rounded-2xl p-6 relative shadow-2xl flex flex-col space-y-5 text-slate-100 font-sans">
 
         {/* Close Button */}
         <button
@@ -105,7 +105,7 @@ const AuthModal = ({ isOpen, onClose, mode = 'run' }) => {
         </div>
 
         {/* Feature list */}
-        <div className="bg-[#0f172a]/60 border border-[#1e293b]/60 rounded-xl p-4 space-y-3 text-left">
+        <div className="bg-darkBg/60 border border-darkBorder/60 rounded-xl p-4 space-y-3 text-left">
           <h3 className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
             Create a free account to:
           </h3>
@@ -144,7 +144,7 @@ const AuthModal = ({ isOpen, onClose, mode = 'run' }) => {
 
           <button
             onClick={onClose}
-            className="w-full bg-transparent hover:bg-slate-800 border border-slate-700 text-slate-300 hover:text-white py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all cursor-pointer"
+            className="w-full bg-transparent hover:bg-darkBg/80 border border-darkBorder text-slate-300 hover:text-white py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all cursor-pointer"
           >
             Cancel
           </button>

@@ -1,18 +1,16 @@
 import React, { useState, useContext, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import { submitFeedback } from '../services/feedbackService';
 import { 
   Terminal, Mail, Github, MessageSquare, Bug, HelpCircle, 
-  Send, CheckCircle2, Award, Shield, BookOpen, ExternalLink, ArrowRight, Linkedin
+  Send, CheckCircle2, ArrowRight, Linkedin, ShieldCheck
 } from 'lucide-react';
 import SEO from '../components/SEO';
 
-const AboutContact = () => {
+const Contact = () => {
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
-  const location = useLocation();
-  const isContactPage = location.pathname === '/contact';
 
   // Form states
   const [formData, setFormData] = useState({
@@ -68,138 +66,46 @@ const AboutContact = () => {
     }
   };
 
-  // Determine border/accent color based on type of report selected
-  const getAccentColor = () => {
-    switch (formData.type) {
-      case 'bug':
-        return {
-          border: 'border-rose-500/30 focus:border-rose-500',
-          bg: 'bg-rose-500/10',
-          text: 'text-rose-400',
-          glow: 'shadow-rose-500/10'
-        };
-      case 'general':
-        return {
-          border: 'border-sky-500/30 focus:border-sky-500',
-          bg: 'bg-sky-500/10',
-          text: 'text-sky-400',
-          glow: 'shadow-sky-500/10'
-        };
-      case 'feedback':
-      default:
-        return {
-          border: 'border-accentBlue/30 focus:border-accentBlue',
-          bg: 'bg-accentBlue/10',
-          text: 'text-accentBlue',
-          glow: 'shadow-accentBlue/10'
-        };
-    }
-  };
-
-  const activeColor = getAccentColor();
-
   return (
     <div className="min-h-[calc(100vh-73px)] bg-darkBg text-slate-100 py-12 px-4 sm:px-6 lg:px-8 font-sans">
-      {/* ── SEO ─────────────────────────────────────────────────────────── */}
       <SEO
-        title={isContactPage ? 'Contact Us — Feedback & Bug Reports' : 'About NQTCoder — Platform, Team & Mission'}
-        description={isContactPage
-          ? 'Reach out to the NQTCoder team to submit feedback, report a bug, or ask a question. We respond to all queries from placement-aspiring students.'
-          : 'Learn about NQTCoder — a placement coding practice platform built for students preparing for TCS NQT, Infosys, Wipro & more. Meet the team behind it.'}
-        path={isContactPage ? '/contact' : '/about'}
-        keywords="NQTCoder about, contact NQTCoder, feedback, bug report, placement platform team, coding platform India"
-        jsonLd={[
-          {
-            '@context': 'https://schema.org',
-            '@type': 'BreadcrumbList',
-            'itemListElement': [
-              { '@type': 'ListItem', 'position': 1, 'name': 'Home', 'item': 'https://www.nqtcoder.dev/' },
-              { '@type': 'ListItem', 'position': 2, 'name': isContactPage ? 'Contact' : 'About', 'item': `https://www.nqtcoder.dev${isContactPage ? '/contact' : '/about'}` }
-            ]
-          },
-          {
-            '@context': 'https://schema.org',
-            '@type': 'ContactPage',
-            'name': 'NQTCoder — Contact & Feedback',
-            'url': 'https://www.nqtcoder.dev/contact',
-            'description': 'Submit feedback, bug reports, or questions to the NQTCoder team.'
-          }
-        ]}
+        title="Contact Us — Feedback & Bug Reports"
+        description="Reach out to the NQTCoder team to submit feedback, report a bug, or ask a question."
+        path="/contact"
+        keywords="contact NQTCoder, feedback, bug report, platform support"
       />
-      <div className="max-w-6xl mx-auto space-y-16">
+      <div className="max-w-6xl mx-auto space-y-16 animate-fadeIn">
         
-        {/* Section 1: Page Header */}
+        {/* Header */}
         <div className="text-center space-y-4 max-w-3xl mx-auto">
-          <div className="inline-flex items-center space-x-2 bg-accentBlue/10 text-accentBlue border border-accentBlue/20 px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider">
+          <div className="inline-flex items-center space-x-2 bg-accentBlue/10 text-accentBlue border border-accentBlue/20 px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider select-none">
             <Terminal className="w-3.5 h-3.5" />
-            <span>Connecting & Improving</span>
+            <span>Connect With Us</span>
           </div>
-          <h1 className="text-4xl md:text-5xl font-black tracking-tight text-white">
-            About NQT<span className="text-accentBlue">Coder</span> & Support
+          <h1 className="text-4xl md:text-5xl font-black tracking-tight text-white select-none">
+            Support & Feedback
           </h1>
           <p className="text-slate-400 text-sm md:text-base leading-relaxed">
-            Welcome to the ultimate preparation arena. We are building a modern workspace to help students crack campus coding rounds. Submit feedback or report bugs to help us build a better platform.
+            Need help, found a compiler bug, or want to suggest a new practice feature? Send a message and the admin team will get back to you!
           </p>
         </div>
 
-        {/* Section 2: Split Content (About details & Form) */}
+        {/* Split Content */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
           
-          {/* Left Side: About & Feature Cards */}
-          <div className="lg:col-span-5 space-y-8">
-            <div className="space-y-6">
-              <h2 className="text-xl font-extrabold text-white tracking-wide">
-                Our Mission & Goals
-              </h2>
-              <p className="text-slate-400 text-sm leading-relaxed">
-                NQTCoder was designed to bridge the gap between classroom coding and exam pressure. We replicate exam interfaces (like TCS NQT) to give you authentic coding practice with strict timers, secure test cases, and multi-language support.
+          {/* Left Side: Contact Details */}
+          <div className="lg:col-span-5 space-y-6">
+            <div className="space-y-4">
+              <h2 className="text-xl font-extrabold text-white tracking-wide">Direct Contacts</h2>
+              <p className="text-slate-400 text-xs leading-relaxed">
+                Connect with the engineering team behind NQTCoder. We appreciate bug reports and platform feedback!
               </p>
             </div>
 
-            {/* Visual Feature highlights */}
-            <div className="space-y-4">
-              <div className="flex items-start space-x-4 p-4 rounded-xl bg-darkCard border border-darkBorder hover:border-slate-700 transition-all">
-                <div className="bg-indigo-500/10 p-2.5 rounded-xl text-indigo-400 shrink-0">
-                  <Award className="w-5 h-5" />
-                </div>
-                <div>
-                  <h3 className="text-sm font-bold text-white">Exam Simulation</h3>
-                  <p className="text-xs text-slate-400 mt-1 leading-relaxed">
-                    Practice with the exact compiler UI, full imports, and custom class structures required by national recruiters.
-                  </p>
-                </div>
-              </div>
+            <div className="bg-darkCard border border-darkBorder rounded-2xl p-6 space-y-4 shadow-xl select-none relative overflow-hidden">
+              <div className="premium-shine rounded-2xl"></div>
 
-              <div className="flex items-start space-x-4 p-4 rounded-xl bg-darkCard border border-darkBorder hover:border-slate-700 transition-all">
-                <div className="bg-emerald-500/10 p-2.5 rounded-xl text-emerald-400 shrink-0">
-                  <Shield className="w-5 h-5" />
-                </div>
-                <div>
-                  <h3 className="text-sm font-bold text-white">Secure Sandboxes</h3>
-                  <p className="text-xs text-slate-400 mt-1 leading-relaxed">
-                    Your code executes in isolated Docker environments to guarantee safety, speed, and standard test results.
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-start space-x-4 p-4 rounded-xl bg-darkCard border border-darkBorder hover:border-slate-700 transition-all">
-                <div className="bg-amber-500/10 p-2.5 rounded-xl text-amber-400 shrink-0">
-                  <BookOpen className="w-5 h-5" />
-                </div>
-                <div>
-                  <h3 className="text-sm font-bold text-white">Learning Tracks</h3>
-                  <p className="text-xs text-slate-400 mt-1 leading-relaxed">
-                    Follow company-specific roadmaps for TCS, Accenture, Wipro, and topic-specific preparation plans.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Direct Contact Details */}
-            <div className="bg-darkCard border border-darkBorder rounded-2xl p-6 space-y-4 shadow-xl">
-              <h3 className="text-sm font-extrabold text-white uppercase tracking-wider">Direct Contacts</h3>
-              
-              <div className="space-y-3.5 text-xs text-slate-300">
+              <div className="space-y-3.5 text-xs text-slate-300 relative z-10">
                 <a 
                   href="https://mail.google.com/mail/?view=cm&fs=1&to=veerendrakumartmsl@gmail.com" 
                   target="_blank" 
@@ -219,7 +125,6 @@ const AboutContact = () => {
                   <Github className="w-4 h-4 text-slate-400 group-hover:text-accentBlue transition-colors" />
                   <span className="flex items-center space-x-1">
                     <span>GitHub Repository</span>
-                    <ExternalLink className="w-3 h-3 text-slate-500" />
                   </span>
                 </a>
 
@@ -232,7 +137,6 @@ const AboutContact = () => {
                   <Linkedin className="w-4 h-4 text-slate-400 group-hover:text-accentBlue transition-colors" />
                   <span className="flex items-center space-x-1">
                     <span>LinkedIn Profile</span>
-                    <ExternalLink className="w-3 h-3 text-slate-500" />
                   </span>
                 </a>
 
@@ -244,40 +148,89 @@ const AboutContact = () => {
                 >
                   <Send className="w-4 h-4 text-slate-400 group-hover:text-accentBlue transition-colors" />
                   <span className="flex items-center space-x-1">
-                    <span>Telegram Channel</span>
-                    <ExternalLink className="w-3 h-3 text-slate-500" />
+                    <span>Telegram Support</span>
                   </span>
                 </a>
               </div>
             </div>
+
+            {/* Support SLA & Guidelines */}
+            <div className="bg-darkCard border border-darkBorder rounded-2xl p-6 space-y-4 shadow-xl select-none relative overflow-hidden">
+              <div className="premium-shine rounded-2xl"></div>
+              
+              <div className="space-y-4 relative z-10">
+                <h3 className="text-sm font-extrabold text-white uppercase tracking-wider flex items-center">
+                  <ShieldCheck className="w-4 h-4 text-accentBlue mr-2" /> Support Guidelines
+                </h3>
+                
+                <ul className="space-y-4 text-xs text-slate-400 leading-relaxed font-semibold">
+                  <li className="flex items-start">
+                    <span className="text-accentBlue mr-2 font-bold select-none">•</span>
+                    <span>
+                      <strong className="text-slate-200">Response SLA:</strong> We review and respond to bug submissions and general placement support tickets within 24 to 48 hours.
+                    </span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="text-accentBlue mr-2 font-bold select-none">•</span>
+                    <span>
+                      <strong className="text-slate-200">Pre-Check Setup:</strong> Before reporting compiler faults, check if the compiler offline guide below can solve the issue.
+                    </span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="text-accentBlue mr-2 font-bold select-none">•</span>
+                    <span>
+                      <strong className="text-slate-200">Mock Exam Resumes:</strong> If you accidentally close your tab during a timed mock test, reload the mock test dashboard page to resume.
+                    </span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="text-accentBlue mr-2 font-bold select-none">•</span>
+                    <span>
+                      <strong className="text-slate-200">Faulty Testcases:</strong> If you find a question with invalid parameters, select "Report Bug" and share your sample input/output.
+                    </span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="text-accentBlue mr-2 font-bold select-none">•</span>
+                    <span>
+                      <strong className="text-slate-200">Plagiarism Reports:</strong> NQTCoder is a learning-first space. To report plagiarism or leaks, select the "Inquiry" ticket type.
+                    </span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="text-accentBlue mr-2 font-bold select-none">•</span>
+                    <span>
+                      <strong className="text-slate-200">Attachments:</strong> When reporting code issues, please include your program code and the specific test inputs used.
+                    </span>
+                  </li>
+                </ul>
+              </div>
+            </div>
           </div>
 
-          {/* Right Side: Form Card */}
+          {/* Right Side: Form */}
           <div className="lg:col-span-7">
             <div className="bg-darkCard border border-darkBorder rounded-3xl p-8 shadow-2xl relative overflow-hidden">
-              
+              <div className="premium-shine rounded-3xl"></div>
+
               {success ? (
-                /* Success screen */
-                <div className="py-12 flex flex-col items-center justify-center text-center space-y-6 animate-fadeIn">
+                <div className="py-12 flex flex-col items-center justify-center text-center space-y-6 animate-fadeIn relative z-10">
                   <div className="bg-emerald-500/10 p-5 rounded-full border border-emerald-500/20 text-emerald-400">
                     <CheckCircle2 className="w-12 h-12" />
                   </div>
                   <div className="space-y-2">
                     <h3 className="text-xl font-extrabold text-white">Submission Successful</h3>
                     <p className="text-xs text-slate-400 max-w-sm mx-auto">
-                      Thank you for sharing your inputs. Our support team has received your ticket and is working on reviewing it.
+                      Thank you for sharing your feedback. Our support team has received your ticket and is working on reviewing it.
                     </p>
                   </div>
                   <div className="flex flex-col sm:flex-row gap-3 pt-2">
                     <button
                       onClick={() => setSuccess(false)}
-                      className="px-5 py-2.5 rounded-xl border border-darkBorder hover:border-slate-600 text-xs font-bold uppercase tracking-wider text-slate-300 hover:text-white transition-all"
+                      className="px-5 py-2.5 rounded-xl border border-darkBorder hover:border-slate-600 text-xs font-bold uppercase tracking-wider text-slate-300 hover:text-white transition-all cursor-pointer"
                     >
                       Submit Another Ticket
                     </button>
                     <button
                       onClick={() => navigate('/')}
-                      className="px-5 py-2.5 rounded-xl bg-accentBtn hover:bg-accentBtnHover text-white text-xs font-bold uppercase tracking-wider flex items-center justify-center space-x-1 shadow-lg shadow-accentBtn/20 transition-all"
+                      className="px-5 py-2.5 rounded-xl bg-accentBtn hover:bg-accentBtnHover text-white text-xs font-bold uppercase tracking-wider flex items-center justify-center space-x-1 shadow-lg shadow-accentBtn/20 transition-all cursor-pointer"
                     >
                       <span>Return Home</span>
                       <ArrowRight className="w-3.5 h-3.5" />
@@ -285,8 +238,7 @@ const AboutContact = () => {
                   </div>
                 </div>
               ) : (
-                /* Form screen */
-                <form onSubmit={handleSubmit} className="space-y-6">
+                <form onSubmit={handleSubmit} className="space-y-6 relative z-10">
                   <div className="space-y-2">
                     <h2 className="text-2xl font-black text-white tracking-wide">Submit a Ticket</h2>
                     <p className="text-xs text-slate-400">Found a bug or have a feature idea? Let us know!</p>
@@ -299,19 +251,17 @@ const AboutContact = () => {
                   )}
 
                   {/* Submission type toggles */}
-                  <div className="space-y-2">
+                  <div className="space-y-2 select-none">
                     <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
                       Ticket Type
                     </label>
                     <div className="grid grid-cols-3 gap-3">
-                      
-                      {/* Feedback Tab */}
                       <button
                         type="button"
                         onClick={() => handleTypeSelect('feedback')}
-                        className={`flex flex-col items-center justify-center p-3 rounded-xl border text-center transition-all ${
+                        className={`flex flex-col items-center justify-center p-3 rounded-xl border text-center transition-all cursor-pointer ${
                           formData.type === 'feedback'
-                            ? 'bg-accentBlue/10 border-accentBlue text-accentBlue shadow-lg shadow-accentBlue/5'
+                            ? 'bg-accentBlue/10 border-accentBlue text-accentBlue shadow-lg'
                             : 'bg-darkBg/60 border-darkBorder text-slate-400 hover:text-slate-200 hover:border-slate-700'
                         }`}
                       >
@@ -319,13 +269,12 @@ const AboutContact = () => {
                         <span className="text-[10px] font-black uppercase tracking-wider">Feedback</span>
                       </button>
 
-                      {/* Bug Tab */}
                       <button
                         type="button"
                         onClick={() => handleTypeSelect('bug')}
-                        className={`flex flex-col items-center justify-center p-3 rounded-xl border text-center transition-all ${
+                        className={`flex flex-col items-center justify-center p-3 rounded-xl border text-center transition-all cursor-pointer ${
                           formData.type === 'bug'
-                            ? 'bg-rose-500/10 border-rose-500 text-rose-400 shadow-lg shadow-rose-500/5'
+                            ? 'bg-rose-500/10 border-rose-500 text-rose-400 shadow-lg'
                             : 'bg-darkBg/60 border-darkBorder text-slate-400 hover:text-slate-200 hover:border-slate-700'
                         }`}
                       >
@@ -333,24 +282,22 @@ const AboutContact = () => {
                         <span className="text-[10px] font-black uppercase tracking-wider">Report Bug</span>
                       </button>
 
-                      {/* General Enquiry Tab */}
                       <button
                         type="button"
                         onClick={() => handleTypeSelect('general')}
-                        className={`flex flex-col items-center justify-center p-3 rounded-xl border text-center transition-all ${
+                        className={`flex flex-col items-center justify-center p-3 rounded-xl border text-center transition-all cursor-pointer ${
                           formData.type === 'general'
-                            ? 'bg-sky-500/10 border-sky-500 text-sky-400 shadow-lg shadow-sky-500/5'
+                            ? 'bg-sky-500/10 border-sky-500 text-sky-400 shadow-lg'
                             : 'bg-darkBg/60 border-darkBorder text-slate-400 hover:text-slate-200 hover:border-slate-700'
                         }`}
                       >
                         <HelpCircle className="w-4 h-4 mb-1.5" />
                         <span className="text-[10px] font-black uppercase tracking-wider">Inquiry</span>
                       </button>
-
                     </div>
                   </div>
 
-                  {/* Name and Email side by side */}
+                  {/* Name and Email */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-1.5">
                       <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Your Name</label>
@@ -362,7 +309,7 @@ const AboutContact = () => {
                         onChange={handleChange}
                         disabled={user !== null}
                         placeholder="e.g. Rahul Kumar"
-                        className="w-full bg-darkBg border border-darkBorder px-4 py-2.5 rounded-xl text-xs focus:outline-none focus:border-accentBlue text-slate-200 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
+                        className="w-full bg-darkBg border border-darkBorder px-4 py-2.5 rounded-xl text-xs focus:outline-none focus:border-accentBlue text-slate-200 disabled:opacity-60 transition-colors"
                       />
                     </div>
 
@@ -376,7 +323,7 @@ const AboutContact = () => {
                         onChange={handleChange}
                         disabled={user !== null}
                         placeholder="e.g. rahul@example.com"
-                        className="w-full bg-darkBg border border-darkBorder px-4 py-2.5 rounded-xl text-xs focus:outline-none focus:border-accentBlue text-slate-200 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
+                        className="w-full bg-darkBg border border-darkBorder px-4 py-2.5 rounded-xl text-xs focus:outline-none focus:border-accentBlue text-slate-200 disabled:opacity-60 transition-colors"
                       />
                     </div>
                   </div>
@@ -390,12 +337,12 @@ const AboutContact = () => {
                       required
                       value={formData.subject}
                       onChange={handleChange}
-                      placeholder="e.g. Trouble running Python compilers, Feature request for mock tests"
+                      placeholder="e.g. Compiler Offline notification, Mock test tabswitch issue"
                       className="w-full bg-darkBg border border-darkBorder px-4 py-2.5 rounded-xl text-xs focus:outline-none focus:border-accentBlue text-slate-200 transition-colors"
                     />
                   </div>
 
-                  {/* Message body */}
+                  {/* Message details */}
                   <div className="space-y-1.5">
                     <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Message details</label>
                     <textarea
@@ -404,13 +351,13 @@ const AboutContact = () => {
                       rows="5"
                       value={formData.message}
                       onChange={handleChange}
-                      placeholder="Write your explanation or step-by-step bug reproduction here..."
+                      placeholder="Write your explanation or bug reproduction steps..."
                       className="w-full bg-darkBg border border-darkBorder px-4 py-2.5 rounded-xl text-xs focus:outline-none focus:border-accentBlue text-slate-200 transition-colors"
                     />
                   </div>
 
                   {user && (
-                    <div className="text-[10px] text-indigo-400 font-semibold bg-indigo-500/5 border border-indigo-500/10 px-3 py-2 rounded-lg flex items-center space-x-1.5">
+                    <div className="text-[10px] text-accentBlue font-semibold bg-accentBlue/5 border border-accentBlue/10 px-3 py-2 rounded-lg flex items-center space-x-1.5">
                       <span>✓ Connected with your account: <strong>{user.username}</strong></span>
                     </div>
                   )}
@@ -419,14 +366,14 @@ const AboutContact = () => {
                   <button
                     type="submit"
                     disabled={loading}
-                    className={`w-full py-3 rounded-xl text-xs font-black uppercase tracking-wider text-white flex items-center justify-center space-x-2 transition-all shadow-lg ${
+                    className={`w-full py-3 rounded-xl text-xs font-black uppercase tracking-wider text-white flex items-center justify-center space-x-2 transition-all shadow-lg cursor-pointer ${
                       loading 
                         ? 'bg-slate-700 cursor-not-allowed' 
                         : formData.type === 'bug' 
-                          ? 'bg-rose-500 hover:bg-rose-500/90 shadow-rose-500/10' 
+                          ? 'bg-rose-500 hover:bg-rose-500/90' 
                           : formData.type === 'general'
-                            ? 'bg-sky-500 hover:bg-sky-500/90 shadow-sky-500/10'
-                            : 'bg-accentBtn hover:bg-accentBtnHover shadow-accentBtn/10'
+                            ? 'bg-sky-500 hover:bg-sky-500/90'
+                            : 'bg-accentBtn hover:bg-accentBtnHover'
                     }`}
                   >
                     {loading ? (
@@ -449,8 +396,9 @@ const AboutContact = () => {
         </div>
 
         {/* ── Compiler Setup FAQ callout ── */}
-        <div className="bg-gradient-to-br from-accentBlue/10 to-indigo-500/5 border border-accentBlue/20 rounded-2xl p-8 space-y-5">
-          <div className="flex items-start gap-4">
+        <div className="bg-gradient-to-br from-accentBlue/10 to-indigo-500/5 border border-accentBlue/20 rounded-2xl p-8 space-y-5 shadow relative overflow-hidden select-none">
+          <div className="premium-shine rounded-2xl"></div>
+          <div className="flex items-start gap-4 relative z-10">
             <div className="w-10 h-10 rounded-xl bg-accentBlue/15 border border-accentBlue/25 text-accentBlue flex items-center justify-center shrink-0">
               <Terminal className="w-5 h-5" />
             </div>
@@ -464,7 +412,7 @@ const AboutContact = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 relative z-10">
             {[
               { lang: '☕ Java (JDK 11)', note: 'Most important — needed for Java submissions' },
               { lang: '⚙️ C++ (GCC/g++)', note: 'Install MinGW (Windows) or GCC (Linux/Mac)' },
@@ -477,14 +425,16 @@ const AboutContact = () => {
             ))}
           </div>
 
-          <a
-            href="/compiler-setup"
-            className="inline-flex items-center gap-2 px-6 py-3 bg-accentBtn hover:bg-accentBtnHover text-white text-xs font-black uppercase tracking-wider rounded-xl shadow-lg shadow-accentBtn/20 transition-all cursor-pointer"
-          >
-            <Terminal className="w-4 h-4" />
-            Read Full Compiler Setup Guide
-            <ArrowRight className="w-3.5 h-3.5" />
-          </a>
+          <div className="relative z-10">
+            <a
+              href="/compiler-setup"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-accentBtn hover:bg-accentBtnHover text-white text-xs font-black uppercase tracking-wider rounded-xl shadow-lg shadow-accentBtn/20 transition-all cursor-pointer w-fit"
+            >
+              <Terminal className="w-4 h-4" />
+              Read Full Compiler Setup Guide
+              <ArrowRight className="w-3.5 h-3.5" />
+            </a>
+          </div>
         </div>
 
       </div>
@@ -492,4 +442,4 @@ const AboutContact = () => {
   );
 };
 
-export default AboutContact;
+export default Contact;

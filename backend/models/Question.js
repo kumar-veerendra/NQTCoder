@@ -72,6 +72,7 @@ const baseQuestionSchema = new mongoose.Schema(
     tags: [{ type: String, lowercase: true, trim: true, index: true }],
     applicableCompanies: [{ type: String, trim: true, index: true }],        // MVP
     company: [{ type: String, trim: true, index: true }],
+    examDate: { type: String, trim: true },
     language: { type: String, default: 'en', required: true },              // MVP
 
     // ---------- Content ----------

@@ -1,5 +1,7 @@
 import User from '../models/User.js';
 import Question from '../models/Question.js';
+import UserAttempt from '../models/UserAttempt.js';
+import TopicProgress from '../models/TopicProgress.js';
 import jwt from 'jsonwebtoken';
 import { OAuth2Client } from 'google-auth-library';
 import { validateRegister, validateLogin } from '../utils/validator.js';
@@ -223,15 +225,23 @@ export const googleLogin = async (req, res) => {
 };
 
 const formatUserProfile = async (user) => {
-  const [easyTotal, mediumTotal, hardTotal] = await Promise.all([
+  const [easyTotal, mediumTotal, hardTotal, progressList, aptitudeQuestionIds] = await Promise.all([
     Question.countDocuments({ difficulty: { $in: ['Easy', 'Easy-Medium'] }, status: 'active', domain: 'coding' }),
     Question.countDocuments({ difficulty: { $in: ['Medium', 'Medium-Hard'] }, status: 'active', domain: 'coding' }),
-    Question.countDocuments({ difficulty: 'Hard', status: 'active', domain: 'coding' })
+    Question.countDocuments({ difficulty: 'Hard', status: 'active', domain: 'coding' }),
+    TopicProgress.find({ userId: user._id }),
+    Question.find({ domain: 'aptitude' }).distinct('_id')
   ]);
 
   const solvedEasy = user.solvedQuestions.filter(q => ['Easy', 'Easy-Medium'].includes(q.difficulty)).length;
   const solvedMedium = user.solvedQuestions.filter(q => ['Medium', 'Medium-Hard'].includes(q.difficulty)).length;
   const solvedHard = user.solvedQuestions.filter(q => q.difficulty === 'Hard').length;
+
+  const aptitudeSolved = progressList.reduce((sum, p) => sum + (p.solved || 0), 0);
+  const aptitudeAttempts = await UserAttempt.countDocuments({
+    userId: user._id,
+    questionId: { $in: aptitudeQuestionIds }
+  });
 
   const userObj = user.toObject();
   userObj.solvedCount = {
@@ -244,6 +254,14 @@ const formatUserProfile = async (user) => {
     medium: mediumTotal,
     hard: hardTotal
   };
+  userObj.aptitudeStats = {
+    solved: aptitudeSolved,
+    attempts: aptitudeAttempts,
+    successRate: aptitudeAttempts > 0 
+      ? Math.round((aptitudeSolved / aptitudeAttempts) * 100) 
+      : 0
+  };
+
   return userObj;
 };
 

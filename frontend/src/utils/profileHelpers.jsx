@@ -1,6 +1,6 @@
 import React from 'react';
 import { 
-  GraduationCap, CheckCircle, Award, ShieldCheck, Flame, Code, Zap 
+  GraduationCap, CheckCircle, Award, ShieldCheck, Flame, Code, Zap, Compass, Target
 } from 'lucide-react';
 
 /**
@@ -170,9 +170,11 @@ export const getBadgesList = ({
   mockCount,
   proctorPerfectCount,
   uniqueLangsCount,
-  bestRuntime
+  bestRuntime,
+  tracksList = [],
+  topicSolveCounts = {}
 }) => {
-  return [
+  const staticBadges = [
     {
       id: 'welcome',
       title: 'Welcome Coder',
@@ -293,4 +295,91 @@ export const getBadgesList = ({
         : 'from-slate-800/40 to-slate-900/20 border-slate-700/30 text-slate-500 opacity-40',
     }
   ];
+
+  const trackBadges = [];
+
+  // Generate dynamic badges for all tracks (both locked and unlocked)
+  tracksList.forEach(track => {
+    const isUnlocked = track.progressPercent === 100;
+
+    if (track.type === 'company') {
+      let colorClass = '';
+      if (isUnlocked) {
+        // Dynamic active glowing colors
+        colorClass = 'from-violet-600/20 to-indigo-600/10 border-violet-500/30 text-violet-400 badge-glow-purple';
+        if (track.company === 'Infosys') {
+          colorClass = 'from-blue-600/20 to-sky-600/10 border-blue-500/30 text-blue-400 badge-glow-blue';
+        } else if (track.company === 'Wipro') {
+          colorClass = 'from-amber-600/20 to-orange-600/10 border-amber-500/30 text-amber-400 badge-glow-amber';
+        } else if (track.company === 'Cognizant') {
+          colorClass = 'from-rose-600/20 to-pink-600/10 border-rose-500/30 text-rose-400 badge-glow-rose';
+        } else if (track.company === 'Capgemini') {
+          colorClass = 'from-teal-600/20 to-emerald-600/10 border-teal-500/30 text-teal-400 badge-glow-emerald';
+        }
+      } else {
+        // Locked state styling
+        colorClass = 'from-slate-800/40 to-slate-900/20 border-slate-700/30 text-slate-500 opacity-40';
+      }
+
+      trackBadges.push({
+        id: `track_comp_${track._id}`,
+        title: `${track.company} Conqueror`,
+        subtitle: `${track.company} Complete`,
+        desc: `Complete all challenges in the ${track.title}.`,
+        icon: <Award className="w-5 h-5" />,
+        isUnlocked: isUnlocked,
+        color: colorClass
+      });
+    } else if (track.type === 'topic') {
+      const solvedCount = topicSolveCounts[track.topic] || 0;
+      const isBeginnerUnlocked = solvedCount >= 5;
+      const isMasterUnlocked = solvedCount >= 25;
+
+      // 1. Topic Beginner Badge
+      const begColorClass = isBeginnerUnlocked
+        ? 'from-blue-600/20 to-cyan-600/10 border-blue-500/30 text-blue-400 badge-glow-blue'
+        : 'from-slate-800/40 to-slate-900/20 border-slate-700/30 text-slate-500 opacity-40';
+
+      trackBadges.push({
+        id: `track_topic_beg_${track._id}`,
+        title: `${track.topic} Beginner`,
+        subtitle: `${track.topic} Starter`,
+        desc: `Solve 5 coding questions on ${track.topic} (Current: ${solvedCount}/5).`,
+        icon: <Compass className="w-5 h-5" />,
+        isUnlocked: isBeginnerUnlocked,
+        color: begColorClass
+      });
+
+      // 2. Topic Master Badge
+      const masColorClass = isMasterUnlocked
+        ? 'from-emerald-600/20 to-teal-600/10 border-emerald-500/30 text-emerald-400 badge-glow-emerald'
+        : 'from-slate-800/40 to-slate-900/20 border-slate-700/30 text-slate-500 opacity-40';
+
+      trackBadges.push({
+        id: `track_topic_mas_${track._id}`,
+        title: `${track.topic} Master`,
+        subtitle: `${track.topic} Expert`,
+        desc: `Solve 25 coding questions on ${track.topic} (Current: ${solvedCount}/25).`,
+        icon: <Target className="w-5 h-5" />,
+        isUnlocked: isMasterUnlocked,
+        color: masColorClass
+      });
+    }
+  });
+
+  const completedTracksCount = tracksList.filter(t => t.progressPercent === 100).length;
+
+  staticBadges.push({
+    id: 'pathfinder',
+    title: 'Path Finder',
+    subtitle: 'Roadmap Completed',
+    desc: 'Successfully finished at least one corporate or topic learning track.',
+    icon: <Compass className="w-5 h-5" />,
+    isUnlocked: completedTracksCount >= 1,
+    color: completedTracksCount >= 1
+      ? 'from-indigo-600/20 to-blue-600/10 border-indigo-500/30 text-indigo-400 badge-glow-blue'
+      : 'from-slate-800/40 to-slate-900/20 border-slate-700/30 text-slate-500 opacity-40',
+  });
+
+  return [...staticBadges, ...trackBadges];
 };

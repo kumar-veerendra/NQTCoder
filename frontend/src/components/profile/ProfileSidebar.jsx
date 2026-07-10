@@ -56,25 +56,47 @@ const ProfileSidebar = ({
       </div>
 
       {/* Overall Stats summary box */}
-      <div className="bg-darkCard border border-darkBorder rounded-lg p-5 space-y-4 select-none">
-        <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center">
+      <div className="bg-darkCard border border-darkBorder rounded-lg p-5 space-y-5 select-none">
+        <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center border-b border-darkBorder/40 pb-2">
           <GraduationCap className="w-4 h-4 text-accentBlue mr-2" /> Overall Summary
         </h3>
         
-        <div className="grid grid-cols-2 gap-3 text-center">
-          <div className="bg-darkBg/40 border border-darkBorder p-3 rounded-md">
-            <div className="text-md font-black text-white">{solvedCount}</div>
-            <div className="text-[9px] text-slate-500 font-bold uppercase tracking-wider mt-0.5">Solved</div>
-          </div>
-          <div className="bg-darkBg/40 border border-darkBorder p-3 rounded-md">
-            <div className="text-md font-black text-white">{submissionsCount}</div>
-            <div className="text-[9px] text-slate-500 font-bold uppercase tracking-wider mt-0.5">Attempts</div>
+        {/* Coding Section */}
+        <div className="space-y-2.5">
+          <h4 className="text-[10px] font-black text-accentBlue uppercase tracking-wider">Coding Summary</h4>
+          <div className="grid grid-cols-3 gap-2 text-center">
+            <div className="bg-darkBg/40 border border-darkBorder/60 p-2.5 rounded-lg">
+              <div className="text-sm font-black text-white">{solvedCount}</div>
+              <div className="text-[8px] text-slate-500 font-black uppercase tracking-widest mt-0.5">Solved</div>
+            </div>
+            <div className="bg-darkBg/40 border border-darkBorder/60 p-2.5 rounded-lg">
+              <div className="text-sm font-black text-white">{submissionsCount}</div>
+              <div className="text-[8px] text-slate-500 font-black uppercase tracking-widest mt-0.5">Attempts</div>
+            </div>
+            <div className="bg-darkBg/40 border border-darkBorder/60 p-2.5 rounded-lg">
+              <div className="text-sm font-black text-emerald-400">{acceptanceRate}%</div>
+              <div className="text-[8px] text-slate-500 font-black uppercase tracking-widest mt-0.5">Success</div>
+            </div>
           </div>
         </div>
 
-        <div className="bg-darkBg/40 border border-darkBorder p-3 rounded-md text-center">
-          <div className="text-md font-black text-emerald-400">{acceptanceRate}%</div>
-          <div className="text-[9px] text-slate-500 font-bold uppercase tracking-wider mt-0.5">Success Rate</div>
+        {/* Aptitude Section */}
+        <div className="space-y-2.5 pt-2 border-t border-darkBorder/30">
+          <h4 className="text-[10px] font-black text-[#f59e0b] uppercase tracking-wider">Aptitude Summary</h4>
+          <div className="grid grid-cols-3 gap-2 text-center">
+            <div className="bg-darkBg/40 border border-darkBorder/60 p-2.5 rounded-lg">
+              <div className="text-sm font-black text-white">{profile.aptitudeStats?.solved || 0}</div>
+              <div className="text-[8px] text-slate-500 font-black uppercase tracking-widest mt-0.5">Solved</div>
+            </div>
+            <div className="bg-darkBg/40 border border-darkBorder/60 p-2.5 rounded-lg">
+              <div className="text-sm font-black text-white">{profile.aptitudeStats?.attempts || 0}</div>
+              <div className="text-[8px] text-slate-500 font-black uppercase tracking-widest mt-0.5">Attempts</div>
+            </div>
+            <div className="bg-darkBg/40 border border-darkBorder/60 p-2.5 rounded-lg">
+              <div className="text-sm font-black text-emerald-400">{profile.aptitudeStats?.successRate || 0}%</div>
+              <div className="text-[8px] text-slate-500 font-black uppercase tracking-widest mt-0.5">Success</div>
+            </div>
+          </div>
         </div>
       </div>
     </div>

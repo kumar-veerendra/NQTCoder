@@ -123,6 +123,41 @@ const runTrackTests = async () => {
     }
     console.log('✅ Success: Dynamic progress successfully calculated to 100%.');
 
+    // --- Test 1: Verify question slugs are returned by GET /api/tracks/:id ---
+    console.log('\n--- 🧪 Testing Slug Presence in Track Details ---');
+    const trackDetailRes = await axios.get(`${BASE_URL}/tracks/${trackId}`, userHeader);
+    const fetchedQuestions = trackDetailRes.data.questions;
+    if (!fetchedQuestions || fetchedQuestions.length === 0) {
+      throw new Error('FAIL: No questions returned in track details.');
+    }
+    const firstQ = fetchedQuestions[0];
+    console.log(`Fetched Question details: ID=${firstQ._id}, Title="${firstQ.title}", Slug="${firstQ.slug}"`);
+    if (!firstQ.slug || firstQ.slug !== 'e2e-track-test-question') {
+      throw new Error(`FAIL: Expected slug "e2e-track-test-question", got "${firstQ.slug}"`);
+    }
+    console.log('✅ Success: Question slug is present in API response.');
+
+    // --- Test 2: Verify reset progress endpoint deletes progress document ---
+    console.log('\n--- 🧪 Testing Reset Track Progress Endpoint ---');
+    console.log('Registering user track access activity to create a progress document...');
+    await axios.post(`${BASE_URL}/tracks/${trackId}/access`, { questionId: testQuestion._id }, userHeader);
+
+    let progressExists = await TrackProgress.findOne({ user: tempUserId, track: trackId });
+    if (!progressExists) {
+      throw new Error('FAIL: Progress document was not created after tracking access.');
+    }
+    console.log('✅ Success: Progress document exists in DB.');
+
+    console.log('Calling RESET Track Progress endpoint...');
+    const resetRes = await axios.post(`${BASE_URL}/tracks/${trackId}/reset`, {}, userHeader);
+    console.log(`Reset response: ${JSON.stringify(resetRes.data)}`);
+
+    let progressAfterReset = await TrackProgress.findOne({ user: tempUserId, track: trackId });
+    if (progressAfterReset) {
+      throw new Error('FAIL: Progress document was not deleted after calling reset!');
+    }
+    console.log('✅ Success: Reset track progress API deleted progress document correctly.');
+
     // --- Clean up ---
     console.log('\n--- 🧹 Cleaning Up Test Entities ---');
     await TrackProgress.deleteMany({ track: trackId });

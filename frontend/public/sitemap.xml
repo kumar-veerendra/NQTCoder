@@ -33,6 +33,22 @@
     <priority>0.8</priority>
   </url>
 
+  <!-- Aptitude Arena -->
+  <url>
+    <loc>https://www.nqtcoder.dev/aptitude</loc>
+    <lastmod>2026-07-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Mock Tests -->
+  <url>
+    <loc>https://www.nqtcoder.dev/mocktest</loc>
+    <lastmod>2026-07-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
   <!-- Study Resources -->
   <url>
     <loc>https://www.nqtcoder.dev/resources</loc>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useRef } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import * as questionService from '../services/questionService';
 import { AuthContext } from '../context/AuthContext';
@@ -26,7 +26,7 @@ const CompanyDashboard = () => {
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState(searchParams.get('search') || '');
 
   // Pagination State
-  const [page, setPage] = useState(1);
+  const [page, setPage] = useState(() => Number(searchParams.get('page')) || 1);
   const [limit] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
   const [totalQuestions, setTotalQuestions] = useState(0);
@@ -39,15 +39,16 @@ const CompanyDashboard = () => {
     return () => clearTimeout(handler);
   }, [searchQuery]);
 
-  // Sync filter states back to URL search parameters
+  // Sync filter and page states back to URL search parameters
   useEffect(() => {
     const params = {};
     if (selectedCompany) params.company = selectedCompany;
     if (selectedTopic) params.topic = selectedTopic;
     if (selectedDifficulty) params.difficulty = selectedDifficulty;
     if (debouncedSearchQuery) params.search = debouncedSearchQuery;
+    if (page > 1) params.page = page;
     setSearchParams(params, { replace: true });
-  }, [selectedCompany, selectedTopic, selectedDifficulty, debouncedSearchQuery]);
+  }, [selectedCompany, selectedTopic, selectedDifficulty, debouncedSearchQuery, page]);
 
   // Sync URL search parameters back to states (handles history changes and direct links)
   useEffect(() => {
@@ -55,6 +56,7 @@ const CompanyDashboard = () => {
     const topic = searchParams.get('topic') || '';
     const difficulty = searchParams.get('difficulty') || '';
     const search = searchParams.get('search') || '';
+    const pageVal = Number(searchParams.get('page')) || 1;
 
     if (company !== selectedCompany) setSelectedCompany(company);
     if (topic !== selectedTopic) setSelectedTopic(topic);
@@ -63,11 +65,17 @@ const CompanyDashboard = () => {
       setSearchQuery(search);
       setDebouncedSearchQuery(search);
     }
+    if (pageVal !== page) setPage(pageVal);
   }, [searchParams]);
 
-  // Reset page to 1 when filters or search change
+  // Reset page to 1 when filters or search change (skip on initial mount to preserve back navigation)
+  const isFiltersMounted = useRef(false);
   useEffect(() => {
-    setPage(1);
+    if (isFiltersMounted.current) {
+      setPage(1);
+    } else {
+      isFiltersMounted.current = true;
+    }
   }, [selectedCompany, selectedTopic, selectedDifficulty, debouncedSearchQuery]);
 
   // Fetch questions when filters, search, or page changes

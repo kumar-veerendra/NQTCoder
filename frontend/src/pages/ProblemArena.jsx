@@ -467,7 +467,7 @@ const ProblemArena = () => {
           >
             <img src="/logo.svg" alt="NQTCoder Logo" className="h-[30px] w-auto object-contain" />
             <span className="text-xs sm:text-sm font-bold tracking-wider text-slate-200 group-hover:text-white transition-colors">
-              NQTCoder
+              NQT<span className="text-accentBlue">Coder</span>
             </span>
           </div>
 
@@ -595,9 +595,10 @@ const ProblemArena = () => {
 
       </div>
 
-      {/* Guest Mode Banner */}
       {!user && !isGuestBannerDismissed && (
-        <div className="bg-[#1e1b4b]/80 border-b border-amber-500/20 text-amber-300 px-4 py-2.5 text-xs flex items-center justify-between gap-4 select-none animate-fadeIn shrink-0">
+        <div className={`border-b border-amber-500/20 text-amber-300 px-4 py-2.5 text-xs flex items-center justify-between gap-4 select-none animate-fadeIn shrink-0 ${
+          theme === 'light' ? 'bg-amber-50' : 'bg-[#1e1b4b]/80'
+        }`}>
           <div className="flex items-center gap-2">
             <span className="bg-amber-500/20 border border-amber-500/30 text-amber-400 px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider shrink-0">Guest Mode</span>
             <span>You're exploring NQTCoder. Sign in to run code, submit solutions, and save your progress.</span>
@@ -749,10 +750,10 @@ const ProblemArena = () => {
 
       </div>
 
-      {/* Toast Notification */}
       {toast && (
-        <div className="fixed z-[9999] bg-[#0b1329] border border-emerald-500/30 text-emerald-400 px-4 py-3 rounded-xl shadow-2xl flex items-center justify-between gap-3 select-none animate-fadeIn font-sans text-xs font-bold
-          top-5 left-1/2 -translate-x-1/2 md:top-auto md:left-auto md:translate-x-0 md:bottom-5 md:right-5 shrink-0"
+        <div className={`fixed z-[9999] text-emerald-400 px-4 py-3 rounded-xl shadow-2xl flex items-center justify-between gap-3 select-none animate-fadeIn font-sans text-xs font-bold top-5 left-1/2 -translate-x-1/2 md:top-auto md:left-auto md:translate-x-0 md:bottom-5 md:right-5 shrink-0 ${
+          theme === 'light' ? 'bg-emerald-50 border border-emerald-200' : 'bg-[#0b1329] border border-emerald-500/30'
+        }`}
         >
           <div className="flex items-center gap-2">
             <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />

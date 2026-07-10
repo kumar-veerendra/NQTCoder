@@ -27,7 +27,8 @@ import MockTestDashboard from './pages/MockTestDashboard';
 import MockTestArena from './pages/MockTestArena';
 import MockTestResult from './pages/MockTestResult';
 import NotFound from './pages/NotFound';
-import AboutContact from './pages/AboutContact';
+import About from './pages/About';
+import Contact from './pages/Contact';
 import Resources from './pages/Resources';
 import CompilerSetup from './pages/CompilerSetup';
 import VerifyEmail from './pages/VerifyEmail';
@@ -126,8 +127,8 @@ const AppContent = () => {
         <Route path="/register" element={<Register />} />
         <Route path="/verify-email" element={<VerifyEmail />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/about" element={<AboutContact />} />
-        <Route path="/contact" element={<AboutContact />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/contact" element={<Contact />} />
         <Route path="/compiler-setup" element={<CompilerSetup />} />
         <Route path="/resources" element={<Resources />} />
         <Route path="/privacy" element={<PrivacyPolicy />} />

@@ -14,6 +14,7 @@ import MockTestHistory from '../components/profile/MockTestHistory';
 import ProfileSettings from '../components/profile/ProfileSettings';
 import AptitudeMetrics from '../components/profile/AptitudeMetrics';
 import * as practiceService from '../services/practiceService';
+import * as trackService from '../services/trackService';
 import { Bookmark, AlertTriangle, CheckCircle2, ArrowRight, ShieldAlert } from 'lucide-react';
 
 import {
@@ -32,6 +33,7 @@ const Profile = () => {
   const [mockHistory, setMockHistory] = useState([]);
   const [userSubmissions, setUserSubmissions] = useState([]);
   const [aptitudeProgress, setAptitudeProgress] = useState([]);
+  const [tracksList, setTracksList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [activeTab, setActiveTab] = useState('overview');
@@ -57,13 +59,14 @@ const Profile = () => {
     setLoading(true);
     setError('');
     try {
-      const [data, mocks, subs, aptProgress, bmarks, revQ] = await Promise.all([
+      const [data, mocks, subs, aptProgress, bmarks, revQ, tracksData] = await Promise.all([
         authService.getProfile(),
         mockTestService.getMockTestHistory(),
         executionService.getUserSubmissions(),
         practiceService.getPracticeProgress(),
         practiceService.getBookmarks(),
-        practiceService.getRevisionQueue()
+        practiceService.getRevisionQueue(),
+        trackService.getTracks()
       ]);
 
       setProfile(data);
@@ -74,6 +77,7 @@ const Profile = () => {
       setAptitudeProgress(aptProgress);
       setBookmarks(bmarks);
       setRevisionQueue(revQ);
+      setTracksList(tracksData || []);
     } catch (err) {
       console.error(err);
       setError('Could not retrieve user stats. Please check backend.');
@@ -162,13 +166,25 @@ const Profile = () => {
   const bestRuntime = userSubmissions.filter(s => s.status === 'Accepted' && s.runTime !== undefined)
     .reduce((min, s) => s.runTime < min ? s.runTime : min, Infinity);
 
+  // Calculate topic solve counts based on user's solved coding questions
+  const solvedQuestions = profile ? profile.solvedQuestions || [] : [];
+  const topicSolveCounts = {};
+  solvedQuestions.forEach(q => {
+    if (q.topic) {
+      const topicName = q.topic.trim();
+      topicSolveCounts[topicName] = (topicSolveCounts[topicName] || 0) + 1;
+    }
+  });
+
   const badges = getBadgesList({
     maxStreak,
     solvedCountTotal,
     mockCount,
     proctorPerfectCount,
     uniqueLangsCount,
-    bestRuntime
+    bestRuntime,
+    tracksList,
+    topicSolveCounts
   });
 
   return (
