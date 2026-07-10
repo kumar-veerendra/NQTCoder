@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useRef } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import * as questionService from '../services/questionService';
 import { AuthContext } from '../context/AuthContext';
@@ -68,9 +68,14 @@ const CompanyDashboard = () => {
     if (pageVal !== page) setPage(pageVal);
   }, [searchParams]);
 
-  // Reset page to 1 when filters or search change
+  // Reset page to 1 when filters or search change (skip on initial mount to preserve back navigation)
+  const isFiltersMounted = useRef(false);
   useEffect(() => {
-    setPage(1);
+    if (isFiltersMounted.current) {
+      setPage(1);
+    } else {
+      isFiltersMounted.current = true;
+    }
   }, [selectedCompany, selectedTopic, selectedDifficulty, debouncedSearchQuery]);
 
   // Fetch questions when filters, search, or page changes
