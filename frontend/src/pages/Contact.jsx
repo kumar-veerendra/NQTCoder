@@ -344,6 +344,49 @@ const Contact = () => {
           </div>
 
         </div>
+
+        {/* ── Compiler Setup FAQ callout ── */}
+        <div className="bg-gradient-to-br from-accentBlue/10 to-indigo-500/5 border border-accentBlue/20 rounded-2xl p-8 space-y-5 shadow relative overflow-hidden select-none">
+          <div className="premium-shine rounded-2xl"></div>
+          <div className="flex items-start gap-4 relative z-10">
+            <div className="w-10 h-10 rounded-xl bg-accentBlue/15 border border-accentBlue/25 text-accentBlue flex items-center justify-center shrink-0">
+              <Terminal className="w-5 h-5" />
+            </div>
+            <div className="space-y-1">
+              <h3 className="text-lg font-black text-white">Code Editor Showing "Offline"?</h3>
+              <p className="text-xs text-slate-400 leading-relaxed max-w-2xl">
+                NQTCoder's code editor uses <strong className="text-white">local compilers</strong> installed on the server machine to run your code.
+                If the compiler status bar shows <span className="text-rose-400 font-bold">Offline</span>, it means Java, g++ (C++), or Python is not yet installed on the backend server.
+                This is a one-time setup that only the server admin needs to do — students don't need to install anything.
+              </p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 relative z-10">
+            {[
+              { lang: '☕ Java (JDK 11)', note: 'Most important — needed for Java submissions' },
+              { lang: '⚙️ C++ (GCC/g++)', note: 'Install MinGW (Windows) or GCC (Linux/Mac)' },
+              { lang: '🐍 Python 3', note: 'Easiest to install — just download & check "Add to PATH"' }
+            ].map((item, i) => (
+              <div key={i} className="bg-darkBg/60 border border-darkBorder rounded-xl px-4 py-3 space-y-1">
+                <p className="text-sm font-bold text-white">{item.lang}</p>
+                <p className="text-[11px] text-slate-400">{item.note}</p>
+              </div>
+            ))}
+          </div>
+
+          <div className="relative z-10">
+            <a
+              href="/compiler-setup"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-accentBtn hover:bg-accentBtnHover text-white text-xs font-black uppercase tracking-wider rounded-xl shadow-lg shadow-accentBtn/20 transition-all cursor-pointer w-fit"
+            >
+              <Terminal className="w-4 h-4" />
+              Read Full Compiler Setup Guide
+              <ArrowRight className="w-3.5 h-3.5" />
+            </a>
+          </div>
+        </div>
+
       </div>
     </div>
   );
