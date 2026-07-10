@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import * as trackService from '../services/trackService';
 import { 
   Code2, Award, BookOpen, ChevronRight, Play, RefreshCw, 
@@ -9,14 +9,38 @@ import SEO from '../components/SEO';
 
 const Tracks = () => {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const filterParam = searchParams.get('filter');
+
   const [tracks, setTracks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [activeFilter, setActiveFilter] = useState('all'); // 'all', 'company', 'topic'
+  const [activeFilter, setActiveFilter] = useState(
+    ['all', 'company', 'topic'].includes(filterParam) ? filterParam : 'all'
+  );
 
   useEffect(() => {
     fetchTracks();
   }, []);
+
+  useEffect(() => {
+    const f = searchParams.get('filter');
+    if (f && ['all', 'company', 'topic'].includes(f)) {
+      setActiveFilter(f);
+    } else {
+      setActiveFilter('all');
+    }
+  }, [searchParams]);
+
+  const handleFilterChange = (filter) => {
+    setActiveFilter(filter);
+    if (filter === 'all') {
+      searchParams.delete('filter');
+    } else {
+      searchParams.set('filter', filter);
+    }
+    setSearchParams(searchParams);
+  };
 
   const fetchTracks = async () => {
     setLoading(true);
@@ -132,7 +156,7 @@ const Tracks = () => {
           {['all', 'company', 'topic'].map((filter) => (
             <button
               key={filter}
-              onClick={() => setActiveFilter(filter)}
+              onClick={() => handleFilterChange(filter)}
               className={`px-3 py-1.5 rounded-md border text-xs font-bold tracking-wider uppercase transition-all ${
                 activeFilter === filter
                   ? 'bg-accentBlue border-accentBlue text-white'
