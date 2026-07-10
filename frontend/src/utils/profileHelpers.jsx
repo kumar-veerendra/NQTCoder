@@ -297,12 +297,15 @@ export const getBadgesList = ({
 
   const trackBadges = [];
 
-  // Generate dynamic badges for completed tracks
+  // Generate dynamic badges for all tracks (both locked and unlocked)
   tracksList.forEach(track => {
-    if (track.progressPercent === 100) {
-      if (track.type === 'company') {
-        // Stylish colors for different companies
-        let colorClass = 'from-violet-600/20 to-indigo-600/10 border-violet-500/30 text-violet-400 badge-glow-purple'; // Default TCS/Accenture style
+    const isUnlocked = track.progressPercent === 100;
+
+    if (track.type === 'company') {
+      let colorClass = '';
+      if (isUnlocked) {
+        // Dynamic active glowing colors
+        colorClass = 'from-violet-600/20 to-indigo-600/10 border-violet-500/30 text-violet-400 badge-glow-purple';
         if (track.company === 'Infosys') {
           colorClass = 'from-blue-600/20 to-sky-600/10 border-blue-500/30 text-blue-400 badge-glow-blue';
         } else if (track.company === 'Wipro') {
@@ -312,27 +315,37 @@ export const getBadgesList = ({
         } else if (track.company === 'Capgemini') {
           colorClass = 'from-teal-600/20 to-emerald-600/10 border-teal-500/30 text-teal-400 badge-glow-emerald';
         }
-
-        trackBadges.push({
-          id: `track_comp_${track._id}`,
-          title: `${track.company} Conqueror`,
-          subtitle: `${track.company} Complete`,
-          desc: `Completed all challenges in the ${track.title}.`,
-          icon: <Award className="w-5 h-5" />,
-          isUnlocked: true,
-          color: colorClass
-        });
-      } else if (track.type === 'topic') {
-        trackBadges.push({
-          id: `track_topic_${track._id}`,
-          title: `${track.topic} Master`,
-          subtitle: `${track.topic} Complete`,
-          desc: `Completed all challenges in the ${track.title}.`,
-          icon: <Target className="w-5 h-5" />,
-          isUnlocked: true,
-          color: 'from-emerald-600/20 to-teal-600/10 border-emerald-500/30 text-emerald-400 badge-glow-emerald'
-        });
+      } else {
+        // Locked state styling
+        colorClass = 'from-slate-800/40 to-slate-900/20 border-slate-700/30 text-slate-500 opacity-40';
       }
+
+      trackBadges.push({
+        id: `track_comp_${track._id}`,
+        title: `${track.company} Conqueror`,
+        subtitle: `${track.company} Complete`,
+        desc: `Complete all challenges in the ${track.title}.`,
+        icon: <Award className="w-5 h-5" />,
+        isUnlocked: isUnlocked,
+        color: colorClass
+      });
+    } else if (track.type === 'topic') {
+      let colorClass = '';
+      if (isUnlocked) {
+        colorClass = 'from-emerald-600/20 to-teal-600/10 border-emerald-500/30 text-emerald-400 badge-glow-emerald';
+      } else {
+        colorClass = 'from-slate-800/40 to-slate-900/20 border-slate-700/30 text-slate-500 opacity-40';
+      }
+
+      trackBadges.push({
+        id: `track_topic_${track._id}`,
+        title: `${track.topic} Master`,
+        subtitle: `${track.topic} Complete`,
+        desc: `Complete all challenges in the ${track.title}.`,
+        icon: <Target className="w-5 h-5" />,
+        isUnlocked: isUnlocked,
+        color: colorClass
+      });
     }
   });
 
