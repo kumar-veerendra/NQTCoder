@@ -197,6 +197,7 @@ export const getTrackById = async (req, res) => {
     const questionsResponse = trackQuestions.map(q => ({
       _id: q._id,
       title: q.title,
+      slug: q.slug,
       difficulty: q.difficulty,
       topic: q.topic,
       company: q.company,
