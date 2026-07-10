@@ -663,6 +663,111 @@ const Home = () => {
         </div>
       </section>
 
+      {/* 3.2 High Five Roadmaps Section */}
+      <section className="border-t border-darkBorder py-16 px-6 max-w-6xl mx-auto">
+        <div className="mb-12 text-center sm:text-left flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+          <div>
+            <h2 className="text-xs font-black text-accentBlue uppercase tracking-widest mb-1.5">Sequential Sprints</h2>
+            <h3 className="text-3xl font-extrabold text-white">High Five Roadmaps</h3>
+            <p className="text-slate-400 text-sm mt-2 max-w-2xl leading-relaxed">
+              Ace your programming preparation in focused, bite-sized modules. Solve exactly <strong className="text-accentBlue">5 unsolved questions</strong> sequentially (sorted from Easy to Hard) to conquer any target path!
+            </p>
+          </div>
+          <Link
+            to="/tracks"
+            className="inline-flex items-center text-accentBlue hover:text-white font-bold text-xs uppercase tracking-wider transition-colors shrink-0"
+          >
+            Explore Dashboard <ArrowRight className="w-4 h-4 ml-1.5" />
+          </Link>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* Card 1: All Roadmaps */}
+          <div className="bg-darkCard border border-darkBorder p-6 rounded-xl flex flex-col justify-between hover:border-accentBlue transition-all group shadow-md relative overflow-hidden">
+            <div className="space-y-4">
+              <div className="text-indigo-400 bg-indigo-500/10 w-10 h-10 rounded-lg flex items-center justify-center border border-indigo-500/10">
+                <Layers className="w-5 h-5" />
+              </div>
+              <div>
+                <h4 className="text-lg font-extrabold text-white group-hover:text-accentBlue transition-colors">All Practice Paths</h4>
+                <p className="text-slate-400 text-xs mt-2 leading-relaxed">
+                  Browse the complete catalog of all auto-generated corporate roadmaps and subject-wise coding paths.
+                </p>
+                <div className="mt-4 flex items-center space-x-2">
+                  <span className="text-[9px] bg-indigo-500/10 text-indigo-400 px-2 py-0.5 rounded font-bold uppercase tracking-wider border border-indigo-500/20">
+                    🎯 27+ Active Paths
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div className="mt-6">
+              <Link
+                to="/tracks"
+                className="w-full inline-block bg-darkBg hover:bg-accentBtn text-slate-200 hover:text-white text-center font-bold text-[10px] uppercase tracking-wider py-2.5 rounded-lg border border-darkBorder transition-all"
+              >
+                View All Roadmaps
+              </Link>
+            </div>
+          </div>
+
+          {/* Card 2: Company Roadmaps */}
+          <div className="bg-darkCard border border-darkBorder p-6 rounded-xl flex flex-col justify-between hover:border-accentBlue transition-all group shadow-md relative overflow-hidden">
+            <div className="space-y-4">
+              <div className="text-violet-400 bg-violet-500/10 w-10 h-10 rounded-lg flex items-center justify-center border border-violet-500/10">
+                <Briefcase className="w-5 h-5" />
+              </div>
+              <div>
+                <h4 className="text-lg font-extrabold text-white group-hover:text-accentBlue transition-colors">Company Roadmaps</h4>
+                <p className="text-slate-400 text-xs mt-2 leading-relaxed">
+                  Target specific placements (TCS, etc.) with custom batches of unsolved company-wise coding exam questions.
+                </p>
+                <div className="mt-4 flex items-center space-x-2">
+                  <span className="text-[9px] bg-violet-500/10 text-violet-400 px-2 py-0.5 rounded font-bold uppercase tracking-wider border border-violet-500/20">
+                    🏢 Company Pyqs
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div className="mt-6">
+              <Link
+                to="/tracks?filter=company"
+                className="w-full inline-block bg-darkBg hover:bg-accentBtn text-slate-200 hover:text-white text-center font-bold text-[10px] uppercase tracking-wider py-2.5 rounded-lg border border-darkBorder transition-all"
+              >
+                Explore Company Paths
+              </Link>
+            </div>
+          </div>
+
+          {/* Card 3: Topic Roadmaps */}
+          <div className="bg-darkCard border border-darkBorder p-6 rounded-xl flex flex-col justify-between hover:border-accentBlue transition-all group shadow-md relative overflow-hidden">
+            <div className="space-y-4">
+              <div className="text-emerald-400 bg-emerald-500/10 w-10 h-10 rounded-lg flex items-center justify-center border border-emerald-500/10">
+                <Target className="w-5 h-5" />
+              </div>
+              <div>
+                <h4 className="text-lg font-extrabold text-white group-hover:text-accentBlue transition-colors">Topic Practice Paths</h4>
+                <p className="text-slate-400 text-xs mt-2 leading-relaxed">
+                  Build fundamental data structure and algorithm strength topic-by-topic (Arrays, DP, Strings).
+                </p>
+                <div className="mt-4 flex items-center space-x-2">
+                  <span className="text-[9px] bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded font-bold uppercase tracking-wider border border-emerald-500/20">
+                    🏷️ Topic Focus
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div className="mt-6">
+              <Link
+                to="/tracks?filter=topic"
+                className="w-full inline-block bg-darkBg hover:bg-accentBtn text-slate-200 hover:text-white text-center font-bold text-[10px] uppercase tracking-wider py-2.5 rounded-lg border border-darkBorder transition-all"
+              >
+                Explore Topic Paths
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* 3.5 Aptitude & Cognitive Sections */}
       <section className="border-t border-darkBorder py-16 px-6 max-w-6xl mx-auto">
         <div className="mb-12 text-center sm:text-left">
