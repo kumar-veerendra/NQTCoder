@@ -685,7 +685,7 @@ const Home = () => {
           {/* Card 1: All Roadmaps */}
           <div className="bg-darkCard border border-darkBorder p-6 rounded-xl flex flex-col justify-between hover:border-accentBlue transition-all group shadow-md relative overflow-hidden">
             <div className="space-y-4">
-              <div className="text-indigo-400 bg-indigo-500/10 w-10 h-10 rounded-lg flex items-center justify-center border border-indigo-500/10">
+              <div className="text-accentBlue bg-accentBlue/10 w-10 h-10 rounded-lg flex items-center justify-center border border-accentBlue/10">
                 <Layers className="w-5 h-5" />
               </div>
               <div>
@@ -694,7 +694,7 @@ const Home = () => {
                   Browse the complete catalog of all auto-generated corporate roadmaps and subject-wise coding paths.
                 </p>
                 <div className="mt-4 flex items-center space-x-2">
-                  <span className="text-[9px] bg-indigo-500/10 text-indigo-400 px-2 py-0.5 rounded font-bold uppercase tracking-wider border border-indigo-500/20">
+                  <span className="text-[9px] bg-accentBlue/10 text-accentBlue px-2 py-0.5 rounded font-bold uppercase tracking-wider border border-accentBlue/20">
                     🎯 27+ Active Paths
                   </span>
                 </div>
@@ -713,7 +713,7 @@ const Home = () => {
           {/* Card 2: Company Roadmaps */}
           <div className="bg-darkCard border border-darkBorder p-6 rounded-xl flex flex-col justify-between hover:border-accentBlue transition-all group shadow-md relative overflow-hidden">
             <div className="space-y-4">
-              <div className="text-violet-400 bg-violet-500/10 w-10 h-10 rounded-lg flex items-center justify-center border border-violet-500/10">
+              <div className="text-accentBlue bg-accentBlue/10 w-10 h-10 rounded-lg flex items-center justify-center border border-accentBlue/10">
                 <Briefcase className="w-5 h-5" />
               </div>
               <div>
@@ -722,7 +722,7 @@ const Home = () => {
                   Target specific placements (TCS, etc.) with custom batches of unsolved company-wise coding exam questions.
                 </p>
                 <div className="mt-4 flex items-center space-x-2">
-                  <span className="text-[9px] bg-violet-500/10 text-violet-400 px-2 py-0.5 rounded font-bold uppercase tracking-wider border border-violet-500/20">
+                  <span className="text-[9px] bg-accentBlue/10 text-accentBlue px-2 py-0.5 rounded font-bold uppercase tracking-wider border border-accentBlue/20">
                     🏢 Company Pyqs
                   </span>
                 </div>
@@ -741,7 +741,7 @@ const Home = () => {
           {/* Card 3: Topic Roadmaps */}
           <div className="bg-darkCard border border-darkBorder p-6 rounded-xl flex flex-col justify-between hover:border-accentBlue transition-all group shadow-md relative overflow-hidden">
             <div className="space-y-4">
-              <div className="text-emerald-400 bg-emerald-500/10 w-10 h-10 rounded-lg flex items-center justify-center border border-emerald-500/10">
+              <div className="text-accentBlue bg-accentBlue/10 w-10 h-10 rounded-lg flex items-center justify-center border border-accentBlue/10">
                 <Target className="w-5 h-5" />
               </div>
               <div>
@@ -750,7 +750,7 @@ const Home = () => {
                   Build fundamental data structure and algorithm strength topic-by-topic (Arrays, DP, Strings).
                 </p>
                 <div className="mt-4 flex items-center space-x-2">
-                  <span className="text-[9px] bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded font-bold uppercase tracking-wider border border-emerald-500/20">
+                  <span className="text-[9px] bg-accentBlue/10 text-accentBlue px-2 py-0.5 rounded font-bold uppercase tracking-wider border border-accentBlue/20">
                     🏷️ Topic Focus
                   </span>
                 </div>
