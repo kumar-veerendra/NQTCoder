@@ -22,13 +22,13 @@ const DifficultyMetrics = ({ solvedCount = {}, difficultyTotals = {} }) => {
       <div className="flex-grow flex flex-col justify-between">
         <div className="h-48 w-full">
           <ResponsiveContainer width="100%" height="100%">
-            <PieChart>
+            <PieChart margin={{ bottom: 10 }}>
               {/* Background Pie representing the unfilled/empty state if nothing is solved */}
               {!hasSolvedAny && (
                 <Pie
                   data={[{ value: 1 }]}
                   cx="50%"
-                  cy="42%"
+                  cy="50%"
                   innerRadius={50}
                   outerRadius={70}
                   dataKey="value"
@@ -43,7 +43,7 @@ const DifficultyMetrics = ({ solvedCount = {}, difficultyTotals = {} }) => {
               <Pie
                 data={pieData}
                 cx="50%"
-                cy="42%"
+                cy="50%"
                 innerRadius={50}
                 outerRadius={70}
                 paddingAngle={hasSolvedAny ? 5 : 0}
