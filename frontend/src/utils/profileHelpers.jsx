@@ -1,6 +1,6 @@
 import React from 'react';
 import { 
-  GraduationCap, CheckCircle, Award, ShieldCheck, Flame, Code, Zap 
+  GraduationCap, CheckCircle, Award, ShieldCheck, Flame, Code, Zap, Compass, Target
 } from 'lucide-react';
 
 /**
@@ -170,7 +170,10 @@ export const getBadgesList = ({
   mockCount,
   proctorPerfectCount,
   uniqueLangsCount,
-  bestRuntime
+  bestRuntime,
+  completedTracksCount = 0,
+  completedTcsTrack = false,
+  completedArrayTrack = false
 }) => {
   return [
     {
@@ -290,6 +293,39 @@ export const getBadgesList = ({
       isUnlocked: bestRuntime !== Infinity && bestRuntime <= 0.2,
       color: (bestRuntime !== Infinity && bestRuntime <= 0.2)
         ? 'from-rose-600/20 to-orange-600/10 border-rose-500/30 text-rose-400 badge-glow-rose'
+        : 'from-slate-800/40 to-slate-900/20 border-slate-700/30 text-slate-500 opacity-40',
+    },
+    {
+      id: 'pathfinder',
+      title: 'Path Finder',
+      subtitle: 'Roadmap Completed',
+      desc: 'Successfully finished at least one corporate or topic learning track.',
+      icon: <Compass className="w-5 h-5" />,
+      isUnlocked: completedTracksCount >= 1,
+      color: completedTracksCount >= 1
+        ? 'from-indigo-600/20 to-blue-600/10 border-indigo-500/30 text-indigo-400 badge-glow-blue'
+        : 'from-slate-800/40 to-slate-900/20 border-slate-700/30 text-slate-500 opacity-40',
+    },
+    {
+      id: 'tcs_conqueror',
+      title: 'TCS Conqueror',
+      subtitle: 'TCS Path Complete',
+      desc: 'Finished the TCS NQT Preparation Roadmap.',
+      icon: <Award className="w-5 h-5" />,
+      isUnlocked: completedTcsTrack,
+      color: completedTcsTrack
+        ? 'from-violet-600/20 to-purple-600/10 border-violet-500/30 text-violet-400 badge-glow-purple'
+        : 'from-slate-800/40 to-slate-900/20 border-slate-700/30 text-slate-500 opacity-40',
+    },
+    {
+      id: 'array_master',
+      title: 'Array Master',
+      subtitle: 'Array Path Complete',
+      desc: 'Finished the Arrays & Sorting Practice Path.',
+      icon: <Target className="w-5 h-5" />,
+      isUnlocked: completedArrayTrack,
+      color: completedArrayTrack
+        ? 'from-emerald-600/20 to-teal-600/10 border-emerald-500/30 text-emerald-400 badge-glow-emerald'
         : 'from-slate-800/40 to-slate-900/20 border-slate-700/30 text-slate-500 opacity-40',
     }
   ];
