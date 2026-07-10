@@ -134,6 +134,24 @@ const faqs = [
         a: 'Visit the Feedback & Contact page (link in the navbar). You can submit a bug report or general feedback with your name, email, and a message. All submissions are reviewed by the admin team and addressed promptly.'
       }
     ]
+  },
+  {
+    category: 'Learning Paths & Aptitude',
+    color: 'text-accentBlue',
+    items: [
+      {
+        q: 'What are High Five Roadmaps and how do they work?',
+        a: 'High Five Roadmaps are structured, 5-question preparation sprints. They automatically query unsolved coding questions matching a specific company (like TCS) or topic (like Arrays) and order them progressively from Easy to Hard. Once you complete a track, you can click "Reset Track Progress" in the path details to fetch a fresh batch of 5 unsolved questions for unlimited practice.'
+      },
+      {
+        q: 'Does NQTCoder offer Aptitude and Verbal preparation?',
+        a: 'Absolutely! NQTCoder features an Aptitude Arena containing Quantitative Aptitude, Logical Reasoning, and Verbal Ability MCQs aligned directly with placement recruitment shifts. Your aptitude stats and solve metrics are tracked separately on your profile dashboard.'
+      },
+      {
+        q: 'How do I earn and unlock dynamic achievement badges?',
+        a: 'Achievements unlock automatically as you hit milestones. In addition to login streaks and runtime badges, completing any company roadmap unlocks a unique "[Company] Conqueror" badge, and completing topic paths unlocks "[Topic] Master" or "[Topic] Beginner" badges on your profile page.'
+      }
+    ]
   }
 ];
 
