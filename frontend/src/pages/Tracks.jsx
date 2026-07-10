@@ -223,6 +223,11 @@ const Tracks = () => {
                         🏢 {track.company}
                       </span>
                     )}
+                    {track.topic && (
+                      <span className="text-[9px] bg-darkBg border border-darkBorder px-2 py-0.5 rounded font-bold uppercase text-slate-400 tracking-wider">
+                        🏷️ {track.topic}
+                      </span>
+                    )}
                     {track.category && (
                       <span className="text-[9px] bg-darkBg border border-darkBorder px-2 py-0.5 rounded font-bold uppercase text-slate-400 tracking-wider">
                         🏷️ {track.category}

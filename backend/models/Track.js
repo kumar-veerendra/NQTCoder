@@ -22,6 +22,9 @@ const trackSchema = new mongoose.Schema({
   company: {
     type: String
   },
+  topic: {
+    type: String
+  },
   month: {
     type: String
   },
