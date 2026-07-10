@@ -166,9 +166,15 @@ const Profile = () => {
   const bestRuntime = userSubmissions.filter(s => s.status === 'Accepted' && s.runTime !== undefined)
     .reduce((min, s) => s.runTime < min ? s.runTime : min, Infinity);
 
-  const completedTracksCount = tracksList.filter(t => t.progressPercent === 100).length;
-  const completedTcsTrack = tracksList.some(t => t.company === 'TCS' && t.progressPercent === 100);
-  const completedArrayTrack = tracksList.some(t => t.topic === 'Arrays' && t.progressPercent === 100);
+  // Calculate topic solve counts based on user's solved coding questions
+  const solvedQuestions = profile ? profile.solvedQuestions || [] : [];
+  const topicSolveCounts = {};
+  solvedQuestions.forEach(q => {
+    if (q.topic) {
+      const topicName = q.topic.trim();
+      topicSolveCounts[topicName] = (topicSolveCounts[topicName] || 0) + 1;
+    }
+  });
 
   const badges = getBadgesList({
     maxStreak,
@@ -177,9 +183,8 @@ const Profile = () => {
     proctorPerfectCount,
     uniqueLangsCount,
     bestRuntime,
-    completedTracksCount,
-    completedTcsTrack,
-    completedArrayTrack
+    tracksList,
+    topicSolveCounts
   });
 
   return (

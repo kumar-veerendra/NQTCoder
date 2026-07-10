@@ -171,7 +171,8 @@ export const getBadgesList = ({
   proctorPerfectCount,
   uniqueLangsCount,
   bestRuntime,
-  tracksList = []
+  tracksList = [],
+  topicSolveCounts = {}
 }) => {
   const staticBadges = [
     {
@@ -330,21 +331,38 @@ export const getBadgesList = ({
         color: colorClass
       });
     } else if (track.type === 'topic') {
-      let colorClass = '';
-      if (isUnlocked) {
-        colorClass = 'from-emerald-600/20 to-teal-600/10 border-emerald-500/30 text-emerald-400 badge-glow-emerald';
-      } else {
-        colorClass = 'from-slate-800/40 to-slate-900/20 border-slate-700/30 text-slate-500 opacity-40';
-      }
+      const solvedCount = topicSolveCounts[track.topic] || 0;
+      const isBeginnerUnlocked = solvedCount >= 5;
+      const isMasterUnlocked = solvedCount >= 25;
+
+      // 1. Topic Beginner Badge
+      const begColorClass = isBeginnerUnlocked
+        ? 'from-blue-600/20 to-cyan-600/10 border-blue-500/30 text-blue-400 badge-glow-blue'
+        : 'from-slate-800/40 to-slate-900/20 border-slate-700/30 text-slate-500 opacity-40';
 
       trackBadges.push({
-        id: `track_topic_${track._id}`,
+        id: `track_topic_beg_${track._id}`,
+        title: `${track.topic} Beginner`,
+        subtitle: `${track.topic} Starter`,
+        desc: `Solve 5 coding questions on ${track.topic} (Current: ${solvedCount}/5).`,
+        icon: <Compass className="w-5 h-5" />,
+        isUnlocked: isBeginnerUnlocked,
+        color: begColorClass
+      });
+
+      // 2. Topic Master Badge
+      const masColorClass = isMasterUnlocked
+        ? 'from-emerald-600/20 to-teal-600/10 border-emerald-500/30 text-emerald-400 badge-glow-emerald'
+        : 'from-slate-800/40 to-slate-900/20 border-slate-700/30 text-slate-500 opacity-40';
+
+      trackBadges.push({
+        id: `track_topic_mas_${track._id}`,
         title: `${track.topic} Master`,
-        subtitle: `${track.topic} Complete`,
-        desc: `Complete all challenges in the ${track.title}.`,
+        subtitle: `${track.topic} Expert`,
+        desc: `Solve 25 coding questions on ${track.topic} (Current: ${solvedCount}/25).`,
         icon: <Target className="w-5 h-5" />,
-        isUnlocked: isUnlocked,
-        color: colorClass
+        isUnlocked: isMasterUnlocked,
+        color: masColorClass
       });
     }
   });
