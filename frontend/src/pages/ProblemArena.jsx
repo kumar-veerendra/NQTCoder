@@ -750,10 +750,10 @@ const ProblemArena = () => {
 
       </div>
 
-      {/* Toast Notification */}
       {toast && (
-        <div className="fixed z-[9999] bg-[#0b1329] border border-emerald-500/30 text-emerald-400 px-4 py-3 rounded-xl shadow-2xl flex items-center justify-between gap-3 select-none animate-fadeIn font-sans text-xs font-bold
-          top-5 left-1/2 -translate-x-1/2 md:top-auto md:left-auto md:translate-x-0 md:bottom-5 md:right-5 shrink-0"
+        <div className={`fixed z-[9999] text-emerald-400 px-4 py-3 rounded-xl shadow-2xl flex items-center justify-between gap-3 select-none animate-fadeIn font-sans text-xs font-bold top-5 left-1/2 -translate-x-1/2 md:top-auto md:left-auto md:translate-x-0 md:bottom-5 md:right-5 shrink-0 ${
+          theme === 'light' ? 'bg-emerald-50 border border-emerald-200' : 'bg-[#0b1329] border border-emerald-500/30'
+        }`}
         >
           <div className="flex items-center gap-2">
             <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
