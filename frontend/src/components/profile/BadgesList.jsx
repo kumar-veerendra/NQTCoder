@@ -4,9 +4,17 @@ import { Award, Lock, ChevronDown, ChevronUp } from 'lucide-react';
 const BadgesList = ({ badges = [] }) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
-  // Show only 8 badges initially
-  const INITIAL_COUNT = 8;
-  const visibleBadges = isExpanded ? badges : badges.slice(0, INITIAL_COUNT);
+  // Helper to determine responsive class based on index
+  const getResponsiveClass = (index) => {
+    if (isExpanded) return 'block';
+
+    // Show 2 full rows on each screen size
+    if (index < 4) return 'block'; // Mobile (2 cols * 2 rows = 4 items)
+    if (index < 6) return 'hidden sm:block'; // Tablet (3 cols * 2 rows = 6 items)
+    if (index < 8) return 'hidden md:block'; // Desktop MD (4 cols * 2 rows = 8 items)
+    if (index < 10) return 'hidden lg:block'; // Desktop LG (5 cols * 2 rows = 10 items)
+    return 'hidden'; // Hide anything past 2 rows
+  };
 
   return (
     <div className="bg-darkCard border border-darkBorder rounded-lg p-5 space-y-5 overflow-visible">
@@ -20,10 +28,10 @@ const BadgesList = ({ badges = [] }) => {
       </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 overflow-visible">
-        {visibleBadges.map((badge) => (
+        {badges.map((badge, index) => (
           <div 
             key={badge.id}
-            className={`relative group border rounded-xl p-3 bg-gradient-to-br transition-all duration-300 flex flex-col items-center justify-center text-center select-none badge-card hover:z-50 ${badge.color}`}
+            className={`${getResponsiveClass(index)} relative group border rounded-xl p-3 bg-gradient-to-br transition-all duration-300 flex flex-col items-center justify-center text-center select-none badge-card hover:z-50 ${badge.color}`}
           >
             {/* Premium shimmer overlay */}
             <div className="premium-shine rounded-xl"></div>
@@ -75,26 +83,24 @@ const BadgesList = ({ badges = [] }) => {
         ))}
       </div>
 
-      {badges.length > INITIAL_COUNT && (
-        <div className="pt-2 flex justify-center select-none">
-          <button
-            onClick={() => setIsExpanded(!isExpanded)}
-            className="bg-darkBg hover:bg-darkCard text-slate-300 hover:text-white border border-darkBorder px-4 py-2 rounded-md text-xs font-bold uppercase tracking-wider flex items-center space-x-1.5 transition-all cursor-pointer shadow hover:shadow-lg"
-          >
-            {isExpanded ? (
-              <>
-                <ChevronUp className="w-3.5 h-3.5" />
-                <span>Show Less Badges</span>
-              </>
-            ) : (
-              <>
-                <ChevronDown className="w-3.5 h-3.5" />
-                <span>View All Badges ({badges.length})</span>
-              </>
-            )}
-          </button>
-        </div>
-      )}
+      <div className="pt-2 flex justify-center select-none">
+        <button
+          onClick={() => setIsExpanded(!isExpanded)}
+          className="bg-darkBg hover:bg-darkCard text-slate-300 hover:text-white border border-darkBorder px-4 py-2 rounded-md text-xs font-bold uppercase tracking-wider flex items-center space-x-1.5 transition-all cursor-pointer shadow hover:shadow-lg"
+        >
+          {isExpanded ? (
+            <>
+              <ChevronUp className="w-3.5 h-3.5" />
+              <span>Show Less Badges</span>
+            </>
+          ) : (
+            <>
+              <ChevronDown className="w-3.5 h-3.5" />
+              <span>View All Badges ({badges.length})</span>
+            </>
+          )}
+        </button>
+      </div>
     </div>
   );
 };
