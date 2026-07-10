@@ -158,28 +158,46 @@ const Contact = () => {
             <div className="bg-darkCard border border-darkBorder rounded-2xl p-6 space-y-4 shadow-xl select-none relative overflow-hidden">
               <div className="premium-shine rounded-2xl"></div>
               
-              <div className="space-y-3 relative z-10">
+              <div className="space-y-4 relative z-10">
                 <h3 className="text-sm font-extrabold text-white uppercase tracking-wider flex items-center">
                   <ShieldCheck className="w-4 h-4 text-accentBlue mr-2" /> Support Guidelines
                 </h3>
                 
-                <ul className="space-y-3 text-[11px] text-slate-400 leading-relaxed font-semibold">
+                <ul className="space-y-4 text-xs text-slate-400 leading-relaxed font-semibold">
                   <li className="flex items-start">
-                    <span className="text-accentBlue mr-2 font-bold">•</span>
+                    <span className="text-accentBlue mr-2 font-bold select-none">•</span>
                     <span>
                       <strong className="text-slate-200">Response SLA:</strong> We review and respond to bug submissions and general placement support tickets within 24 to 48 hours.
                     </span>
                   </li>
                   <li className="flex items-start">
-                    <span className="text-accentBlue mr-2 font-bold">•</span>
+                    <span className="text-accentBlue mr-2 font-bold select-none">•</span>
                     <span>
-                      <strong className="text-slate-200">Pre-Check:</strong> Before reporting compiler faults, check if the compiler offline guide below can solve the issue.
+                      <strong className="text-slate-200">Pre-Check Setup:</strong> Before reporting compiler faults, check if the compiler offline guide below can solve the issue.
                     </span>
                   </li>
                   <li className="flex items-start">
-                    <span className="text-accentBlue mr-2 font-bold">•</span>
+                    <span className="text-accentBlue mr-2 font-bold select-none">•</span>
                     <span>
-                      <strong className="text-slate-200">Attachments:</strong> When reporting code issues, please include code snippets and your expected test inputs.
+                      <strong className="text-slate-200">Mock Exam Resumes:</strong> If you accidentally close your tab during a timed mock test, reload the mock test dashboard page to resume.
+                    </span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="text-accentBlue mr-2 font-bold select-none">•</span>
+                    <span>
+                      <strong className="text-slate-200">Faulty Testcases:</strong> If you find a question with invalid parameters, select "Report Bug" and share your sample input/output.
+                    </span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="text-accentBlue mr-2 font-bold select-none">•</span>
+                    <span>
+                      <strong className="text-slate-200">Plagiarism Reports:</strong> NQTCoder is a learning-first space. To report plagiarism or leaks, select the "Inquiry" ticket type.
+                    </span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="text-accentBlue mr-2 font-bold select-none">•</span>
+                    <span>
+                      <strong className="text-slate-200">Attachments:</strong> When reporting code issues, please include your program code and the specific test inputs used.
                     </span>
                   </li>
                 </ul>
