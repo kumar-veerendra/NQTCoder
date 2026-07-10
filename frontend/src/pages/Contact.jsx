@@ -4,7 +4,7 @@ import { AuthContext } from '../context/AuthContext';
 import { submitFeedback } from '../services/feedbackService';
 import { 
   Terminal, Mail, Github, MessageSquare, Bug, HelpCircle, 
-  Send, CheckCircle2, ArrowRight, Linkedin
+  Send, CheckCircle2, ArrowRight, Linkedin, ShieldCheck
 } from 'lucide-react';
 import SEO from '../components/SEO';
 
@@ -151,6 +151,38 @@ const Contact = () => {
                     <span>Telegram Support</span>
                   </span>
                 </a>
+              </div>
+            </div>
+
+            {/* Support SLA & Guidelines */}
+            <div className="bg-darkCard border border-darkBorder rounded-2xl p-6 space-y-4 shadow-xl select-none relative overflow-hidden">
+              <div className="premium-shine rounded-2xl"></div>
+              
+              <div className="space-y-3 relative z-10">
+                <h3 className="text-sm font-extrabold text-white uppercase tracking-wider flex items-center">
+                  <ShieldCheck className="w-4 h-4 text-accentBlue mr-2" /> Support Guidelines
+                </h3>
+                
+                <ul className="space-y-3 text-[11px] text-slate-400 leading-relaxed font-semibold">
+                  <li className="flex items-start">
+                    <span className="text-accentBlue mr-2 font-bold">•</span>
+                    <span>
+                      <strong className="text-slate-200">Response SLA:</strong> We review and respond to bug submissions and general placement support tickets within 24 to 48 hours.
+                    </span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="text-accentBlue mr-2 font-bold">•</span>
+                    <span>
+                      <strong className="text-slate-200">Pre-Check:</strong> Before reporting compiler faults, check if the compiler offline guide below can solve the issue.
+                    </span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="text-accentBlue mr-2 font-bold">•</span>
+                    <span>
+                      <strong className="text-slate-200">Attachments:</strong> When reporting code issues, please include code snippets and your expected test inputs.
+                    </span>
+                  </li>
+                </ul>
               </div>
             </div>
           </div>
