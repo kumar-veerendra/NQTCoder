@@ -467,7 +467,7 @@ const ProblemArena = () => {
           >
             <img src="/logo.svg" alt="NQTCoder Logo" className="h-[30px] w-auto object-contain" />
             <span className="text-xs sm:text-sm font-bold tracking-wider text-slate-200 group-hover:text-white transition-colors">
-              NQTCoder
+              NQT<span className="text-violet-500">Coder</span>
             </span>
           </div>
 
