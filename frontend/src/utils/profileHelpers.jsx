@@ -171,11 +171,9 @@ export const getBadgesList = ({
   proctorPerfectCount,
   uniqueLangsCount,
   bestRuntime,
-  completedTracksCount = 0,
-  completedTcsTrack = false,
-  completedArrayTrack = false
+  tracksList = []
 }) => {
-  return [
+  const staticBadges = [
     {
       id: 'welcome',
       title: 'Welcome Coder',
@@ -294,39 +292,63 @@ export const getBadgesList = ({
       color: (bestRuntime !== Infinity && bestRuntime <= 0.2)
         ? 'from-rose-600/20 to-orange-600/10 border-rose-500/30 text-rose-400 badge-glow-rose'
         : 'from-slate-800/40 to-slate-900/20 border-slate-700/30 text-slate-500 opacity-40',
-    },
-    {
-      id: 'pathfinder',
-      title: 'Path Finder',
-      subtitle: 'Roadmap Completed',
-      desc: 'Successfully finished at least one corporate or topic learning track.',
-      icon: <Compass className="w-5 h-5" />,
-      isUnlocked: completedTracksCount >= 1,
-      color: completedTracksCount >= 1
-        ? 'from-indigo-600/20 to-blue-600/10 border-indigo-500/30 text-indigo-400 badge-glow-blue'
-        : 'from-slate-800/40 to-slate-900/20 border-slate-700/30 text-slate-500 opacity-40',
-    },
-    {
-      id: 'tcs_conqueror',
-      title: 'TCS Conqueror',
-      subtitle: 'TCS Path Complete',
-      desc: 'Finished the TCS NQT Preparation Roadmap.',
-      icon: <Award className="w-5 h-5" />,
-      isUnlocked: completedTcsTrack,
-      color: completedTcsTrack
-        ? 'from-violet-600/20 to-purple-600/10 border-violet-500/30 text-violet-400 badge-glow-purple'
-        : 'from-slate-800/40 to-slate-900/20 border-slate-700/30 text-slate-500 opacity-40',
-    },
-    {
-      id: 'array_master',
-      title: 'Array Master',
-      subtitle: 'Array Path Complete',
-      desc: 'Finished the Arrays & Sorting Practice Path.',
-      icon: <Target className="w-5 h-5" />,
-      isUnlocked: completedArrayTrack,
-      color: completedArrayTrack
-        ? 'from-emerald-600/20 to-teal-600/10 border-emerald-500/30 text-emerald-400 badge-glow-emerald'
-        : 'from-slate-800/40 to-slate-900/20 border-slate-700/30 text-slate-500 opacity-40',
     }
   ];
+
+  const trackBadges = [];
+
+  // Generate dynamic badges for completed tracks
+  tracksList.forEach(track => {
+    if (track.progressPercent === 100) {
+      if (track.type === 'company') {
+        // Stylish colors for different companies
+        let colorClass = 'from-violet-600/20 to-indigo-600/10 border-violet-500/30 text-violet-400 badge-glow-purple'; // Default TCS/Accenture style
+        if (track.company === 'Infosys') {
+          colorClass = 'from-blue-600/20 to-sky-600/10 border-blue-500/30 text-blue-400 badge-glow-blue';
+        } else if (track.company === 'Wipro') {
+          colorClass = 'from-amber-600/20 to-orange-600/10 border-amber-500/30 text-amber-400 badge-glow-amber';
+        } else if (track.company === 'Cognizant') {
+          colorClass = 'from-rose-600/20 to-pink-600/10 border-rose-500/30 text-rose-400 badge-glow-rose';
+        } else if (track.company === 'Capgemini') {
+          colorClass = 'from-teal-600/20 to-emerald-600/10 border-teal-500/30 text-teal-400 badge-glow-emerald';
+        }
+
+        trackBadges.push({
+          id: `track_comp_${track._id}`,
+          title: `${track.company} Conqueror`,
+          subtitle: `${track.company} Complete`,
+          desc: `Completed all challenges in the ${track.title}.`,
+          icon: <Award className="w-5 h-5" />,
+          isUnlocked: true,
+          color: colorClass
+        });
+      } else if (track.type === 'topic') {
+        trackBadges.push({
+          id: `track_topic_${track._id}`,
+          title: `${track.topic} Master`,
+          subtitle: `${track.topic} Complete`,
+          desc: `Completed all challenges in the ${track.title}.`,
+          icon: <Target className="w-5 h-5" />,
+          isUnlocked: true,
+          color: 'from-emerald-600/20 to-teal-600/10 border-emerald-500/30 text-emerald-400 badge-glow-emerald'
+        });
+      }
+    }
+  });
+
+  const completedTracksCount = tracksList.filter(t => t.progressPercent === 100).length;
+
+  staticBadges.push({
+    id: 'pathfinder',
+    title: 'Path Finder',
+    subtitle: 'Roadmap Completed',
+    desc: 'Successfully finished at least one corporate or topic learning track.',
+    icon: <Compass className="w-5 h-5" />,
+    isUnlocked: completedTracksCount >= 1,
+    color: completedTracksCount >= 1
+      ? 'from-indigo-600/20 to-blue-600/10 border-indigo-500/30 text-indigo-400 badge-glow-blue'
+      : 'from-slate-800/40 to-slate-900/20 border-slate-700/30 text-slate-500 opacity-40',
+  });
+
+  return [...staticBadges, ...trackBadges];
 };
