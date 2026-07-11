@@ -126,13 +126,15 @@ const AuthModal = ({ isOpen, onClose, mode = 'run' }) => {
         {/* Actions */}
         <div className="flex flex-col space-y-3 pt-1">
           <div className="flex justify-center w-full">
-            <GoogleLogin
-              onSuccess={handleGoogleSuccess}
-              onError={() => alert('Google Sign-in failed. Try again.')}
-              theme="outline"
-              shape="pill"
-              text="continue_with"
-            />
+            <div className="google-login-container">
+              <GoogleLogin
+                onSuccess={handleGoogleSuccess}
+                onError={() => alert('Google Sign-in failed. Try again.')}
+                theme="outline"
+                shape="pill"
+                text="continue_with"
+              />
+            </div>
           </div>
 
           <button

@@ -176,13 +176,15 @@ const Login = () => {
 
         {/* Google OAuth Login Container */}
         <div className="flex justify-center relative w-full mb-6">
-          <GoogleLogin
-            onSuccess={handleGoogleSuccess}
-            onError={() => setErrors({ auth: 'Google Sign-in failed. Try again.' })}
-            theme="outline"
-            shape="pill"
-            text="signin_with"
-          />
+          <div className="google-login-container">
+            <GoogleLogin
+              onSuccess={handleGoogleSuccess}
+              onError={() => setErrors({ auth: 'Google Sign-in failed. Try again.' })}
+              theme="outline"
+              shape="pill"
+              text="signin_with"
+            />
+          </div>
         </div>
 
         <div className="text-center relative">
