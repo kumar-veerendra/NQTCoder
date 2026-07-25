@@ -39,6 +39,11 @@ const baseQuestionSchema = new mongoose.Schema(
     questionNo: { type: Number, unique: true, index: true },
     questionId: { type: String, unique: true, sparse: true, index: true }, // MVP (e.g. "QA-ARITH-0001"), sparse for legacy compatibility
     slug: { type: String, unique: true, required: true, index: true },       // MVP (e.g. "avg-speed-train-problem-1")
+    isPublic: { type: Boolean, default: true, index: true },
+    visibility: { type: String, enum: ['official', 'personal'], default: 'official', index: true },
+    owner: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null, index: true },
+    sourceType: { type: String, enum: ['manual', 'seed', 'ai', 'imported'], default: 'seed', index: true },
+    categoryTag: { type: String, trim: true, index: true },
 
     // ---------- Classification ----------
     domain: {

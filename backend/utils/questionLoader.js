@@ -9,6 +9,7 @@ const __dirname = path.dirname(__filename);
 
 const quantPath = path.resolve(__dirname, '../config/data/quantQue.json');
 const logicalPath = path.resolve(__dirname, '../config/data/logicalQue.json');
+const verbalPath = path.resolve(__dirname, '../config/data/verbalQue.json');
 
 let localCache = null;
 
@@ -31,6 +32,13 @@ const getLocalMCQs = () => {
   } catch (e) {
     console.error('Error reading logicalQue.json:', e);
   }
+  try {
+    if (fs.existsSync(verbalPath)) {
+      list = list.concat(JSON.parse(fs.readFileSync(verbalPath, 'utf8')));
+    }
+  } catch (e) {
+    console.error('Error reading verbalQue.json:', e);
+  }
 
   localCache = list.map((q, idx) => {
     let hex = q._id;
@@ -42,7 +50,7 @@ const getLocalMCQs = () => {
     return {
       ...q,
       _id: hex,
-      kind: 'MCQQuestion',
+      kind: q.kind || (q.verbalType ? 'VerbalQuestion' : 'MCQQuestion'),
       domain: 'aptitude'
     };
   });
@@ -51,12 +59,26 @@ const getLocalMCQs = () => {
 };
 
 // Combine local JSON MCQs and MongoDB MCQQuestions
-export const getMCQQuestions = async () => {
+export const getMCQQuestions = async (userId = null) => {
   const localList = getLocalMCQs();
 
   let dbMcqs = [];
   try {
-    dbMcqs = await Question.find({ domain: 'aptitude' }).lean();
+    const query = {
+      $or: [
+        { domain: 'aptitude' },
+        { section: { $in: ['quant', 'logical', 'verbal'] } },
+        { kind: { $in: ['MCQQuestion', 'VerbalQuestion'] } }
+      ]
+    };
+    if (userId) {
+      query.$and = [
+        { $or: [{ isPublic: { $ne: false } }, { 'meta.createdBy': userId }] }
+      ];
+    } else {
+      query.isPublic = { $ne: false };
+    }
+    dbMcqs = await Question.find(query).lean();
   } catch (e) {
     console.error('Error querying MongoDB MCQs:', e);
   }
@@ -70,7 +92,7 @@ export const getMCQQuestions = async () => {
       combined.push({
         ...q,
         _id: idStr,
-        kind: q.kind || 'MCQQuestion',
+        kind: q.kind || (q.verbalType ? 'VerbalQuestion' : 'MCQQuestion'),
         domain: 'aptitude'
       });
     }
@@ -80,9 +102,9 @@ export const getMCQQuestions = async () => {
 };
 
 // Find any question (coding from DB, MCQ from local files / DB)
-export const findQuestionByIdOrSlug = async (idOrSlug) => {
+export const findQuestionByIdOrSlug = async (idOrSlug, userId = null) => {
   // First, check local/db MCQ questions
-  const mcqs = await getMCQQuestions();
+  const mcqs = await getMCQQuestions(userId);
   const foundLocal = mcqs.find(q => q._id === idOrSlug || q.slug === idOrSlug || q.questionId === idOrSlug);
   if (foundLocal) {
     // Return object mock matching Mongoose structure (toObject/lean compatibility)
@@ -102,8 +124,8 @@ export const findQuestionByIdOrSlug = async (idOrSlug) => {
 };
 
 // Filter MCQ questions
-export const getMCQByFilter = async (filter = {}) => {
-  const list = await getMCQQuestions();
+export const getMCQByFilter = async (filter = {}, userId = null) => {
+  const list = await getMCQQuestions(userId);
   return list.filter(q => {
     if (filter.section && q.section !== filter.section) return false;
     if (filter.topic && q.topic !== filter.topic) return false;
@@ -114,6 +136,12 @@ export const getMCQByFilter = async (filter = {}) => {
       if (diff1 !== diff2) return false;
     }
     
+    if (filter.skill && filter.skill !== 'all') {
+      const targetSkill = filter.skill.toLowerCase();
+      const hasSkill = Array.isArray(q.skills) && q.skills.some(s => (s || '').toLowerCase() === targetSkill);
+      if (!hasSkill) return false;
+    }
+
     if (filter.search) {
       const s = filter.search.toLowerCase();
       const matchStatement = q.content?.statement?.toLowerCase().includes(s);

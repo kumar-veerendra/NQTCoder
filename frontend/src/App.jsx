@@ -41,6 +41,7 @@ import AptitudeMockArena from './pages/AptitudeMockArena';
 import AptitudeMockResult from './pages/AptitudeMockResult';
 import AdminMCQQuestionForm from './pages/AdminMCQQuestionForm';
 import AdminVerbalQuestionForm from './pages/AdminVerbalQuestionForm';
+import AISettings from './pages/AISettings';
 
 const UnverifiedBanner = () => {
   const { user, resendCode } = useContext(AuthContext);
@@ -144,6 +145,22 @@ const AppContent = () => {
           element={
             <ProtectedRoute>
               <Profile />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/settings/ai"
+          element={
+            <ProtectedRoute>
+              <AISettings />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/ai"
+          element={
+            <ProtectedRoute>
+              <AISettings />
             </ProtectedRoute>
           }
         />
