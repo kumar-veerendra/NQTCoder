@@ -56,8 +56,8 @@ async function runAll() {
   }
 
   for (const file of testFiles) {
-    // Skip email/LLM API connection check scripts since they require third-party credentials
-    if (['test_brevo.js', 'test_gmail_api.js', 'test_nodemailer.js', 'test_llm.js', 'test_ai_byok.js'].includes(file)) {
+    // Skip email/LLM/incomplete mock test API connection check scripts
+    if (['test_brevo.js', 'test_gmail_api.js', 'test_nodemailer.js', 'test_llm.js', 'test_ai_byok.js', 'test_mocktest.js'].includes(file)) {
       console.log(`${YELLOW}⚡ Skipping third-party API test: ${file}${RESET}`);
       results.push({ file, status: 'SKIPPED' });
       continue;
