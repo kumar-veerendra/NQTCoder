@@ -90,7 +90,7 @@ const runTest = async () => {
     const res2 = mockResponse();
     await getBookmarks(req2, res2);
     console.log(`Found ${res2.body.length} bookmarks for user.`);
-    const isBookmarkedInList = res2.body.some(b => b.questionId && b.questionId._id.toString() === mcq._id.toString());
+    const isBookmarkedInList = res2.body.some(b => (b.questionId?._id?.toString() || b.questionId?.toString()) === mcq._id.toString());
     if (!isBookmarkedInList) {
       throw new Error('Bookmarked question not present in getBookmarks response!');
     }
@@ -107,7 +107,7 @@ const runTest = async () => {
 
     const res4 = mockResponse();
     await getBookmarks(req2, res4);
-    const isRemovedFromList = !res4.body.some(b => b.questionId?._id.toString() === mcq._id.toString());
+    const isRemovedFromList = !res4.body.some(b => (b.questionId?._id?.toString() || b.questionId?.toString()) === mcq._id.toString());
     if (!isRemovedFromList) {
       throw new Error('Bookmarked question still present after removal!');
     }

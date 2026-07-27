@@ -65,6 +65,7 @@ const runTrackTests = async () => {
     tempUserId = userInDb._id.toString();
     const otpCode = userInDb.verificationCode;
     
+    await new Promise(r => setTimeout(r, 500));
     await axios.post(`${BASE_URL}/auth/verify`, {
       email: testEmail,
       code: otpCode

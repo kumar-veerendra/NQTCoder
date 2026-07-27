@@ -45,6 +45,7 @@ const runForgotPasswordTests = async () => {
     tempUserId = userInDb._id.toString();
     const otpCode = userInDb.verificationCode;
     
+    await new Promise(r => setTimeout(r, 500));
     console.log(`Verifying email with OTP: ${otpCode}...`);
     await axios.post(`${BASE_URL}/auth/verify`, {
       email: testEmail,

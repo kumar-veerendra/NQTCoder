@@ -86,6 +86,7 @@ const runMockTestTests = async () => {
 
     const otpCode = userInDb.verificationCode;
     console.log(`Verifying email with OTP: ${otpCode}...`);
+    await sleep(500);
     await axios.post(`${BASE_URL}/auth/verify`, {
       email: testEmail,
       code: otpCode
