@@ -35,11 +35,24 @@ const runTrackTests = async () => {
     await Track.deleteMany({ title: 'E2E Track Progress Track' });
     await Question.deleteMany({ slug: 'e2e-track-test-question' });
 
+    // Ensure dedicated Admin user exists in DB before logging in
+    const trackAdminEmail = 'track_admin@nqtcoder.com';
+    const trackAdminPassword = 'AdminPassword@123';
+
+    await User.deleteMany({ email: trackAdminEmail });
+    await User.create({
+      username: 'track_admin_user',
+      email: trackAdminEmail,
+      password: trackAdminPassword,
+      role: 'admin',
+      isVerified: true
+    });
+
     // Login as Admin
-    console.log(`Logging in as Admin (${adminEmail})...`);
+    console.log(`Logging in as Admin (${trackAdminEmail})...`);
     const adminLoginRes = await axios.post(`${BASE_URL}/auth/login`, {
-      email: adminEmail,
-      password: adminPassword
+      email: trackAdminEmail,
+      password: trackAdminPassword
     });
     adminToken = adminLoginRes.data.token;
     adminHeader = { headers: { Authorization: `Bearer ${adminToken}` } };
