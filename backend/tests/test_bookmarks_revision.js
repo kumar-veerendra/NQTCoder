@@ -116,8 +116,9 @@ const runTest = async () => {
     // --- Test 3: Revision Queue Auto-Flag & Resolve ---
     console.log('\n--- Test 3: Simulating Revision Queue Flagging & Resolution ---');
     
-    // Clear attempts to start fresh
+    // Reset User Attempts & Revision Queue for this question
     await mongoose.connection.db.collection('userattempts').deleteMany({ userId: testUser._id, questionId: mcq._id });
+    await RevisionQueue.deleteMany({ userId: testUser._id });
 
     // Submit incorrect answer 1
     console.log('Submitting incorrect answer #1...');
@@ -137,7 +138,7 @@ const runTest = async () => {
     const queueRes1 = mockResponse();
     await getRevisionQueue(req2, queueRes1);
     console.log(`Queue size after 1 failure: ${queueRes1.body.length}`);
-    if (queueRes1.body.some(r => r.questionId._id.toString() === mcq._id.toString())) {
+    if (queueRes1.body.some(r => (r.questionId?._id?.toString() || r.questionId?.toString()) === mcq._id.toString())) {
       throw new Error('Question flagged to RevisionQueue prematurely after only 1 wrong attempt!');
     }
 

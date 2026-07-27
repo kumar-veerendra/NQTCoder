@@ -39,14 +39,17 @@ const runTrackTests = async () => {
     const trackAdminEmail = 'track_admin@nqtcoder.com';
     const trackAdminPassword = 'AdminPassword@123';
 
-    await User.deleteMany({ email: trackAdminEmail });
-    await User.create({
-      username: 'track_admin_user',
-      email: trackAdminEmail,
-      password: trackAdminPassword,
-      role: 'admin',
-      isVerified: true
-    });
+    let adminUser = await User.findOne({ email: trackAdminEmail });
+    if (!adminUser) {
+      adminUser = await User.create({
+        username: 'track_admin_user',
+        email: trackAdminEmail,
+        password: trackAdminPassword,
+        role: 'admin',
+        isVerified: true
+      });
+      await new Promise(r => setTimeout(r, 500));
+    }
 
     // Login as Admin
     console.log(`Logging in as Admin (${trackAdminEmail})...`);

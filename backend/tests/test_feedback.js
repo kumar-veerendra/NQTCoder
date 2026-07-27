@@ -29,6 +29,19 @@ const runFeedbackTests = async () => {
     // Cleanup lingering test users
     await User.deleteMany({ email: /feedback_tester_.*@example\.com/ });
 
+    // Ensure Admin user exists in DB before logging in
+    let adminUser = await User.findOne({ email: adminEmail });
+    if (!adminUser) {
+      adminUser = await User.create({
+        username: 'fb_admin_test',
+        email: adminEmail,
+        password: adminPassword,
+        role: 'admin',
+        isVerified: true
+      });
+      await new Promise(r => setTimeout(r, 500));
+    }
+
     // Login as Admin
     console.log(`Logging in as Admin (${adminEmail})...`);
     const adminLoginRes = await axios.post(`${BASE_URL}/auth/login`, {
