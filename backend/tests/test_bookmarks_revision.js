@@ -32,14 +32,42 @@ const runTest = async () => {
     await mongoose.connect(mongoUri);
     console.log('Connected.');
 
-    // Fetch user
-    const testUser = await User.findOne({});
+    // Fetch or create user
+    let testUser = await User.findOne({});
+    if (!testUser) {
+      testUser = await User.create({
+        username: 'bm_test_user',
+        email: 'bm_test_user@nqtcoder.com',
+        password: 'Password@123',
+        isEmailVerified: true
+      });
+    }
     console.log(`Test user: ${testUser.username}`);
 
-    // Retrieve seeded MCQ questions
-    const mcq = await MCQQuestion.findOne({ topic: 'percentage' });
+    // Retrieve or create seeded MCQ question
+    let mcq = await MCQQuestion.findOne({ topic: 'percentage' });
     if (!mcq) {
-      throw new Error('MCQ question not found. Run runSeed.js first.');
+      mcq = await MCQQuestion.findOne({});
+    }
+    if (!mcq) {
+      console.log('No MCQ question found in DB. Creating fallback MCQ question...');
+      mcq = await MCQQuestion.create({
+        questionId: 'BM-MCQ-TEST-001',
+        slug: 'bm-mcq-test-001',
+        domain: 'aptitude',
+        section: 'quant',
+        topic: 'percentage',
+        displayName: 'Bookmark Test MCQ',
+        difficulty: 'medium',
+        content: { statement: 'What is 50% of 100?' },
+        options: [
+          { optionId: 'A', text: '25' },
+          { optionId: 'B', text: '50' },
+          { optionId: 'C', text: '75' }
+        ],
+        correctAnswer: ['B'],
+        kind: 'MCQQuestion'
+      });
     }
     console.log(`MCQ Question ID: ${mcq._id}`);
 
