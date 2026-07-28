@@ -17,7 +17,7 @@ const Footer = () => {
 
   return (
     <footer className="bg-darkCard border-t border-darkBorder py-12 px-6 transition-all select-none">
-      <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8">
+      <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-5 gap-8">
         
         {/* Col 1: Brand details */}
         <div className="space-y-4 col-span-1 md:col-span-2">
@@ -109,6 +109,38 @@ const Footer = () => {
               >
                 Email Support
               </a>
+            </li>
+          </ul>
+        </div>
+        
+        {/* Col 4: AI Integration links */}
+        <div className="space-y-4">
+          <h2 className="text-xs font-black uppercase text-white tracking-widest">AI Practice</h2>
+          <ul className="space-y-2 text-xs text-slate-400 font-semibold font-sans">
+            <li>
+              <Link to="/settings/ai" className="hover:text-white transition-colors">
+                AI Settings
+              </Link>
+            </li>
+            <li>
+              <a 
+                href="https://aistudio.google.com/app/apikey" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="hover:text-white transition-colors"
+              >
+                Get Free Gemini API
+              </a>
+            </li>
+            <li>
+              <Link to="/settings/ai" className="hover:text-white transition-colors">
+                Supported AI Providers
+              </Link>
+            </li>
+            <li>
+              <Link to="/settings/ai" className="hover:text-white transition-colors">
+                Documentation
+              </Link>
             </li>
           </ul>
         </div>

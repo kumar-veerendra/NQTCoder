@@ -55,7 +55,12 @@ const runTest = async () => {
 
     // 4. Retrieve OTP from the database
     console.log('\nStep 3: Fetching OTP code from MongoDB database...');
-    const userInDb = await User.findOne({ email: testEmail });
+    let userInDb = null;
+    for (let i = 0; i < 5; i++) {
+      userInDb = await User.findOne({ email: testEmail });
+      if (userInDb && userInDb.verificationCode) break;
+      await new Promise(r => setTimeout(r, 300));
+    }
     if (!userInDb) {
       throw new Error('User not found in database!');
     }

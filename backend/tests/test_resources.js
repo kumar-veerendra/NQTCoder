@@ -31,10 +31,24 @@ const runResourceTests = async () => {
 
     // Cleanup lingering test users and categories
     await User.deleteMany({ email: /^(resource_tester|res_tester)_.*@example\.com$/ });
-    const oldCategory = await ResourceCategory.findOne({ title: 'E2E Test Category' });
-    if (oldCategory) {
-      await Resource.deleteMany({ category: oldCategory._id });
-      await ResourceCategory.deleteOne({ _id: oldCategory._id });
+    const oldCategories = await ResourceCategory.find({ title: /E2E Test Category/i });
+    if (oldCategories.length > 0) {
+      const ids = oldCategories.map(c => c._id);
+      await Resource.deleteMany({ category: { $in: ids } });
+      await ResourceCategory.deleteMany({ _id: { $in: ids } });
+    }
+
+    // Ensure Admin user exists in DB before logging in
+    let adminUser = await User.findOne({ email: adminEmail });
+    if (!adminUser) {
+      adminUser = await User.create({
+        username: 'res_admin_test',
+        email: adminEmail,
+        password: adminPassword,
+        role: 'admin',
+        isVerified: true
+      });
+      await new Promise(r => setTimeout(r, 500));
     }
 
     // Login as Admin
@@ -92,7 +106,8 @@ const runResourceTests = async () => {
 
     // --- Admin creates category ---
     console.log('Creating category as Admin...');
-    const createCategoryRes = await axios.post(`${BASE_URL}/resources/categories`, { title: 'E2E Test Category' }, adminHeader);
+    const categoryTitle = `E2E Test Category ${Date.now()}`;
+    const createCategoryRes = await axios.post(`${BASE_URL}/resources/categories`, { title: categoryTitle }, adminHeader);
     categoryId = createCategoryRes.data._id;
     console.log(`✅ Success: Admin created category (ID: ${categoryId}).`);
 

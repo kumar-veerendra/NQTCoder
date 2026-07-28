@@ -19,7 +19,7 @@ const getGenAI = () => {
   }
 };
 
-const MODELS = ['gemini-2.5-flash', 'gemini-1.5-flash'];
+const MODELS = ['gemini-2.5-flash', 'gemini-2.0-flash'];
 
 /**
  * Calls Gemini with automatic fallback: tries gemini-2.5-flash first,

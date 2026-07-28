@@ -32,14 +32,42 @@ const runTest = async () => {
     await mongoose.connect(mongoUri);
     console.log('Connected.');
 
-    // Fetch user
-    const testUser = await User.findOne({});
+    // Fetch or create user
+    let testUser = await User.findOne({});
+    if (!testUser) {
+      testUser = await User.create({
+        username: 'bm_test_user',
+        email: 'bm_test_user@nqtcoder.com',
+        password: 'Password@123',
+        isEmailVerified: true
+      });
+    }
     console.log(`Test user: ${testUser.username}`);
 
-    // Retrieve seeded MCQ questions
-    const mcq = await MCQQuestion.findOne({ topic: 'percentage' });
+    // Retrieve or create seeded MCQ question
+    let mcq = await MCQQuestion.findOne({ topic: 'percentage' });
     if (!mcq) {
-      throw new Error('MCQ question not found. Run runSeed.js first.');
+      mcq = await MCQQuestion.findOne({});
+    }
+    if (!mcq) {
+      console.log('No MCQ question found in DB. Creating fallback MCQ question...');
+      mcq = await MCQQuestion.create({
+        questionId: 'BM-MCQ-TEST-001',
+        slug: 'bm-mcq-test-001',
+        domain: 'aptitude',
+        section: 'quant',
+        topic: 'percentage',
+        displayName: 'Bookmark Test MCQ',
+        difficulty: 'medium',
+        content: { statement: 'What is 50% of 100?' },
+        options: [
+          { optionId: 'A', text: '25' },
+          { optionId: 'B', text: '50' },
+          { optionId: 'C', text: '75' }
+        ],
+        correctAnswer: ['B'],
+        kind: 'MCQQuestion'
+      });
     }
     console.log(`MCQ Question ID: ${mcq._id}`);
 
@@ -62,7 +90,7 @@ const runTest = async () => {
     const res2 = mockResponse();
     await getBookmarks(req2, res2);
     console.log(`Found ${res2.body.length} bookmarks for user.`);
-    const isBookmarkedInList = res2.body.some(b => b.questionId && b.questionId._id.toString() === mcq._id.toString());
+    const isBookmarkedInList = res2.body.some(b => (b.questionId?._id?.toString() || b.questionId?.toString()) === mcq._id.toString());
     if (!isBookmarkedInList) {
       throw new Error('Bookmarked question not present in getBookmarks response!');
     }
@@ -79,7 +107,7 @@ const runTest = async () => {
 
     const res4 = mockResponse();
     await getBookmarks(req2, res4);
-    const isRemovedFromList = !res4.body.some(b => b.questionId?._id.toString() === mcq._id.toString());
+    const isRemovedFromList = !res4.body.some(b => (b.questionId?._id?.toString() || b.questionId?.toString()) === mcq._id.toString());
     if (!isRemovedFromList) {
       throw new Error('Bookmarked question still present after removal!');
     }
@@ -88,8 +116,9 @@ const runTest = async () => {
     // --- Test 3: Revision Queue Auto-Flag & Resolve ---
     console.log('\n--- Test 3: Simulating Revision Queue Flagging & Resolution ---');
     
-    // Clear attempts to start fresh
+    // Reset User Attempts & Revision Queue for this question
     await mongoose.connection.db.collection('userattempts').deleteMany({ userId: testUser._id, questionId: mcq._id });
+    await RevisionQueue.deleteMany({ userId: testUser._id });
 
     // Submit incorrect answer 1
     console.log('Submitting incorrect answer #1...');
@@ -109,7 +138,7 @@ const runTest = async () => {
     const queueRes1 = mockResponse();
     await getRevisionQueue(req2, queueRes1);
     console.log(`Queue size after 1 failure: ${queueRes1.body.length}`);
-    if (queueRes1.body.some(r => r.questionId._id.toString() === mcq._id.toString())) {
+    if (queueRes1.body.some(r => (r.questionId?._id?.toString() || r.questionId?.toString()) === mcq._id.toString())) {
       throw new Error('Question flagged to RevisionQueue prematurely after only 1 wrong attempt!');
     }
 

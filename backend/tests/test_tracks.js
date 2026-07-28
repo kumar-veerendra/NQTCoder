@@ -35,11 +35,27 @@ const runTrackTests = async () => {
     await Track.deleteMany({ title: 'E2E Track Progress Track' });
     await Question.deleteMany({ slug: 'e2e-track-test-question' });
 
+    // Ensure dedicated Admin user exists in DB before logging in
+    const trackAdminEmail = 'track_admin@nqtcoder.com';
+    const trackAdminPassword = 'AdminPassword@123';
+
+    let adminUser = await User.findOne({ email: trackAdminEmail });
+    if (!adminUser) {
+      adminUser = await User.create({
+        username: 'track_admin_user',
+        email: trackAdminEmail,
+        password: trackAdminPassword,
+        role: 'admin',
+        isVerified: true
+      });
+      await new Promise(r => setTimeout(r, 500));
+    }
+
     // Login as Admin
-    console.log(`Logging in as Admin (${adminEmail})...`);
+    console.log(`Logging in as Admin (${trackAdminEmail})...`);
     const adminLoginRes = await axios.post(`${BASE_URL}/auth/login`, {
-      email: adminEmail,
-      password: adminPassword
+      email: trackAdminEmail,
+      password: trackAdminPassword
     });
     adminToken = adminLoginRes.data.token;
     adminHeader = { headers: { Authorization: `Bearer ${adminToken}` } };
@@ -53,10 +69,19 @@ const runTrackTests = async () => {
       password: testPassword,
       confirmPassword: testPassword
     });
-    const userInDb = await User.findOne({ email: testEmail });
+    let userInDb = null;
+    for (let i = 0; i < 5; i++) {
+      userInDb = await User.findOne({ email: testEmail.toLowerCase() });
+      if (userInDb && userInDb.verificationCode) break;
+      await new Promise(r => setTimeout(r, 300));
+    }
+    if (!userInDb) {
+      throw new Error(`Track test user record not found for email ${testEmail}`);
+    }
     tempUserId = userInDb._id.toString();
     const otpCode = userInDb.verificationCode;
     
+    await new Promise(r => setTimeout(r, 500));
     await axios.post(`${BASE_URL}/auth/verify`, {
       email: testEmail,
       code: otpCode

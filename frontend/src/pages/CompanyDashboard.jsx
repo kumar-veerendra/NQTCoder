@@ -5,7 +5,9 @@ import { AuthContext } from '../context/AuthContext';
 import { Search, Shield, Filter, Code2, Tag, BookOpen, Layers, CheckCircle, ChevronLeft, ChevronRight, RotateCcw } from 'lucide-react';
 import SEO from '../components/SEO';
 
-const COMPANIES = ['TCS', 'Infosys', 'Accenture', 'Wipro', 'Cognizant', 'Capgemini', 'HCL'];
+import { getCompanies } from '../services/companyGuideService';
+
+const DEFAULT_COMPANIES = ['TCS', 'Cognizant', 'Infosys', 'LTIMindtree', 'Accenture', 'Wipro', 'Capgemini', 'HCLTech', 'Tech Mahindra'];
 const TOPICS = [
   'Arrays', 'Strings', 'Sorting', 'Searching', 'Pattern',
   'Recursion', 'Math', 'HashMap', 'Matrix', 'Greedy', 'Dynamic Programming', 'Miscellaneous'
@@ -14,9 +16,23 @@ const TOPICS = [
 const CompanyDashboard = () => {
   const { user } = useContext(AuthContext);
   const [questions, setQuestions] = useState([]);
+  const [dynamicCompanies, setDynamicCompanies] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [searchParams, setSearchParams] = useSearchParams();
+
+  useEffect(() => {
+    getCompanies()
+      .then(res => {
+        if (Array.isArray(res) && res.length > 0) {
+          const names = res.map(c => c.name);
+          setDynamicCompanies(names);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  const companyOptions = Array.from(new Set([...dynamicCompanies, ...DEFAULT_COMPANIES]));
 
   // Filters State
   const [selectedCompany, setSelectedCompany] = useState(searchParams.get('company') || '');
@@ -202,7 +218,7 @@ const CompanyDashboard = () => {
           className="bg-darkCard border border-darkBorder px-3 py-1.5 rounded-lg text-xs text-slate-300 focus:outline-none focus:border-accentBlue cursor-pointer transition-colors"
         >
           <option value="">All Companies</option>
-          {COMPANIES.map((comp) => (
+          {companyOptions.map((comp) => (
             <option key={comp} value={comp}>{comp}</option>
           ))}
         </select>

@@ -27,9 +27,37 @@ const runMockTestTests = async () => {
     console.log('✅ Connected to MongoDB.');
 
     // Ensure database contains questions
-    const qCount = await Question.countDocuments({});
+    let qCount = await Question.countDocuments({});
     if (qCount < 2) {
-      throw new Error('Database contains fewer than 2 questions. Seed the database first.');
+      console.log('Database has fewer than 2 questions. Creating fallback test questions...');
+      await Question.create([
+        {
+          questionId: 'MOCK-Q-TEST-001',
+          slug: 'mock-q-test-001',
+          domain: 'aptitude',
+          section: 'quant',
+          topic: 'percentage',
+          displayName: 'Mock Test Q1',
+          difficulty: 'medium',
+          content: { statement: 'What is 10 + 10?' },
+          options: [{ optionId: 'A', text: '20' }],
+          correctAnswer: ['A'],
+          kind: 'MCQQuestion'
+        },
+        {
+          questionId: 'MOCK-Q-TEST-002',
+          slug: 'mock-q-test-002',
+          domain: 'aptitude',
+          section: 'logical',
+          topic: 'series',
+          displayName: 'Mock Test Q2',
+          difficulty: 'medium',
+          content: { statement: 'What comes next: 2, 4, 6, ?' },
+          options: [{ optionId: 'A', text: '8' }],
+          correctAnswer: ['A'],
+          kind: 'MCQQuestion'
+        }
+      ]);
     }
 
     // Cleanup any lingering mock testers
@@ -45,9 +73,20 @@ const runMockTestTests = async () => {
       confirmPassword: testPassword
     });
 
-    const userInDb = await User.findOne({ email: testEmail });
+    let userInDb = null;
+    for (let i = 0; i < 5; i++) {
+      userInDb = await User.findOne({ email: testEmail.toLowerCase() });
+      if (userInDb && userInDb.verificationCode) break;
+      await sleep(300);
+    }
+
+    if (!userInDb) {
+      throw new Error(`User registration record not found for email ${testEmail}`);
+    }
+
     const otpCode = userInDb.verificationCode;
     console.log(`Verifying email with OTP: ${otpCode}...`);
+    await sleep(500);
     await axios.post(`${BASE_URL}/auth/verify`, {
       email: testEmail,
       code: otpCode

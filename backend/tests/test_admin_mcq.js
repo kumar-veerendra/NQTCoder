@@ -25,16 +25,23 @@ const runTest = async () => {
     await mongoose.connect(mongoUri);
     console.log('Connected.');
 
-    // Fetch user
-    const testAdmin = await User.findOne({ role: 'admin' });
+    // Fetch or create admin user
+    let testAdmin = await User.findOne({ role: 'admin' });
     if (!testAdmin) {
-      throw new Error('Admin user not found. Ensure seeding was done.');
+      testAdmin = await User.create({
+        username: 'admin_test_user',
+        email: 'admin_test_user@nqtcoder.com',
+        password: 'AdminPassword@123',
+        role: 'admin',
+        isEmailVerified: true
+      });
     }
     console.log(`Admin user: ${testAdmin.username}`);
 
-    // Pre-clean question code to avoid unique index duplicates
+    // Pre-clean question code and slug to avoid unique index duplicates
     const testQuestionCode = 'QA-TEST-ADMIN-MCQ-99';
-    await Question.deleteMany({ questionId: testQuestionCode });
+    const testSlug = 'admin-mcq-test-slug-99';
+    await Question.deleteMany({ $or: [{ questionId: testQuestionCode }, { slug: testSlug }] });
 
     // --- Step 1: Create MCQ Question ---
     console.log('\n--- Step 1: Creating MCQ Question ---');

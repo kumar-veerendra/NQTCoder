@@ -9,7 +9,7 @@ import {
   Plus, Edit2, Trash2, ShieldAlert, Award, Tag, Settings, 
   Users, BookOpen, Send, Activity, LayoutDashboard, ChevronRight,
   Compass, Calendar, ExternalLink, MessageSquare, Bug, Check,
-  Database, Server, Network, Layers, FileText, FolderOpen, Link2
+  Database, Server, Network, Layers, FileText, FolderOpen, Link2, Building2
 } from 'lucide-react';
 import SEO from '../components/SEO';
 
@@ -606,6 +606,17 @@ const AdminDashboard = () => {
               <span>Manage Resources</span>
             </div>
             <ChevronRight className={`w-3.5 h-3.5 opacity-60 ${activeTab === 'manage_resources' ? 'block' : 'hidden'}`} />
+          </button>
+
+          <button
+            onClick={() => navigate('/admin/company-guides')}
+            className="w-full flex items-center justify-between px-4 py-3 rounded-xl text-xs font-black tracking-wider uppercase transition-all border bg-transparent border-transparent text-slate-400 hover:text-slate-200 hover:bg-darkBg/60"
+          >
+            <div className="flex items-center space-x-3">
+              <Building2 className="w-4 h-4" />
+              <span>Company Guides</span>
+            </div>
+            <ChevronRight className="w-3.5 h-3.5 opacity-60 hidden" />
           </button>
         </div>
 

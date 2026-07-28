@@ -33,10 +33,19 @@ const runForgotPasswordTests = async () => {
       confirmPassword: testPassword
     });
 
-    const userInDb = await User.findOne({ email: testEmail });
+    let userInDb = null;
+    for (let i = 0; i < 5; i++) {
+      userInDb = await User.findOne({ email: testEmail.toLowerCase() });
+      if (userInDb && userInDb.verificationCode) break;
+      await new Promise(r => setTimeout(r, 300));
+    }
+    if (!userInDb) {
+      throw new Error(`Forgot password test user record not found for email ${testEmail}`);
+    }
     tempUserId = userInDb._id.toString();
     const otpCode = userInDb.verificationCode;
     
+    await new Promise(r => setTimeout(r, 500));
     console.log(`Verifying email with OTP: ${otpCode}...`);
     await axios.post(`${BASE_URL}/auth/verify`, {
       email: testEmail,

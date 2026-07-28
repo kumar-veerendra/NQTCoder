@@ -6,9 +6,10 @@ import AuthModal from '../components/AuthModal';
 import { 
   BookOpen, Play, CheckCircle2, TrendingUp, Compass, Award, 
   BarChart2, Clock, Zap, Target, ChevronRight, HelpCircle,
-  Bookmark as BookmarkIcon, AlertTriangle, ArrowRight, ShieldAlert, MoreVertical 
+  Bookmark as BookmarkIcon, AlertTriangle, ArrowRight, ShieldAlert, MoreVertical, Sparkles, X 
 } from 'lucide-react';
 import SEO from '../components/SEO';
+import { aiClient } from '../services/aiClient';
 
 const AptitudeDashboard = () => {
   const { user } = useContext(AuthContext);
@@ -21,11 +22,21 @@ const AptitudeDashboard = () => {
   const [error, setError] = useState('');
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  
+  // AI Onboarding & Quota states
+  const [showOnboardingModal, setShowOnboardingModal] = useState(false);
+  const [showLimitModal, setShowLimitModal] = useState(false);
+  const [pendingTopicKey, setPendingTopicKey] = useState('');
+  const [quotaInfo, setQuotaInfo] = useState({ used: 0, limit: 10, remaining: 10 });
   const [activeSection, setActiveSection] = useState(() => {
     const params = new URLSearchParams(window.location.search);
     const sec = params.get('section');
-    if (['quant', 'logical', 'verbal', 'bookmarks', 'revision'].includes(sec)) {
+    if (['quant', 'logical', 'verbal', 'di', 'bookmarks', 'revision'].includes(sec)) {
       return sec;
+    }
+    const saved = sessionStorage.getItem('nqt_aptitude_active_section');
+    if (['quant', 'logical', 'verbal', 'di', 'bookmarks', 'revision'].includes(saved)) {
+      return saved;
     }
     return 'quant';
   });
@@ -37,13 +48,15 @@ const AptitudeDashboard = () => {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const sec = params.get('section');
-    if (sec && ['quant', 'logical', 'verbal', 'bookmarks', 'revision'].includes(sec)) {
+    if (sec && ['quant', 'logical', 'verbal', 'di', 'bookmarks', 'revision'].includes(sec)) {
       setActiveSection(sec);
+      sessionStorage.setItem('nqt_aptitude_active_section', sec);
     }
   }, [window.location.search]);
 
   const handleSectionChange = (sec) => {
     setActiveSection(sec);
+    sessionStorage.setItem('nqt_aptitude_active_section', sec);
     navigate(`/aptitude?section=${sec}`, { replace: true });
   };
 
@@ -77,16 +90,21 @@ const AptitudeDashboard = () => {
 
   const handleStartSession = async (topicKey) => {
     if (!user) {
-      navigate(`/aptitude/arena/${topicKey}?section=${activeSection}`);
+      setIsAuthModalOpen(true);
       return;
     }
+    await proceedStartSession(topicKey);
+  };
+
+  const proceedStartSession = async (topicKey) => {
     try {
       const session = await practiceService.startPracticeSession({
         section: activeSection,
         topic: topicKey,
         mode: 'practice'
       });
-      navigate(`/aptitude/arena/${topicKey}?sessionId=${session._id}&section=${activeSection}`);
+      sessionStorage.setItem('nqt_aptitude_active_section', activeSection);
+      navigate(`/aptitude/arena/${topicKey}?section=${activeSection}`);
     } catch (err) {
       console.error(err);
       alert('Failed to start practice session.');
@@ -376,14 +394,18 @@ const AptitudeDashboard = () => {
             })}
           </div>
         )
-      ) : filteredTopics.length === 0 ? (
-        <div className="text-center py-20 bg-darkCard border border-darkBorder rounded-xl text-slate-500 space-y-3">
-          <Target className="w-12 h-12 mx-auto text-slate-700" />
-          <p className="text-xs font-bold">No practice topics found for this section.</p>
-        </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredTopics.map((topicItem) => {
+        <div className="space-y-8 animate-fadeIn">
+
+
+          {filteredTopics.length === 0 ? (
+            <div className="text-center py-20 bg-darkCard border border-darkBorder rounded-xl text-slate-500 space-y-3">
+              <Target className="w-12 h-12 mx-auto text-slate-700" />
+              <p className="text-xs font-bold">No practice topics found for this section.</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredTopics.map((topicItem) => {
             // Find corresponding progress
             const prog = progress.find(p => p.topic === topicItem.topic);
             const solvedCount = prog ? prog.solved : 0;
@@ -395,7 +417,7 @@ const AptitudeDashboard = () => {
             const progressPercent = totalQCount > 0 ? Math.round((solvedCount / totalQCount) * 100) : 0;
 
             // LLM-powered topics or topics with 0 database questions — not yet available
-            const comingSoon = ['passage-recall', 'email-writing'].includes(topicItem.topic) || topicItem.questionCount === 0;
+            const comingSoon = topicItem.questionCount === 0;
 
             return (
               <div 
@@ -508,6 +530,118 @@ const AptitudeDashboard = () => {
               </div>
             );
           })}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Onboarding Modal Choice */}
+      {showOnboardingModal && (
+        <div className="fixed inset-0 bg-darkBg/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-darkCard border border-darkBorder rounded-3xl p-6 w-full max-w-sm space-y-6 shadow-2xl relative animate-in fade-in zoom-in duration-200">
+            <button
+              onClick={() => setShowOnboardingModal(false)}
+              className="absolute right-4 top-4 text-slate-500 hover:text-white transition-colors cursor-pointer"
+            >
+              <X className="w-5 h-5" />
+            </button>
+            <div className="text-center space-y-3">
+              <span className="text-3xl">✨</span>
+              <h3 className="text-lg font-black text-white uppercase tracking-wider">Practice with AI</h3>
+              <p className="text-slate-400 text-xs leading-relaxed">
+                NQTCoder lets you practice Email Writing using AI. Select your preferred practice mode:
+              </p>
+            </div>
+            
+            <div className="space-y-3 text-xs font-semibold select-none">
+              <div className="p-3 bg-darkBg border border-darkBorder rounded-xl space-y-1">
+                <span className="text-emerald-400 font-bold uppercase text-[9px] tracking-wider">🟢 NQTCoder Shared AI</span>
+                <p className="text-slate-300 text-xs font-medium">Free access with 10 evaluations per day.</p>
+                <div className="text-slate-500 text-[10px] pt-1 font-mono">Attempts remaining today: {quotaInfo.remaining}</div>
+              </div>
+
+              <div className="p-3 bg-darkBg border border-darkBorder rounded-xl space-y-1">
+                <span className="text-accentBlue font-bold uppercase text-[9px] tracking-wider">🔵 Connect Personal AI Key</span>
+                <p className="text-slate-300 text-xs font-medium">Unlimited practices. Directly from Google AI Studio.</p>
+              </div>
+            </div>
+
+            <div className="space-y-2 text-xs font-bold uppercase tracking-wider select-none">
+              <button
+                onClick={() => {
+                  setShowOnboardingModal(false);
+                  proceedStartSession(pendingTopicKey);
+                }}
+                className="w-full bg-emerald-500 hover:bg-emerald-600 text-white py-3 rounded-xl transition-colors cursor-pointer shadow-lg shadow-emerald-500/10"
+              >
+                Continue with Shared AI
+              </button>
+              <button
+                onClick={() => {
+                  setShowOnboardingModal(false);
+                  navigate('/settings/ai');
+                }}
+                className="w-full bg-accentBlue hover:bg-accentBlue/90 text-white py-3 rounded-xl transition-colors cursor-pointer shadow-lg shadow-accentBlue/10"
+              >
+                Add My Gemini API Key
+              </button>
+              <a 
+                href="https://aistudio.google.com/app/apikey" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="block text-center text-slate-500 hover:text-slate-300 transition-colors text-[10px] pt-1 hover:underline lowercase font-bold tracking-normal"
+              >
+                How do I get a free API Key?
+              </a>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Limit Modal */}
+      {showLimitModal && (
+        <div className="fixed inset-0 bg-darkBg/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-darkCard border border-darkBorder rounded-3xl p-6 w-full max-w-sm space-y-6 shadow-2xl relative text-center animate-in fade-in zoom-in duration-200">
+            <button
+              onClick={() => setShowLimitModal(false)}
+              className="absolute right-4 top-4 text-slate-500 hover:text-white transition-colors cursor-pointer"
+            >
+              <X className="w-5 h-5" />
+            </button>
+            <div className="space-y-3 animate-pulse">
+              <span className="text-3xl">⚠️</span>
+              <h3 className="text-lg font-black text-white uppercase tracking-wider">AI Practice Limit Reached</h3>
+              <p className="text-slate-400 text-xs leading-relaxed">
+                You have reached your 10 free daily evaluations for NQTCoder Shared AI. You can continue practicing immediately by connecting your own free Gemini API key.
+              </p>
+            </div>
+
+            <div className="space-y-2 text-xs font-bold uppercase tracking-wider select-none">
+              <button
+                onClick={() => {
+                  setShowLimitModal(false);
+                  navigate('/settings/ai');
+                }}
+                className="w-full bg-accentBlue hover:bg-accentBlue/90 text-white py-3 rounded-xl transition-colors cursor-pointer shadow-lg shadow-accentBlue/10"
+              >
+                Configure API Key
+              </button>
+              <a 
+                href="https://aistudio.google.com/app/apikey" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="block w-full text-center border border-darkBorder hover:bg-slate-800 text-slate-300 py-3 rounded-xl transition-colors cursor-pointer"
+              >
+                Learn How to Get API Key
+              </a>
+              <button
+                onClick={() => setShowLimitModal(false)}
+                className="w-full text-slate-500 hover:text-slate-300 text-[10px] pt-1 transition-colors cursor-pointer font-bold"
+              >
+                Come Back Tomorrow
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
