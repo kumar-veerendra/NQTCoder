@@ -10,6 +10,8 @@ import {
   Calculator, Brain, MessageSquare, BarChart2
 } from 'lucide-react';
 import SEO from '../components/SEO';
+import { getFeaturedGuides, getGuides } from '../services/companyGuideService';
+import GuideCard from '../components/companyGuides/GuideCard';
 
 // ── Count-up animation hook ──────────────────────────────────────────────────
 const useCountUp = (target, duration = 1800) => {
@@ -362,6 +364,25 @@ const Home = () => {
   const [companyCounts, setCompanyCounts] = useState({});
   const [tutorialLang, setTutorialLang] = useState('python');
   const [tutorialStep, setTutorialStep] = useState(0);
+  const [featuredGuides, setFeaturedGuides] = useState([]);
+
+  useEffect(() => {
+    getFeaturedGuides()
+      .then(async (data) => {
+        if (Array.isArray(data) && data.length >= 3) {
+          setFeaturedGuides(data);
+        } else {
+          const allGuides = await getGuides();
+          setFeaturedGuides(allGuides);
+        }
+      })
+      .catch(async () => {
+        try {
+          const fallback = await getGuides();
+          setFeaturedGuides(fallback);
+        } catch (e) {}
+      });
+  }, []);
 
   useEffect(() => {
     if (!selectedResource) return;
@@ -680,6 +701,31 @@ const Home = () => {
           ))}
         </div>
       </section>
+
+      {/* 3.1 Know Your Exam Featured Guides Section */}
+      {featuredGuides.length > 0 && (
+        <section className="border-t border-darkBorder py-16 px-6 max-w-6xl mx-auto">
+          <div className="mb-10 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+            <div>
+              <h2 className="text-xs font-black text-accentBlue uppercase tracking-widest mb-1.5">Exam Intelligence</h2>
+              <h3 className="text-3xl font-extrabold text-white">Know Your Exam</h3>
+              <p className="text-slate-400 text-sm mt-1">Detailed exam patterns, packages, and eligibility criteria for top tech employers.</p>
+            </div>
+            <Link
+              to="/companies"
+              className="inline-flex items-center text-accentBlue hover:text-white font-bold text-xs uppercase tracking-wider transition-colors shrink-0"
+            >
+              Explore All Companies <ArrowRight className="w-4 h-4 ml-1.5" />
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {featuredGuides.slice(0, 3).map((guide) => (
+              <GuideCard key={guide._id} guide={guide} />
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* 3.2 High Five Roadmaps Section */}
       <section className="border-t border-darkBorder py-16 px-6 max-w-6xl mx-auto">

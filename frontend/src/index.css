@@ -74,13 +74,26 @@
   --color-hero-gradient-via: #6366F1;
 }
 
-/* Override text colors globally when data-theme is light */
+/* Override text & heading colors globally when data-theme is light */
+[data-theme="light"] h1,
+[data-theme="light"] h2,
+[data-theme="light"] h3,
+[data-theme="light"] h4,
+[data-theme="light"] h5,
+[data-theme="light"] h6 {
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .text-slate-900 { color: #0f172a !important; }
+[data-theme="light"] .text-slate-800 { color: #1e293b !important; }
+[data-theme="light"] .text-slate-700 { color: #334155 !important; }
 [data-theme="light"] .text-slate-100 { color: #0f172a !important; }
 [data-theme="light"] .text-slate-200 { color: #1e293b !important; }
 [data-theme="light"] .text-slate-300 { color: #334155 !important; }
 [data-theme="light"] .text-slate-400 { color: #475569 !important; }
 [data-theme="light"] .text-slate-500 { color: #64748b !important; }
 [data-theme="light"] .text-white { color: #0f172a !important; }
+[data-theme="light"] .dark\:text-white { color: #0f172a !important; }
 [data-theme="light"] .text-slate-300.group-hover\:text-white:hover { color: #0f172a !important; }
 
 /* Glass components overrides */
@@ -151,51 +164,21 @@
   --tw-gradient-from: rgba(217, 119, 6, 0.05) !important;
 }
 
-/* Ensure white text stays white on solid colored backgrounds in light mode */
-[data-theme="light"] .bg-blue-600 .text-white, [data-theme="light"] .bg-blue-700 .text-white,
-[data-theme="light"] .bg-indigo-600 .text-white, [data-theme="light"] .bg-indigo-700 .text-white,
-[data-theme="light"] .bg-emerald-600 .text-white, [data-theme="light"] .bg-emerald-700 .text-white,
-[data-theme="light"] .bg-rose-600 .text-white, [data-theme="light"] .bg-rose-700 .text-white,
-[data-theme="light"] .bg-amber-600 .text-white, [data-theme="light"] .bg-amber-700 .text-white,
-[data-theme="light"] .bg-red-600 .text-white, [data-theme="light"] .bg-red-700 .text-white,
+/* Ensure white text stays white ONLY on solid button backgrounds in light mode */
 [data-theme="light"] .bg-blue-600.text-white, [data-theme="light"] .bg-blue-700.text-white,
 [data-theme="light"] .bg-indigo-600.text-white, [data-theme="light"] .bg-indigo-700.text-white,
 [data-theme="light"] .bg-emerald-600.text-white, [data-theme="light"] .bg-emerald-700.text-white,
 [data-theme="light"] .bg-rose-600.text-white, [data-theme="light"] .bg-rose-700.text-white,
 [data-theme="light"] .bg-amber-600.text-white, [data-theme="light"] .bg-amber-700.text-white,
 [data-theme="light"] .bg-red-600.text-white, [data-theme="light"] .bg-red-700.text-white,
-[data-theme="light"] .bg-rose-500 .text-white, [data-theme="light"] .bg-rose-500.text-white,
-[data-theme="light"] .bg-sky-500 .text-white, [data-theme="light"] .bg-sky-500.text-white,
-[data-theme="light"] .bg-amber-500 .text-white, [data-theme="light"] .bg-amber-500.text-white,
-[data-theme="light"] .bg-teal-500 .text-white, [data-theme="light"] .bg-teal-500.text-white,
-[data-theme="light"] .bg-accentBlue .text-white, [data-theme="light"] .bg-accentBlue.text-white,
-[data-theme="light"] .bg-\[\#6366F1\] .text-white, [data-theme="light"] .bg-\[\#6366F1\].text-white,
-[data-theme="light"] .bg-accentBtn .text-white, [data-theme="light"] .bg-accentBtn.text-white,
-[data-theme="light"] .hover\:bg-rose-500:hover, [data-theme="light"] .hover\:bg-sky-500:hover,
-[data-theme="light"] .hover\:bg-amber-500:hover, [data-theme="light"] .hover\:bg-teal-500:hover,
-[data-theme="light"] .hover\:bg-accentBlue:hover, [data-theme="light"] .hover\:bg-accentBlue\/90:hover, [data-theme="light"] .hover\:bg-accentBlue\/95:hover,
-[data-theme="light"] .hover\:bg-accentBtn:hover, [data-theme="light"] .hover\:bg-accentBtnHover:hover {
+[data-theme="light"] .bg-rose-500.text-white, [data-theme="light"] .bg-sky-500.text-white,
+[data-theme="light"] .bg-amber-500.text-white, [data-theme="light"] .bg-teal-500.text-white,
+[data-theme="light"] .bg-accentBlue.text-white, [data-theme="light"] .bg-\[\#6366F1\].text-white,
+[data-theme="light"] .bg-accentBtn.text-white,
+[data-theme="light"] .bg-accentBlue span,
+[data-theme="light"] button.bg-accentBlue *, [data-theme="light"] a.bg-accentBlue *,
+[data-theme="light"] button.bg-accentBtn *, [data-theme="light"] a.bg-accentBtn * {
   color: #ffffff !important;
-}
-
-[data-theme="light"] .bg-blue-600 .text-slate-100, [data-theme="light"] .bg-blue-700 .text-slate-100,
-[data-theme="light"] .bg-indigo-600 .text-slate-100, [data-theme="light"] .bg-indigo-700 .text-slate-100,
-[data-theme="light"] .bg-emerald-600 .text-slate-100, [data-theme="light"] .bg-emerald-700 .text-slate-100,
-[data-theme="light"] .bg-rose-600 .text-slate-100, [data-theme="light"] .bg-rose-700 .text-slate-100,
-[data-theme="light"] .bg-amber-600 .text-slate-100, [data-theme="light"] .bg-amber-700 .text-slate-100,
-[data-theme="light"] .bg-blue-600.text-slate-100, [data-theme="light"] .bg-blue-700.text-slate-100,
-[data-theme="light"] .bg-indigo-600.text-slate-100, [data-theme="light"] .bg-indigo-700.text-slate-100,
-[data-theme="light"] .bg-emerald-600.text-slate-100, [data-theme="light"] .bg-emerald-700.text-slate-100,
-[data-theme="light"] .bg-rose-600.text-slate-100, [data-theme="light"] .bg-rose-700.text-slate-100,
-[data-theme="light"] .bg-amber-600.text-slate-100, [data-theme="light"] .bg-amber-700.text-slate-100,
-[data-theme="light"] .bg-rose-500 .text-slate-100, [data-theme="light"] .bg-rose-500.text-slate-100,
-[data-theme="light"] .bg-sky-500 .text-slate-100, [data-theme="light"] .bg-sky-500.text-slate-100,
-[data-theme="light"] .bg-amber-500 .text-slate-100, [data-theme="light"] .bg-amber-500.text-slate-100,
-[data-theme="light"] .bg-teal-500 .text-slate-100, [data-theme="light"] .bg-teal-500.text-slate-100,
-[data-theme="light"] .bg-accentBlue .text-slate-100, [data-theme="light"] .bg-accentBlue.text-slate-100,
-[data-theme="light"] .bg-accentBtn .text-slate-100, [data-theme="light"] .bg-accentBtn.text-slate-100,
-[data-theme="light"] .bg-\[\#6366F1\] .text-slate-100, [data-theme="light"] .bg-\[\#6366F1\].text-slate-100 {
-  color: #f8fafc !important;
 }
 
 /* Hover background overrides for light mode */
@@ -285,6 +268,136 @@ iframe {
   overflow: hidden;
   background: transparent;
 }
+
+/* ── Rich Guide Content Typography (Dark & Light Mode) ──────────────────── */
+.guide-content {
+  color: #cbd5e1;
+  font-size: 0.95rem;
+  line-height: 1.85;
+}
+
+.guide-content h2 {
+  font-size: 1.4rem;
+  font-weight: 900;
+  color: #ffffff;
+  margin-top: 2.5rem;
+  margin-bottom: 1.25rem;
+  padding-bottom: 0.6rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  letter-spacing: -0.01em;
+}
+
+.guide-content h3 {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #818cf8;
+  margin-top: 1.75rem;
+  margin-bottom: 0.85rem;
+}
+
+.guide-content p {
+  margin-bottom: 1.25rem;
+}
+
+.guide-content ul, .guide-content ol {
+  margin-bottom: 1.5rem;
+  padding-left: 1.75rem;
+}
+
+.guide-content ul { list-style-type: disc; }
+.guide-content ol { list-style-type: decimal; }
+
+.guide-content li {
+  margin-bottom: 0.6rem;
+  line-height: 1.75;
+}
+
+.guide-content li:empty,
+.guide-content li:has(> p:empty),
+.guide-content li:has(> br:only-child) {
+  display: none !important;
+}
+
+.guide-content blockquote {
+  border-left: 4px solid #6366F1;
+  background: rgba(99, 102, 241, 0.08);
+  padding: 1rem 1.4rem;
+  border-radius: 0 0.85rem 0.85rem 0;
+  margin: 1.75rem 0;
+  color: #e2e8f0;
+  font-size: 0.925rem;
+  line-height: 1.75;
+}
+
+.guide-content table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  margin: 1.75rem 0;
+  border-radius: 0.85rem;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.guide-content th {
+  background: rgba(255, 255, 255, 0.04);
+  padding: 0.85rem 1rem;
+  text-align: left;
+  font-weight: 800;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #94a3b8;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.guide-content td {
+  padding: 0.85rem 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  font-size: 0.875rem;
+  color: #cbd5e1;
+  line-height: 1.6;
+}
+
+.guide-content tr:last-child td {
+  border-bottom: none;
+}
+
+/* Light Mode Overrides for .guide-content */
+[data-theme="light"] .guide-content {
+  color: #334155 !important;
+}
+
+[data-theme="light"] .guide-content h2 {
+  color: #0f172a !important;
+  border-bottom-color: rgba(0, 0, 0, 0.1) !important;
+}
+
+[data-theme="light"] .guide-content h3 {
+  color: #4f46e5 !important;
+}
+
+[data-theme="light"] .guide-content blockquote {
+  background: rgba(99, 102, 241, 0.06) !important;
+  color: #1e293b !important;
+}
+
+[data-theme="light"] .guide-content table {
+  border-color: rgba(0, 0, 0, 0.1) !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.03) !important;
+}
+
+[data-theme="light"] .guide-content th {
+  background: #f8fafc !important;
+  color: #475569 !important;
+  border-bottom-color: rgba(0, 0, 0, 0.1) !important;
+}
+
+[data-theme="light"] .guide-content td {
+  color: #334155 !important;
+  border-bottom-color: rgba(0, 0, 0, 0.05) !important;
+}
+
 
 
 

@@ -42,6 +42,11 @@ import AptitudeMockResult from './pages/AptitudeMockResult';
 import AdminMCQQuestionForm from './pages/AdminMCQQuestionForm';
 import AdminVerbalQuestionForm from './pages/AdminVerbalQuestionForm';
 import AISettings from './pages/AISettings';
+import CompaniesPage from './pages/CompaniesPage';
+import CompanyGuidePage from './pages/CompanyGuidePage';
+import AdminCompanyGuides from './pages/AdminCompanyGuides';
+import AdminCompanyGuideEditor from './pages/AdminCompanyGuideEditor';
+import AdminCompanyGuidePreview from './pages/AdminCompanyGuidePreview';
 
 const UnverifiedBanner = () => {
   const { user, resendCode } = useContext(AuthContext);
@@ -124,6 +129,8 @@ const AppContent = () => {
       <Routes>
         {/* Public Routes */}
         <Route path="/" element={<Home />} />
+        <Route path="/companies" element={<CompaniesPage />} />
+        <Route path="/companies/:slug" element={<CompanyGuidePage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/verify-email" element={<VerifyEmail />} />
@@ -262,6 +269,30 @@ const AppContent = () => {
           element={
             <ProtectedRoute adminOnly={true}>
               <AdminVerbalQuestionForm />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/company-guides"
+          element={
+            <ProtectedRoute adminOnly={true}>
+              <AdminCompanyGuides />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/company-guides/:id/edit"
+          element={
+            <ProtectedRoute adminOnly={true}>
+              <AdminCompanyGuideEditor />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/company-guides/:id/preview"
+          element={
+            <ProtectedRoute adminOnly={true}>
+              <AdminCompanyGuidePreview />
             </ProtectedRoute>
           }
         />

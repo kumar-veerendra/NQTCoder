@@ -41,7 +41,7 @@ api.interceptors.response.use(
       localStorage.removeItem('userInfo');
       const path = typeof window !== 'undefined' ? window.location.pathname : '';
       // Don't force-redirect guests on public-browsable pages
-      const isPublicBrowsable = path.startsWith('/aptitude');
+      const isPublicBrowsable = path.startsWith('/aptitude') || path.startsWith('/companies');
       if (
         typeof window !== 'undefined' &&
         !isPublicBrowsable &&
