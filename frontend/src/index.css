@@ -398,6 +398,37 @@ iframe {
   border-bottom-color: rgba(0, 0, 0, 0.05) !important;
 }
 
+/* ── Monaco Editor Focus Ring & Extension Overlay Fix ──────────────────── */
+.monaco-editor,
+.monaco-editor .overflow-guard,
+.monaco-editor textarea,
+.monaco-editor textarea.inputarea,
+.monaco-editor *:focus,
+.monaco-editor *:focus-visible,
+.monaco-editor *:focus-within {
+  outline: none !important;
+  outline-style: none !important;
+  outline-width: 0 !important;
+  box-shadow: none !important;
+}
+
+.monaco-editor textarea.inputarea {
+  background: transparent !important;
+  background-color: transparent !important;
+  border: none !important;
+  resize: none !important;
+}
+
+/* Hide browser extension overlays (e.g. Grammarly / LanguageTool) inside Monaco */
+.monaco-editor grammarly-extension,
+.monaco-editor [data-grammarly-part] {
+  display: none !important;
+}
+
+
+
+
+
 
 
 

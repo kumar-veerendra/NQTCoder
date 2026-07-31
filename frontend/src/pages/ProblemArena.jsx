@@ -176,10 +176,26 @@ const ProblemArena = () => {
       if (!str) return '';
       return str.replace(/\r\n/g, '\n').trim();
     };
-    if (savedCode !== null && normalize(savedCode) !== '') {
-      setCode(savedCode);
+
+    const isCorruptedTemplate = (str) => {
+      if (!str) return false;
+      const idxWrite = str.indexOf('Write your code below:');
+      const idxDash = str.indexOf('// ----------');
+      if (idxWrite !== -1 && idxDash !== -1 && idxDash > idxWrite) {
+        return true;
+      }
+      return false;
+    };
+
+    if (savedCode !== null && normalize(savedCode) !== '' && !isCorruptedTemplate(savedCode)) {
+      const cleanCode = savedCode.replace(/^['`]\s*/, '');
+      setCode(cleanCode);
     } else {
-      setCode(CODE_TEMPLATES[language] || '');
+      const defaultTemplate = CODE_TEMPLATES[language] || '';
+      setCode(defaultTemplate);
+      if (savedCode && isCorruptedTemplate(savedCode)) {
+        localStorage.setItem(`nqt_saved_code_${id}_${language}`, defaultTemplate);
+      }
     }
   }, [id, question, language]);
 
@@ -466,7 +482,7 @@ const ProblemArena = () => {
             title="Go to Dashboard"
           >
             <img src="/logo.svg" alt="NQTCoder Logo" className="h-[30px] w-auto object-contain" />
-            <span className="text-xs sm:text-sm font-bold tracking-wider text-slate-200 group-hover:text-white transition-colors">
+            <span className="hidden sm:inline-block text-xs sm:text-sm font-bold tracking-wider text-slate-200 group-hover:text-white transition-colors">
               NQT<span className="text-accentBlue">Coder</span>
             </span>
           </div>

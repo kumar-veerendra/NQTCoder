@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import User from '../models/User.js';
+import { seedCompanyGuides } from './seedCompanyGuides.js';
 
 const seedAdmin = async () => {
   try {
@@ -59,6 +60,7 @@ const connectDB = async () => {
       });
       console.log(`MongoDB Connected (Primary): ${conn.connection.host}`);
       await seedAdmin();
+      await seedCompanyGuides();
       return;
     } catch (error) {
       console.warn(`Primary Database connection failed (${error.message}). Trying fallback local database...`);
@@ -70,6 +72,7 @@ const connectDB = async () => {
     const conn = await mongoose.connect(fallbackURI);
     console.log(`MongoDB Connected (Local Fallback): ${conn.connection.host}`);
     await seedAdmin();
+    await seedCompanyGuides();
   } catch (error) {
     console.error(`Database Connection Error: ${error.message}`);
     process.exit(1);
