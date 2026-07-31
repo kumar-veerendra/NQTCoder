@@ -17,10 +17,17 @@ const api = axios.create({
 // Interceptor to inject JWT from localStorage
 api.interceptors.request.use(
   (config) => {
-    const userInfo = localStorage.getItem('userInfo') 
-      ? JSON.parse(localStorage.getItem('userInfo')) 
-      : null;
-      
+    let userInfo = null;
+    try {
+      const stored = localStorage.getItem('userInfo');
+      if (stored) {
+        userInfo = JSON.parse(stored);
+      }
+    } catch (e) {
+      console.error('Error parsing userInfo from localStorage:', e);
+      localStorage.removeItem('userInfo');
+    }
+
     if (userInfo && userInfo.token) {
       config.headers.Authorization = `Bearer ${userInfo.token}`;
     }

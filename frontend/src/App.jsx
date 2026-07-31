@@ -1,10 +1,10 @@
-// Frontend entrypoint - authored by Satyam
-import React, { useContext } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation, useNavigate } from 'react-router-dom';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import { AuthProvider, AuthContext } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
 import { AlertTriangle, X } from 'lucide-react';
+import { trackPageView } from './utils/analytics';
 
 // Components
 import Navbar from './components/Navbar';
@@ -123,9 +123,25 @@ const Layout = ({ children }) => {
   );
 };
 
+const AnalyticsTracker = () => {
+  const location = useLocation();
+
+  useEffect(() => {
+    const path = location.pathname + location.search;
+    // Small delay to ensure react-helmet-async has updated document.title
+    const timer = setTimeout(() => {
+      trackPageView(path, document.title);
+    }, 100);
+    return () => clearTimeout(timer);
+  }, [location.pathname, location.search]);
+
+  return null;
+};
+
 const AppContent = () => {
   return (
     <Layout>
+      <AnalyticsTracker />
       <Routes>
         {/* Public Routes */}
         <Route path="/" element={<Home />} />

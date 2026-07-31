@@ -5,7 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
     <!-- ── Content Security Policy (CSP) ────────────────────────────────── -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https:; connect-src 'self' https: http://localhost:*;" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https: blob:; worker-src 'self' blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net https://accounts.google.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https:; connect-src 'self' https: http://localhost:*; frame-src 'self' https://accounts.google.com;" />
+
+    <!-- ── Google Tag (gtag.js) — Google Analytics 4 ────────────────────── -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=%VITE_GA_MEASUREMENT_ID%"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      // Configure GA4 with send_page_view: false so React Router manages SPA page views
+      gtag('config', '%VITE_GA_MEASUREMENT_ID%', {
+        send_page_view: false
+      });
+    </script>
 
     <!-- ── Favicon ──────────────────────────────────────────────────────── -->
     <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />

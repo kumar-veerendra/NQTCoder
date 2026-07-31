@@ -8,6 +8,7 @@ import { seedVerbalQuestions } from './config/seedVerbalQuestions.js';
 import { seedBlueprints } from './config/seedBlueprints.js';
 import { seedCodingQuestions } from './config/seedCodingQuestions.js';
 import { seedTracks } from './config/seedTracks.js';
+import { seedCompanyGuides } from './config/seedCompanyGuides.js';
 
 const run = async () => {
   try {
@@ -41,6 +42,9 @@ const run = async () => {
 
     // Seed roadmaps/tracks
     await seedTracks();
+
+    // Seed companies & company guides
+    await seedCompanyGuides();
 
     await mongoose.disconnect();
     console.log('MongoDB connection closed.');
