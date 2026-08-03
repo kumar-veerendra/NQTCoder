@@ -7,7 +7,7 @@ import SEO from '../components/SEO';
 
 import { getCompanies } from '../services/companyGuideService';
 
-const DEFAULT_COMPANIES = ['TCS', 'Cognizant', 'Infosys', 'LTIMindtree', 'Accenture', 'Wipro', 'Capgemini', 'HCLTech', 'Tech Mahindra'];
+const DEFAULT_COMPANIES = ['TCS', 'Cognizant', 'Infosys', 'LTIMindtree', 'Accenture', 'Wipro', 'Capgemini', 'HCLTech', 'Tech Mahindra', 'Streebo'];
 const TOPICS = [
   'Arrays', 'Strings', 'Sorting', 'Searching', 'Pattern',
   'Recursion', 'Math', 'HashMap', 'Matrix', 'Greedy', 'Dynamic Programming', 'Miscellaneous'

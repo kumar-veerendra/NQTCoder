@@ -10,6 +10,7 @@ const SEED_COMPANIES = [
   { name: 'EY', slug: 'ey', industry: 'IT Services & Technology Consulting (Big Four)', website: 'https://www.ey.com/en_in', logo: '/images/companies/ey.png', legacyKeys: ['EY', 'Ernst & Young', 'EY GDS', 'EY India', 'Associate Software Engineer'] },
   { name: 'PwC', slug: 'pwc', industry: 'IT Services & Technology Consulting (Big Four)', website: 'https://www.pwc.in/', logo: '/images/companies/pwc.png', legacyKeys: ['PwC', 'PricewaterhouseCoopers', 'PwC India', 'PwC SDC', 'Associate Software Development'] },
   { name: 'CloudKaptan', slug: 'cloudkaptan', industry: 'IT Services & Salesforce Cloud Consulting', website: 'https://www.cloudkaptan.com/', logo: '/images/companies/cloudkaptan.png', legacyKeys: ['CloudKaptan', 'Cloud Kaptan', 'CK', 'Apprenticeship', 'Trainee'] },
+  { name: 'Streebo', slug: 'streebo', industry: 'Artificial Intelligence & Digital Transformation', website: 'https://www.streebo.com/', logo: '/images/companies/streebo.png', legacyKeys: ['Streebo', 'Streebo Inc', 'Developer', 'Business Analyst', 'Quality Analyst'] },
 ];
 
 export const seedCompanyGuides = async () => {
