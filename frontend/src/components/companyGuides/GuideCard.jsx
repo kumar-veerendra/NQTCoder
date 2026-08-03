@@ -19,7 +19,7 @@ const GuideCard = ({ guide }) => {
   const { title, slug, examName, shortDescription, lastVerifiedAt, company, highlights = [] } = guide;
   const defaultLogo = company?.slug ? `/images/companies/${company.slug}.png` : '/logo.png';
   const logoSrc = company?.logo || defaultLogo;
-  const fallbackLogo = company?.slug ? `/${company.slug}-logo.png` : '/logo.png';
+  const fallbackLogo = company?.slug ? `/images/companies/${company.slug}.png` : '/logo.png';
 
   return (
     <Link
@@ -35,8 +35,6 @@ const GuideCard = ({ guide }) => {
             if (!e.target.dataset.triedFallback) {
               e.target.dataset.triedFallback = 'true';
               e.target.src = fallbackLogo;
-            } else {
-              e.target.style.display = 'none';
             }
           }}
         />

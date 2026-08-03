@@ -48,7 +48,8 @@ async function testCompanyGuidesFeature() {
       'itc-infotech-2027',
       'ey-2027',
       'pwc-2027',
-      'cloudkaptan-2027'
+      'cloudkaptan-2027',
+      'streebo-2027'
     ];
 
     for (const slug of expectedSlugs) {

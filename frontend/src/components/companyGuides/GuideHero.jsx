@@ -12,7 +12,7 @@ const GuideHero = ({ guide }) => {
   const practiceKey = company?.legacyKeys?.[0] || company?.name || '';
   const defaultLogo = company?.slug ? `/images/companies/${company.slug}.png` : '/logo.png';
   const logoSrc = company?.logo || defaultLogo;
-  const fallbackLogo = company?.slug ? `/${company.slug}-logo.png` : '/logo.png';
+  const fallbackLogo = company?.slug ? `/images/companies/${company.slug}.png` : '/logo.png';
 
   return (
     <div className="bg-gradient-to-br from-darkCard to-darkBg border border-darkBorder rounded-2xl p-6 sm:p-8 mb-8 shadow-sm">
@@ -22,7 +22,7 @@ const GuideHero = ({ guide }) => {
         <span>/</span>
         <Link to="/companies" className="hover:text-accentBlue transition-colors">Companies</Link>
         <span>/</span>
-        <span className="text-slate-700 dark:text-slate-300 truncate max-w-xs">{title}</span>
+        <Link to="/companies" className="hover:text-accentBlue transition-colors">Company Guides</Link>
       </nav>
 
       <div className="flex flex-col sm:flex-row items-start space-y-4 sm:space-y-0 sm:space-x-6">
@@ -34,8 +34,6 @@ const GuideHero = ({ guide }) => {
             if (!e.target.dataset.triedFallback) {
               e.target.dataset.triedFallback = 'true';
               e.target.src = fallbackLogo;
-            } else {
-              e.target.style.display = 'none';
             }
           }}
         />
