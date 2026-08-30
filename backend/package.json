@@ -21,7 +21,8 @@
     "test:forgot-password": "node tests/test_forgot_password.js",
     "test:validation": "node tests/test_validation.js",
     "test:google-linking": "node tests/test_google_linking.js",
-    "test:public-access": "node tests/test_public_access.js"
+    "test:public-access": "node tests/test_public_access.js",
+    "seed:webdev": "node scripts/seedWebDev.js"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",

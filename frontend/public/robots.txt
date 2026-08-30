@@ -1,12 +1,20 @@
 # https://www.robotstxt.org/robotstxt.html
 User-agent: *
 
-# Allow indexing of public marketing and learning routes
+# Allow indexing of all public marketing, learning, practice, games & web dev routes
 Allow: /$
 Allow: /practice$
 Allow: /practice?*
-Allow: /leaderboard$
+Allow: /web-development$
+Allow: /web-development/*
+Allow: /games$
+Allow: /games/*
+Allow: /companies$
+Allow: /companies/*
+Allow: /aptitude$
+Allow: /aptitude/*
 Allow: /tracks$
+Allow: /leaderboard$
 Allow: /resources$
 Allow: /compiler-setup$
 Allow: /about$
@@ -14,27 +22,23 @@ Allow: /contact$
 Allow: /privacy$
 Allow: /terms$
 
-# Disallow indexing of authentication / verification pages
-Disallow: /login
-Disallow: /register
-Disallow: /verify-email
-Disallow: /forgot-password
-
 # Disallow indexing of private dashboards and administrative interfaces
 Disallow: /admin
 Disallow: /admin/*
 Disallow: /profile
 Disallow: /profile/*
 
-# Disallow indexing of dynamic interactive coding arena sessions (require auth/state)
-Disallow: /problem/
-Disallow: /problem/*
+# Disallow indexing of active mock test proctored runtime sessions (require auth/state)
 Disallow: /mocktest/arena/
 Disallow: /mocktest/arena/*
 Disallow: /mocktest/result/
 Disallow: /mocktest/result/*
-Disallow: /tracks/
-Disallow: /tracks/*
 
-# Sitemap directive using the official custom production domain
+# Disallow indexing of authentication / verification action pages
+Disallow: /login
+Disallow: /register
+Disallow: /verify-email
+Disallow: /forgot-password
+
+# Sitemap directive using official production domain
 Sitemap: https://www.nqtcoder.dev/sitemap.xml
