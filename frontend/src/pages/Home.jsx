@@ -8,7 +8,7 @@ import {
   Cpu, Briefcase, FileText, Database, Server, Network, Layers,
   AlertTriangle, X, ChevronDown, Terminal, Award,
   Calculator, Brain, MessageSquare, BarChart2, Gamepad2, Sparkles, Trophy, Zap,
-  Mail, Github, Linkedin, Send, Bug, HelpCircle, Star, ShieldCheck
+  Mail, Github, Linkedin, Send, Bug, HelpCircle, Star, ShieldCheck, Code
 } from 'lucide-react';
 import SEO from '../components/SEO';
 import { getFeaturedGuides, getGuides } from '../services/companyGuideService';
