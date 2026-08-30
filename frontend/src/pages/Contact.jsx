@@ -1,5 +1,5 @@
 import React, { useState, useContext, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import { submitFeedback } from '../services/feedbackService';
 import { 
@@ -11,19 +11,33 @@ import SEO from '../components/SEO';
 const Contact = () => {
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+
+  const queryType = searchParams.get('type');
+  const querySubject = searchParams.get('subject');
 
   // Form states
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    type: 'feedback', // 'feedback', 'bug', 'general'
-    subject: '',
+    type: queryType && ['feedback', 'bug', 'general'].includes(queryType) ? queryType : 'feedback',
+    subject: querySubject || '',
     message: ''
   });
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
+
+  // Sync URL search params when they change
+  useEffect(() => {
+    if (queryType && ['feedback', 'bug', 'general'].includes(queryType)) {
+      setFormData(prev => ({ ...prev, type: queryType }));
+    }
+    if (querySubject) {
+      setFormData(prev => ({ ...prev, subject: querySubject }));
+    }
+  }, [queryType, querySubject]);
 
   // Pre-fill user data if logged in
   useEffect(() => {
