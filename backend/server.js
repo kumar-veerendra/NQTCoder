@@ -16,6 +16,7 @@ import practiceRoutes from './routes/practiceRoutes.js';
 import companyRoutes from './routes/companyRoutes.js';
 import companyGuideRoutes from './routes/companyGuideRoutes.js';
 import adminCompanyGuideRoutes from './routes/adminCompanyGuideRoutes.js';
+import gameRoutes from './routes/gameRoutes.js';
 import { notFound, errorHandler } from './middleware/errorMiddleware.js';
 
 // Connect to database
@@ -71,6 +72,7 @@ app.use('/api/practice', practiceRoutes);
 app.use('/api/companies', companyRoutes);
 app.use('/api/company-guides', companyGuideRoutes);
 app.use('/api/admin', adminCompanyGuideRoutes);
+app.use('/api/games', gameRoutes);
 
 // Error Middlewares
 app.use(notFound);

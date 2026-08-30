@@ -64,23 +64,24 @@ const AptitudeDashboard = () => {
     setLoading(true);
     setError('');
     try {
+      // Always fetch public syllabus topics first
+      const topicsData = await practiceService.getSyllabusTopics();
+      setTopics(Array.isArray(topicsData) ? topicsData : []);
+
+      // If user is logged in, fetch user stats with allSettled to prevent failures
       if (user) {
-        const [topicsData, progressData, bookmarksData, revisionData] = await Promise.all([
-          practiceService.getSyllabusTopics(),
+        const [progressRes, bookmarksRes, revisionRes] = await Promise.allSettled([
           practiceService.getPracticeProgress(),
           practiceService.getBookmarks(),
           practiceService.getRevisionQueue()
         ]);
-        setTopics(topicsData);
-        setProgress(progressData);
-        setBookmarks(bookmarksData);
-        setRevisionQueue(revisionData);
-      } else {
-        const topicsData = await practiceService.getSyllabusTopics();
-        setTopics(topicsData);
+
+        if (progressRes.status === 'fulfilled') setProgress(progressRes.value || []);
+        if (bookmarksRes.status === 'fulfilled') setBookmarks(bookmarksRes.value || []);
+        if (revisionRes.status === 'fulfilled') setRevisionQueue(revisionRes.value || []);
       }
     } catch (err) {
-      console.error(err);
+      console.error('Error fetching aptitude dashboard data:', err);
       setError('Could not retrieve aptitude modules. Please check connection.');
     } finally {
       setLoading(false);

@@ -85,6 +85,12 @@ const Navbar = () => {
             Aptitude
           </Link>
           <Link
+            to="/games"
+            className={`transition-colors ${isActive('/games') ? 'text-accentBlue' : 'text-slate-400 hover:text-slate-200'}`}
+          >
+            Games
+          </Link>
+          <Link
             to="/companies"
             className={`transition-colors ${isActive('/companies') ? 'text-accentBlue' : 'text-slate-400 hover:text-slate-200'}`}
           >
@@ -247,6 +253,13 @@ const Navbar = () => {
                 className={`p-2 rounded hover:bg-darkBg/60 transition-colors ${isActive('/aptitude') ? 'text-accentBlue' : 'text-slate-300'}`}
               >
                 Aptitude
+              </Link>
+              <Link
+                to="/games"
+                onClick={() => setMobileMenuOpen(false)}
+                className={`p-2 rounded hover:bg-darkBg/60 transition-colors ${isActive('/games') ? 'text-accentBlue' : 'text-slate-300'}`}
+              >
+                Games
               </Link>
               <Link
                 to="/companies"

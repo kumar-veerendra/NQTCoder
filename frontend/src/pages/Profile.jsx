@@ -13,6 +13,7 @@ import SubmissionsLog from '../components/profile/SubmissionsLog';
 import MockTestHistory from '../components/profile/MockTestHistory';
 import ProfileSettings from '../components/profile/ProfileSettings';
 import AptitudeMetrics from '../components/profile/AptitudeMetrics';
+import GamePerformanceCard from '../components/profile/GamePerformanceCard';
 import * as practiceService from '../services/practiceService';
 import * as trackService from '../services/trackService';
 import { Bookmark, AlertTriangle, CheckCircle2, ArrowRight, ShieldAlert } from 'lucide-react';
@@ -49,7 +50,7 @@ const Profile = () => {
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const tabParam = params.get('tab');
-    if (tabParam && ['overview', 'submissions', 'mocktests', 'bookmarks', 'revision', 'settings'].includes(tabParam)) {
+    if (tabParam && ['overview', 'games', 'submissions', 'mocktests', 'bookmarks', 'revision', 'settings'].includes(tabParam)) {
       setActiveTab(tabParam);
     }
     fetchProfileDetails();
@@ -309,7 +310,7 @@ const Profile = () => {
           
           {/* Navigation Tabs */}
           <div className="flex items-center space-x-2 border-b border-darkBorder pb-px select-none overflow-x-auto">
-            {['overview', 'submissions', 'mocktests', 'bookmarks', 'revision', 'settings'].map((tab) => (
+            {['overview', 'games', 'submissions', 'mocktests', 'bookmarks', 'revision', 'settings'].map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
@@ -320,6 +321,7 @@ const Profile = () => {
                 }`}
               >
                 {tab === 'overview' ? 'Overview' 
+                  : tab === 'games' ? 'Games & Aptitude'
                   : tab === 'submissions' ? 'Submissions Log' 
                   : tab === 'mocktests' ? 'Mock Test History' 
                   : tab === 'bookmarks' ? `Bookmarks (${bookmarks.length})`
@@ -349,6 +351,11 @@ const Profile = () => {
               {/* Achievements & Badges */}
               <BadgesList badges={badges} />
             </div>
+          )}
+
+          {/* TAB: GAMES & COGNITIVE APTITUDE */}
+          {activeTab === 'games' && (
+            <GamePerformanceCard />
           )}
 
           {/* TAB 2: SUBMISSIONS LOG */}
