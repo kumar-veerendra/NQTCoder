@@ -7,11 +7,15 @@ import {
   ArrowRight, BookOpen, CheckCircle, Flame, Target, 
   Cpu, Briefcase, FileText, Database, Server, Network, Layers,
   AlertTriangle, X, ChevronDown, Terminal, Award,
-  Calculator, Brain, MessageSquare, BarChart2
+  Calculator, Brain, MessageSquare, BarChart2,
+  Mail, Github, Linkedin, Send, Bug, HelpCircle, Star, Sparkles, ShieldCheck
 } from 'lucide-react';
 import SEO from '../components/SEO';
 import { getFeaturedGuides, getGuides } from '../services/companyGuideService';
 import GuideCard from '../components/companyGuides/GuideCard';
+import { getApprovedTestimonials } from '../services/testimonialService';
+import TestimonialCarousel from '../components/testimonials/TestimonialCarousel';
+import ReviewModal from '../components/testimonials/ReviewModal';
 
 // ── Count-up animation hook ──────────────────────────────────────────────────
 const useCountUp = (target, duration = 1800) => {
@@ -365,6 +369,25 @@ const Home = () => {
   const [tutorialLang, setTutorialLang] = useState('python');
   const [tutorialStep, setTutorialStep] = useState(0);
   const [featuredGuides, setFeaturedGuides] = useState([]);
+  const [testimonials, setTestimonials] = useState([]);
+  const [testimonialsLoading, setTestimonialsLoading] = useState(true);
+  const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
+
+  const fetchTestimonials = async () => {
+    try {
+      setTestimonialsLoading(true);
+      const res = await getApprovedTestimonials({ limit: 12 });
+      setTestimonials(res.testimonials || []);
+    } catch (err) {
+      console.error('Error fetching approved testimonials for homepage:', err);
+    } finally {
+      setTestimonialsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchTestimonials();
+  }, []);
 
   useEffect(() => {
     getFeaturedGuides()
@@ -1201,8 +1224,184 @@ const Home = () => {
         <FaqList />
       </section>
 
-      {/* 8. Call To Action */}
+      {/* 8. Student Testimonials Section */}
+      <section id="testimonials" className="border-t border-darkBorder py-20 px-6 max-w-6xl mx-auto select-none">
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-6">
+          <div className="space-y-2 text-center md:text-left">
+            <div className="inline-flex items-center space-x-2 bg-amber-500/10 text-amber-400 border border-amber-500/20 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">
+              <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+              <span>Real Student Reviews</span>
+            </div>
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
+              What Students Say About NQTCoder
+            </h2>
+            <p className="text-slate-400 text-xs sm:text-sm max-w-xl leading-relaxed">
+              Genuine experiences and ratings from engineering candidates using NQTCoder for campus placement preparation.
+            </p>
+          </div>
 
+          <div className="flex justify-center md:justify-end shrink-0">
+            <button
+              onClick={() => setIsReviewModalOpen(true)}
+              className="bg-accentBtn hover:bg-accentBtnHover text-white font-bold text-xs uppercase tracking-wider px-5 py-3 rounded-xl shadow-lg shadow-accentBtn/20 inline-flex items-center space-x-2 transition-all cursor-pointer"
+            >
+              <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
+              <span>Share Your Experience</span>
+            </button>
+          </div>
+        </div>
+
+        <TestimonialCarousel
+          testimonials={testimonials}
+          onOpenReviewModal={() => setIsReviewModalOpen(true)}
+        />
+      </section>
+
+      {/* 9. Feedback, Bug Report & Direct Connect Section */}
+      <section id="feedback-support" className="border-t border-darkBorder py-20 px-6 max-w-6xl mx-auto select-none">
+        <div className="text-center space-y-4 max-w-3xl mx-auto mb-14">
+          <div className="inline-flex items-center space-x-2 bg-accentBlue/10 text-accentBlue border border-accentBlue/20 px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider">
+            <MessageSquare className="w-3.5 h-3.5" />
+            <span>Community & Feedback Loop</span>
+          </div>
+          <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
+            Help Us Make NQTCoder Better
+          </h2>
+          <p className="text-slate-400 text-xs sm:text-sm leading-relaxed">
+            NQTCoder is built for students, and your feedback directly shapes what we build next. Found a bug, have a feature idea, or simply want to share your experience? I'd love to hear from you.
+          </p>
+        </div>
+
+        {/* 3 Main Ticket Action Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+          {/* Card 1: Feedback */}
+          <Link
+            to="/contact?type=feedback"
+            className="bg-darkCard border border-darkBorder hover:border-accentBlue/50 rounded-3xl p-7 flex flex-col justify-between space-y-6 shadow-xl transition-all group relative overflow-hidden"
+          >
+            <div className="premium-shine rounded-3xl"></div>
+            <div className="space-y-3 relative z-10">
+              <div className="w-12 h-12 rounded-2xl bg-accentBlue/10 border border-accentBlue/20 text-accentBlue flex items-center justify-center group-hover:scale-110 transition-transform">
+                <MessageSquare className="w-6 h-6" />
+              </div>
+              <h3 className="text-lg font-bold text-white group-hover:text-accentBlue transition-colors">
+                Give Feedback
+              </h3>
+              <p className="text-xs text-slate-400 leading-relaxed">
+                Suggest new practice features, cognitive games, or syllabus improvements to help your college peers.
+              </p>
+            </div>
+            <div className="flex items-center space-x-1.5 text-xs font-bold text-accentBlue uppercase tracking-wider pt-2 relative z-10">
+              <span>Send Suggestion</span>
+              <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+            </div>
+          </Link>
+
+          {/* Card 2: Report Bug */}
+          <Link
+            to="/contact?type=bug"
+            className="bg-darkCard border border-darkBorder hover:border-rose-500/50 rounded-3xl p-7 flex flex-col justify-between space-y-6 shadow-xl transition-all group relative overflow-hidden"
+          >
+            <div className="premium-shine rounded-3xl"></div>
+            <div className="space-y-3 relative z-10">
+              <div className="w-12 h-12 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-400 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <Bug className="w-6 h-6" />
+              </div>
+              <h3 className="text-lg font-bold text-white group-hover:text-rose-400 transition-colors">
+                Report a Bug
+              </h3>
+              <p className="text-xs text-slate-400 leading-relaxed">
+                Spotted a compiler fault, invalid question testcase parameter, or timer glitch? Let us fix it right away.
+              </p>
+            </div>
+            <div className="flex items-center space-x-1.5 text-xs font-bold text-rose-400 uppercase tracking-wider pt-2 relative z-10">
+              <span>Report Issue</span>
+              <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+            </div>
+          </Link>
+
+          {/* Card 3: General Inquiry / Contact */}
+          <Link
+            to="/contact?type=general"
+            className="bg-darkCard border border-darkBorder hover:border-sky-500/50 rounded-3xl p-7 flex flex-col justify-between space-y-6 shadow-xl transition-all group relative overflow-hidden"
+          >
+            <div className="premium-shine rounded-3xl"></div>
+            <div className="space-y-3 relative z-10">
+              <div className="w-12 h-12 rounded-2xl bg-sky-500/10 border border-sky-500/20 text-sky-400 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <HelpCircle className="w-6 h-6" />
+              </div>
+              <h3 className="text-lg font-bold text-white group-hover:text-sky-400 transition-colors">
+                Ask Something
+              </h3>
+              <p className="text-xs text-slate-400 leading-relaxed">
+                Need guidance on placement preparation, account questions, or college partnership? Connect directly.
+              </p>
+            </div>
+            <div className="flex items-center space-x-1.5 text-xs font-bold text-sky-400 uppercase tracking-wider pt-2 relative z-10">
+              <span>Connect Now</span>
+              <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+            </div>
+          </Link>
+        </div>
+
+        {/* Direct Engineer Channels Strip */}
+        <div className="bg-darkCard/50 border border-darkBorder rounded-3xl p-6 sm:p-8 shadow-xl relative overflow-hidden">
+          <div className="flex flex-col lg:flex-row items-center justify-between gap-6">
+            <div className="space-y-1.5 text-center lg:text-left">
+              <h3 className="text-sm font-extrabold text-white uppercase tracking-wider flex items-center justify-center lg:justify-start">
+                <Terminal className="w-4 h-4 text-accentBlue mr-2" /> Direct Communication Channels
+              </h3>
+              <p className="text-xs text-slate-400">
+                Prefer email, GitHub discussions, or instant chat? You can reach the engineering team directly.
+              </p>
+            </div>
+
+            <div className="flex flex-wrap justify-center items-center gap-3">
+              <a
+                href="https://mail.google.com/mail/?view=cm&fs=1&to=veerendrakumartmsl@gmail.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-darkBg hover:bg-darkBg/80 border border-darkBorder hover:border-slate-600 px-4 py-2.5 rounded-xl text-xs font-bold text-slate-300 hover:text-white flex items-center space-x-2 transition-all cursor-pointer"
+              >
+                <Mail className="w-4 h-4 text-rose-400" />
+                <span>Email Me</span>
+              </a>
+
+              <a
+                href="https://t.me/nqtcodersupport"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-darkBg hover:bg-darkBg/80 border border-darkBorder hover:border-slate-600 px-4 py-2.5 rounded-xl text-xs font-bold text-slate-300 hover:text-white flex items-center space-x-2 transition-all cursor-pointer"
+              >
+                <Send className="w-4 h-4 text-sky-400" />
+                <span>Join Telegram</span>
+              </a>
+
+              <a
+                href="https://github.com/kumar-veerendra/NQTCoder"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-darkBg hover:bg-darkBg/80 border border-darkBorder hover:border-slate-600 px-4 py-2.5 rounded-xl text-xs font-bold text-slate-300 hover:text-white flex items-center space-x-2 transition-all cursor-pointer"
+              >
+                <Github className="w-4 h-4 text-slate-300" />
+                <span>GitHub Repo</span>
+              </a>
+
+              <a
+                href="https://linkedin.com/in/kumar-veerendra"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-darkBg hover:bg-darkBg/80 border border-darkBorder hover:border-slate-600 px-4 py-2.5 rounded-xl text-xs font-bold text-slate-300 hover:text-white flex items-center space-x-2 transition-all cursor-pointer"
+              >
+                <Linkedin className="w-4 h-4 text-blue-400" />
+                <span>LinkedIn</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 10. Call To Action */}
       <section className="border-t border-darkBorder py-20 px-6 max-w-6xl mx-auto text-center flex flex-col items-center">
         <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight leading-tight">
           Start Solving Real Company Questions
@@ -1316,6 +1515,13 @@ const Home = () => {
           </div>
         </div>
       )}
+
+      {/* Review & Experience Submission Modal */}
+      <ReviewModal
+        isOpen={isReviewModalOpen}
+        onClose={() => setIsReviewModalOpen(false)}
+        onSuccess={fetchTestimonials}
+      />
 
     </div>
   );

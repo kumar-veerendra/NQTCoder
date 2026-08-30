@@ -4,12 +4,14 @@ import * as questionService from '../services/questionService';
 import * as trackService from '../services/trackService';
 import * as feedbackService from '../services/feedbackService';
 import * as resourceService from '../services/resourceService';
+import * as testimonialService from '../services/testimonialService';
 import AdminQuestionForm from './AdminQuestionForm';
 import { 
   Plus, Edit2, Trash2, ShieldAlert, Award, Tag, Settings, 
   Users, BookOpen, Send, Activity, LayoutDashboard, ChevronRight,
   Compass, Calendar, ExternalLink, MessageSquare, Bug, Check,
-  Database, Server, Network, Layers, FileText, FolderOpen, Link2, Building2
+  Database, Server, Network, Layers, FileText, FolderOpen, Link2, Building2,
+  Star, ThumbsUp, Eye, EyeOff, ShieldCheck, Filter, Search
 } from 'lucide-react';
 import SEO from '../components/SEO';
 
@@ -18,7 +20,7 @@ const AdminDashboard = () => {
   const [questions, setQuestions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [activeTab, setActiveTab] = useState('overview'); // 'overview', 'questions', 'add_question', 'manage_tracks', 'feedback'
+  const [activeTab, setActiveTab] = useState('overview'); // 'overview', 'questions', 'add_question', 'manage_tracks', 'feedback', 'testimonials'
   const [editQuestionId, setEditQuestionId] = useState(null);
 
   // Feedback Management States
@@ -26,6 +28,15 @@ const AdminDashboard = () => {
   const [feedbackLoading, setFeedbackLoading] = useState(false);
   const [feedbackError, setFeedbackError] = useState('');
   const [feedbackFilter, setFeedbackFilter] = useState('all'); // 'all', 'feedback', 'bug', 'general'
+  
+  // Testimonials Management States
+  const [adminTestimonials, setAdminTestimonials] = useState([]);
+  const [testimonialStats, setTestimonialStats] = useState({ totalCount: 0, pendingCount: 0, approvedCount: 0, rejectedCount: 0, hiddenCount: 0 });
+  const [testimonialsLoading, setTestimonialsLoading] = useState(false);
+  const [testimonialsError, setTestimonialsError] = useState('');
+  const [testimonialFilter, setTestimonialFilter] = useState('all'); // 'all', 'pending', 'approved', 'rejected', 'hidden'
+  const [testimonialSearch, setTestimonialSearch] = useState('');
+  const [adminNotes, setAdminNotes] = useState({});
   
   // Track Management States
   const [tracks, setTracks] = useState([]);
@@ -175,6 +186,65 @@ const AdminDashboard = () => {
       } catch (err) {
         console.error(err);
         alert('Failed to delete feedback ticket.');
+      }
+    }
+  };
+
+  const fetchAdminTestimonials = async (status = testimonialFilter, search = testimonialSearch) => {
+    setTestimonialsLoading(true);
+    setTestimonialsError('');
+    try {
+      const data = await testimonialService.getAdminTestimonials({ status, search });
+      setAdminTestimonials(data.testimonials || []);
+      if (data.stats) setTestimonialStats(data.stats);
+    } catch (err) {
+      console.error(err);
+      setTestimonialsError('Could not retrieve testimonials list.');
+    } finally {
+      setTestimonialsLoading(false);
+    }
+  };
+
+  const handleTestimonialStatusChange = async (id, newStatus) => {
+    try {
+      await testimonialService.updateTestimonialStatus(id, { status: newStatus });
+      fetchAdminTestimonials(testimonialFilter, testimonialSearch);
+    } catch (err) {
+      console.error(err);
+      alert('Failed to update testimonial status.');
+    }
+  };
+
+  const handleToggleFeatureTestimonial = async (id, currentFeatured) => {
+    try {
+      await testimonialService.updateTestimonialStatus(id, { isFeatured: !currentFeatured });
+      fetchAdminTestimonials(testimonialFilter, testimonialSearch);
+    } catch (err) {
+      console.error(err);
+      alert('Failed to toggle featured status.');
+    }
+  };
+
+  const handleSaveTestimonialNote = async (id) => {
+    try {
+      const note = adminNotes[id] ?? '';
+      await testimonialService.updateTestimonialStatus(id, { adminNote: note });
+      alert('Admin note saved.');
+      fetchAdminTestimonials(testimonialFilter, testimonialSearch);
+    } catch (err) {
+      console.error(err);
+      alert('Failed to save admin note.');
+    }
+  };
+
+  const handleDeleteTestimonial = async (id) => {
+    if (window.confirm('Are you sure you want to permanently delete this testimonial?')) {
+      try {
+        await testimonialService.deleteTestimonial(id);
+        fetchAdminTestimonials(testimonialFilter, testimonialSearch);
+      } catch (err) {
+        console.error(err);
+        alert('Failed to delete testimonial.');
       }
     }
   };
@@ -587,6 +657,25 @@ const AdminDashboard = () => {
               <span>User Feedback</span>
             </div>
             <ChevronRight className={`w-3.5 h-3.5 opacity-60 ${activeTab === 'feedback' ? 'block' : 'hidden'}`} />
+          </button>
+
+          <button
+            onClick={() => {
+              setEditQuestionId(null);
+              setActiveTab('testimonials');
+              fetchAdminTestimonials();
+            }}
+            className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-xs font-black tracking-wider uppercase transition-all border ${
+              activeTab === 'testimonials'
+                ? 'bg-accentBlue border-accentBlue text-white shadow-lg shadow-accentBlue/20'
+                : 'bg-transparent border-transparent text-slate-400 hover:text-slate-200 hover:bg-darkBg/60'
+            }`}
+          >
+            <div className="flex items-center space-x-3">
+              <Star className="w-4 h-4" />
+              <span>Testimonials</span>
+            </div>
+            <ChevronRight className={`w-3.5 h-3.5 opacity-60 ${activeTab === 'testimonials' ? 'block' : 'hidden'}`} />
           </button>
 
           <button
@@ -1361,6 +1450,271 @@ const AdminDashboard = () => {
 
                     </div>
                   ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* VIEW 5.5: Testimonials & Reviews Moderation */}
+        {activeTab === 'testimonials' && (
+          <div className="space-y-6">
+            {/* Header */}
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-darkBorder pb-5">
+              <div>
+                <h1 className="text-3xl font-black text-white tracking-wide">Testimonials Moderation</h1>
+                <p className="text-xs text-slate-400 mt-0.5">Moderate real student reviews, toggle featured showcase cards, and manage ratings</p>
+              </div>
+            </div>
+
+            {/* Quick Metrics */}
+            <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+              <div className="bg-darkCard border border-darkBorder p-4 rounded-2xl">
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Total</span>
+                <span className="text-2xl font-black text-white">{testimonialStats.totalCount}</span>
+              </div>
+              <div className="bg-darkCard border border-amber-500/30 p-4 rounded-2xl bg-amber-500/5">
+                <span className="text-[10px] font-bold text-amber-400 uppercase tracking-wider block mb-1">Pending Approval</span>
+                <span className="text-2xl font-black text-amber-300">{testimonialStats.pendingCount}</span>
+              </div>
+              <div className="bg-darkCard border border-emerald-500/30 p-4 rounded-2xl bg-emerald-500/5">
+                <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-wider block mb-1">Approved Live</span>
+                <span className="text-2xl font-black text-emerald-300">{testimonialStats.approvedCount}</span>
+              </div>
+              <div className="bg-darkCard border border-rose-500/30 p-4 rounded-2xl bg-rose-500/5">
+                <span className="text-[10px] font-bold text-rose-400 uppercase tracking-wider block mb-1">Rejected</span>
+                <span className="text-2xl font-black text-rose-300">{testimonialStats.rejectedCount}</span>
+              </div>
+              <div className="bg-darkCard border border-slate-500/30 p-4 rounded-2xl">
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Hidden</span>
+                <span className="text-2xl font-black text-slate-300">{testimonialStats.hiddenCount}</span>
+              </div>
+            </div>
+
+            {/* Filter Bar & Search */}
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 bg-darkCard border border-darkBorder p-3 rounded-2xl">
+              <div className="flex flex-wrap items-center gap-2 select-none w-full sm:w-auto">
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center mr-1">
+                  <Filter className="w-3.5 h-3.5 mr-1" /> Filter:
+                </span>
+                {['all', 'pending', 'approved', 'rejected', 'hidden'].map((f) => (
+                  <button
+                    key={f}
+                    onClick={() => {
+                      setTestimonialFilter(f);
+                      fetchAdminTestimonials(f, testimonialSearch);
+                    }}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
+                      testimonialFilter === f
+                        ? 'bg-accentBlue text-white shadow-md shadow-accentBlue/20'
+                        : 'bg-darkBg text-slate-400 hover:text-slate-200 border border-darkBorder'
+                    }`}
+                  >
+                    {f}
+                  </button>
+                ))}
+              </div>
+
+              <div className="relative w-full sm:w-64">
+                <input
+                  type="text"
+                  placeholder="Search reviews & notes..."
+                  value={testimonialSearch}
+                  onChange={(e) => {
+                    setTestimonialSearch(e.target.value);
+                    fetchAdminTestimonials(testimonialFilter, e.target.value);
+                  }}
+                  className="w-full bg-darkBg border border-darkBorder px-3.5 py-1.5 pl-8 rounded-xl text-xs focus:outline-none focus:border-accentBlue text-slate-200"
+                />
+                <Search className="w-3.5 h-3.5 text-slate-500 absolute left-2.5 top-1/2 -translate-y-1/2" />
+              </div>
+            </div>
+
+            {testimonialsError && (
+              <div className="bg-rose-500/10 border border-rose-500/20 text-rose-400 p-4 rounded-xl text-xs">
+                {testimonialsError}
+              </div>
+            )}
+
+            {testimonialsLoading ? (
+              <div className="text-center py-12 text-slate-400">
+                <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-accentBlue mx-auto mb-3"></div>
+                <span className="text-xs font-bold uppercase tracking-wider">Loading reviews...</span>
+              </div>
+            ) : adminTestimonials.length === 0 ? (
+              <div className="bg-darkCard border border-darkBorder rounded-2xl p-12 text-center text-slate-400">
+                <Star className="w-10 h-10 mx-auto text-slate-600 mb-3" />
+                <h3 className="text-base font-bold text-white mb-1">No Testimonials Found</h3>
+                <p className="text-xs">No student reviews matched the current filter criteria.</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {adminTestimonials.map((item) => (
+                  <div
+                    key={item._id}
+                    className="bg-darkCard border border-darkBorder hover:border-slate-700 rounded-2xl p-5 space-y-4 shadow-xl transition-all"
+                  >
+                    {/* Header */}
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-darkBorder/60">
+                      <div className="flex items-center space-x-3">
+                        {/* Rating Stars */}
+                        <div className="flex items-center space-x-0.5">
+                          {[1, 2, 3, 4, 5].map((s) => (
+                            <Star
+                              key={s}
+                              className={`w-4 h-4 ${
+                                s <= item.rating
+                                  ? 'text-amber-400 fill-amber-400'
+                                  : 'text-slate-700'
+                              }`}
+                            />
+                          ))}
+                        </div>
+
+                        {/* Status badge */}
+                        <span
+                          className={`text-[9px] font-black uppercase tracking-widest px-2.5 py-0.5 rounded border ${
+                            item.status === 'approved'
+                              ? 'text-emerald-400 border-emerald-500/25 bg-emerald-500/10'
+                              : item.status === 'pending'
+                              ? 'text-amber-400 border-amber-500/25 bg-amber-500/10'
+                              : item.status === 'rejected'
+                              ? 'text-rose-400 border-rose-500/25 bg-rose-500/10'
+                              : 'text-slate-400 border-slate-500/25 bg-slate-500/10'
+                          }`}
+                        >
+                          {item.status}
+                        </span>
+
+                        {/* Featured Tag */}
+                        {item.isFeatured && (
+                          <span className="text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded bg-amber-500/10 text-amber-300 border border-amber-500/20 flex items-center space-x-1">
+                            <Star className="w-2.5 h-2.5 fill-amber-300" />
+                            <span>Featured</span>
+                          </span>
+                        )}
+
+                        {/* Recommendation */}
+                        {item.wouldRecommend === 'yes' && (
+                          <span className="text-[9px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded">
+                            Recommends
+                          </span>
+                        )}
+                      </div>
+
+                      <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">
+                        Submitted {new Date(item.createdAt).toLocaleString()}
+                      </span>
+                    </div>
+
+                    {/* Review Body */}
+                    <div className="space-y-2">
+                      <p className="text-xs sm:text-sm text-slate-200 italic leading-relaxed">
+                        "{item.review}"
+                      </p>
+
+                      {/* Usage Areas */}
+                      {item.usageAreas && item.usageAreas.length > 0 && (
+                        <div className="flex flex-wrap gap-1.5 pt-1">
+                          {item.usageAreas.map((area) => (
+                            <span
+                              key={area}
+                              className="text-[9px] font-bold uppercase tracking-wider text-slate-400 bg-darkBg border border-darkBorder px-2 py-0.5 rounded"
+                            >
+                              {area}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Submitter & Admin Controls Footer */}
+                    <div className="pt-4 border-t border-darkBorder/40 flex flex-col lg:flex-row lg:items-center justify-between gap-4 text-xs">
+                      {/* Submitter Info */}
+                      <div className="flex flex-wrap items-center gap-2 text-slate-400">
+                        <span>Student:</span>
+                        <span className="text-white font-bold">{item.user?.name || item.user?.username || 'Unknown'}</span>
+                        <span className="text-slate-500">•</span>
+                        <span className="text-slate-300">{item.user?.email || 'No email'}</span>
+                        {item.approvedBy && (
+                          <>
+                            <span className="text-slate-500">•</span>
+                            <span className="text-[10px] text-slate-400">
+                              Approved by: <strong className="text-white">{item.approvedBy.username}</strong>
+                            </span>
+                          </>
+                        )}
+                      </div>
+
+                      {/* Action Buttons */}
+                      <div className="flex flex-wrap items-center gap-2 self-end lg:self-auto select-none">
+                        {item.status !== 'approved' && (
+                          <button
+                            onClick={() => handleTestimonialStatusChange(item._id, 'approved')}
+                            className="px-3 py-1.5 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/20 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all cursor-pointer"
+                          >
+                            Approve
+                          </button>
+                        )}
+
+                        {item.status !== 'rejected' && (
+                          <button
+                            onClick={() => handleTestimonialStatusChange(item._id, 'rejected')}
+                            className="px-3 py-1.5 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all cursor-pointer"
+                          >
+                            Reject
+                          </button>
+                        )}
+
+                        {item.status === 'approved' && (
+                          <button
+                            onClick={() => handleTestimonialStatusChange(item._id, 'hidden')}
+                            className="px-3 py-1.5 bg-slate-700/50 hover:bg-slate-700 text-slate-300 border border-slate-600 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all cursor-pointer"
+                          >
+                            Hide
+                          </button>
+                        )}
+
+                        <button
+                          onClick={() => handleToggleFeatureTestimonial(item._id, item.isFeatured)}
+                          className={`px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider border transition-all cursor-pointer flex items-center space-x-1 ${
+                            item.isFeatured
+                              ? 'bg-amber-500/20 text-amber-300 border-amber-500/30'
+                              : 'bg-darkBg text-slate-400 border-darkBorder hover:text-white'
+                          }`}
+                        >
+                          <Star className={`w-3 h-3 ${item.isFeatured ? 'fill-amber-300' : ''}`} />
+                          <span>{item.isFeatured ? 'Featured' : 'Feature'}</span>
+                        </button>
+
+                        <button
+                          onClick={() => handleDeleteTestimonial(item._id)}
+                          className="p-1.5 text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 rounded-lg border border-transparent hover:border-rose-500/20 transition-all"
+                          title="Delete Review"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Admin Private Note Input */}
+                    <div className="pt-2 flex items-center space-x-2">
+                      <input
+                        type="text"
+                        placeholder="Private admin note (e.g. Verified 2026 TCS placed student)..."
+                        value={adminNotes[item._id] !== undefined ? adminNotes[item._id] : item.adminNote || ''}
+                        onChange={(e) => setAdminNotes((prev) => ({ ...prev, [item._id]: e.target.value }))}
+                        className="w-full bg-darkBg/60 border border-darkBorder px-3 py-1 rounded-lg text-[11px] text-slate-300 focus:outline-none focus:border-accentBlue"
+                      />
+                      <button
+                        onClick={() => handleSaveTestimonialNote(item._id)}
+                        className="px-3 py-1 bg-darkBg hover:bg-accentBtn border border-darkBorder hover:border-accentBtn text-slate-400 hover:text-white text-[10px] font-bold uppercase tracking-wider rounded-lg transition-all shrink-0 cursor-pointer"
+                      >
+                        Save Note
+                      </button>
+                    </div>
+
+                  </div>
+                ))}
               </div>
             )}
           </div>

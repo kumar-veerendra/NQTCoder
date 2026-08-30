@@ -21,13 +21,20 @@ const runFeedbackTests = async () => {
   let userHeader = {};
   let adminHeader = {};
   let tempUserId = '';
+  let guestFeedbackId = '';
+  let authFeedbackId = '';
 
   try {
-    await mongoose.connect(process.env.MONGO_URI);
-    console.log('✅ Connected to MongoDB.');
+    try {
+      await mongoose.connect(process.env.MONGO_URI, { serverSelectionTimeoutMS: 3000 });
+      console.log('✅ Connected to Primary MongoDB Atlas.');
+    } catch {
+      await mongoose.connect('mongodb://127.0.0.1:27017/nqtcoder');
+      console.log('✅ Connected to Local Fallback MongoDB.');
+    }
 
     // Cleanup lingering test users
-    await User.deleteMany({ email: /feedback_tester_.*@example\.com/ });
+    await User.deleteMany({ email: /fb_test_.*@example\.com/ });
 
     // Ensure Admin user exists in DB before logging in
     let adminUser = await User.findOne({ email: adminEmail });
@@ -77,37 +84,46 @@ const runFeedbackTests = async () => {
     userHeader = { headers: { Authorization: `Bearer ${userToken}` } };
     console.log('✅ Regular user login successful.');
 
-    // --- Submit feedback anonymously (should fail with 401) ---
-    console.log('Verifying anonymous feedback submission is blocked...');
+    // --- 1. Submit feedback as Guest (should succeed) ---
+    console.log('Testing guest / anonymous feedback submission...');
+    const guestFeedbackPayload = {
+      name: 'Guest Tester',
+      email: 'guest.tester@example.com',
+      type: 'bug',
+      subject: 'Compiler Timeout Bug Report',
+      message: 'Found that C++ code with infinite loop hits 5000ms TLE as expected.'
+    };
+    const guestRes = await axios.post(`${BASE_URL}/feedback`, guestFeedbackPayload);
+    if (guestRes.status !== 201) throw new Error('Guest feedback submission failed.');
+    guestFeedbackId = guestRes.data.feedback._id;
+    console.log(`✅ Success: Guest feedback submitted (ID: ${guestFeedbackId}).`);
+
+    // --- 2. Submit feedback authenticated as User (should succeed & attach user) ---
+    console.log('Submitting authenticated user feedback...');
+    const authFeedbackPayload = {
+      type: 'feedback',
+      subject: 'Great placement mock test UI',
+      message: 'The Cognitive games and Mock Test timer work smoothly.'
+    };
+    const submitFeedbackRes = await axios.post(`${BASE_URL}/feedback`, authFeedbackPayload, userHeader);
+    if (submitFeedbackRes.status !== 201) throw new Error('Authenticated feedback submission failed.');
+    authFeedbackId = submitFeedbackRes.data.feedback._id;
+    console.log(`✅ Success: Authenticated feedback submitted (ID: ${authFeedbackId}).`);
+
+    // --- 3. Validation: Missing fields ---
+    console.log('Testing missing fields validation (should fail with 400)...');
     try {
-      const feedbackPayload = {
-        type: 'bug',
-        subject: 'Test Bug Subject',
-        message: 'Test bug description'
-      };
-      await axios.post(`${BASE_URL}/feedback`, feedbackPayload);
-      throw new Error('FAIL: Anonymous feedback submission was allowed.');
+      await axios.post(`${BASE_URL}/feedback`, { type: 'bug' });
+      throw new Error('FAIL: Missing fields were allowed.');
     } catch (err) {
-      if (err.response && err.response.status === 401) {
-        console.log('✅ Blocked: Anonymous submission rejected with 401 Unauthorized.');
+      if (err.response && err.response.status === 400) {
+        console.log('✅ Blocked: Missing fields rejected with 400 Bad Request.');
       } else {
         throw err;
       }
     }
 
-    // --- Submit feedback authenticated as User (should succeed) ---
-    console.log('Submitting authenticated user feedback...');
-    const authFeedbackPayload = {
-      type: 'bug',
-      subject: 'Test Bug Subject',
-      message: 'Test bug description'
-    };
-    const submitFeedbackRes = await axios.post(`${BASE_URL}/feedback`, authFeedbackPayload, userHeader);
-    if (submitFeedbackRes.status !== 201) throw new Error('Feedback submission failed.');
-    const feedbackId = submitFeedbackRes.data.feedback._id;
-    console.log(`✅ Success: Authenticated feedback submitted (ID: ${feedbackId}).`);
-
-    // --- Verify regular user CANNOT view feedback (RBAC) ---
+    // --- 4. Verify regular user CANNOT view feedback (RBAC) ---
     console.log('Verifying regular user cannot view all feedback (should fail)...');
     try {
       await axios.get(`${BASE_URL}/feedback`, userHeader);
@@ -120,27 +136,37 @@ const runFeedbackTests = async () => {
       }
     }
 
-    // --- Verify Admin CAN view feedback ---
+    // --- 5. Verify Admin CAN view and manage feedback ---
     console.log('Verifying Admin can view all feedback (should succeed)...');
     const adminFeedbackRes = await axios.get(`${BASE_URL}/feedback`, adminHeader);
     const feedbackList = adminFeedbackRes.data;
-    const submittedItem = feedbackList.find(f => f._id === feedbackId);
-    if (!submittedItem) throw new Error('FAIL: Submitted feedback not found in admin list.');
+    const submittedGuestItem = feedbackList.find(f => f._id === guestFeedbackId);
+    const submittedAuthItem = feedbackList.find(f => f._id === authFeedbackId);
+    if (!submittedGuestItem || !submittedAuthItem) throw new Error('FAIL: Submitted feedback items not found in admin list.');
     console.log(`✅ Success: Admin fetched feedback list (size: ${feedbackList.length}).`);
+
+    // Update status to 'reviewed'
+    console.log('Testing admin status update to reviewed...');
+    const updateRes = await axios.patch(`${BASE_URL}/feedback/${authFeedbackId}`, { status: 'reviewed' }, adminHeader);
+    if (updateRes.data.status !== 'reviewed') throw new Error('FAIL: Status update failed.');
+    console.log('✅ Success: Feedback status updated to reviewed.');
 
     // --- Clean up ---
     console.log('\n--- 🧹 Cleaning Up Test Entities ---');
-    await Feedback.deleteOne({ _id: feedbackId });
-    await User.deleteOne({ _id: tempUserId });
+    if (guestFeedbackId) await Feedback.deleteOne({ _id: guestFeedbackId });
+    if (authFeedbackId) await Feedback.deleteOne({ _id: authFeedbackId });
+    if (tempUserId) await User.deleteOne({ _id: tempUserId });
     console.log('✅ Database cleaned up.');
     
-    console.log('\n🌟 ALL FEEDBACK TESTS PASSED SUCCESSFULLY! 🌟');
+    console.log('\n🌟 ALL FEEDBACK & SUPPORT TESTS PASSED SUCCESSFULLY! 🌟');
 
   } catch (err) {
     console.error('\n❌ Feedback Test failed:', err.response ? err.response.data : err.message);
     process.exitCode = 1;
     try {
       await User.deleteOne({ email: testEmail });
+      if (guestFeedbackId) await Feedback.deleteOne({ _id: guestFeedbackId });
+      if (authFeedbackId) await Feedback.deleteOne({ _id: authFeedbackId });
     } catch {}
   } finally {
     await mongoose.disconnect();

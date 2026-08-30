@@ -9,25 +9,31 @@ import User from '../models/User.js';
  */
 export const createFeedback = async (req, res) => {
   try {
-    const { type, subject, message } = req.body;
-    const name = req.user.username;
-    const email = req.user.email;
+    const { name: bodyName, email: bodyEmail, type, subject, message } = req.body;
+    const name = req.user ? req.user.username : bodyName;
+    const email = req.user ? req.user.email : bodyEmail;
 
-    if (!type || !subject || !message) {
-      return res.status(400).json({ message: 'All fields are required.' });
+    if (!name || !email || !type || !subject || !message) {
+      return res.status(400).json({ message: 'All fields (Name, Email, Ticket Type, Subject, Message) are required.' });
     }
 
     if (!['feedback', 'bug', 'general'].includes(type)) {
       return res.status(400).json({ message: 'Invalid feedback type.' });
     }
 
+    // Email format validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ message: 'Please provide a valid email address.' });
+    }
+
     const feedbackData = {
-      name,
-      email,
+      name: name.trim(),
+      email: email.trim().toLowerCase(),
       type,
-      subject,
-      message,
-      user: req.user._id
+      subject: subject.trim(),
+      message: message.trim(),
+      ...(req.user?._id && { user: req.user._id })
     };
 
     const feedback = new Feedback(feedbackData);

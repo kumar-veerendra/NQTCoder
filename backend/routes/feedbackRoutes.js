@@ -5,11 +5,11 @@ import {
   updateFeedbackStatus,
   deleteFeedback
 } from '../controllers/feedbackController.js';
-import { protect, admin } from '../middleware/authMiddleware.js';
+import { protect, admin, optionalProtect } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
-router.post('/', protect, createFeedback);
+router.post('/', optionalProtect, createFeedback);
 router.get('/', protect, admin, getAllFeedback);
 router.patch('/:id', protect, admin, updateFeedbackStatus);
 router.delete('/:id', protect, admin, deleteFeedback);

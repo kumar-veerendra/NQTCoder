@@ -86,20 +86,16 @@ async function runTests() {
       assert(false, `GET /api/submissions/compilers failed: ${err.message}`);
     }
 
-    // 4. Verify POST /api/feedback is protected (fails with 401)
+    // 4. Verify GET /api/feedback is protected for admins (fails anonymous with 401)
     console.log(`\n${YELLOW}Testing protected routes (must block anonymous)...${RESET}`);
     try {
-      await axios.post(`${BASE_URL}/feedback`, {
-        type: 'feedback',
-        subject: 'Anonymous Test',
-        message: 'This should fail'
-      });
-      assert(false, 'POST /api/feedback was allowed anonymously!');
+      await axios.get(`${BASE_URL}/feedback`);
+      assert(false, 'GET /api/feedback was allowed anonymously!');
     } catch (err) {
       if (err.response && err.response.status === 401) {
-        assert(true, 'POST /api/feedback blocked anonymously with status 401');
+        assert(true, 'GET /api/feedback blocked anonymously with status 401');
       } else {
-        assert(false, `POST /api/feedback failed with unexpected error: ${err.message}`);
+        assert(false, `GET /api/feedback failed with unexpected error: ${err.message}`);
       }
     }
 

@@ -54,9 +54,9 @@ const connectDB = async () => {
   if (primaryURI) {
     try {
       console.log('Attempting primary database connection (Atlas)...');
-      // Set serverSelectionTimeoutMS to 3000ms (3s) to detect offline states quickly
+      // Set serverSelectionTimeoutMS to 10000ms (10s) for reliable Atlas TLS handshake
       const conn = await mongoose.connect(primaryURI, {
-        serverSelectionTimeoutMS: 3000
+        serverSelectionTimeoutMS: 10000
       });
       console.log(`MongoDB Connected (Primary): ${conn.connection.host}`);
       await seedAdmin();
