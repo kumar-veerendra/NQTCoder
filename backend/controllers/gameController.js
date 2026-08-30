@@ -2,12 +2,19 @@ import Game from '../models/Game.js';
 import GameLevel from '../models/GameLevel.js';
 import GameAttempt from '../models/GameAttempt.js';
 import UserGameProgress from '../models/UserGameProgress.js';
+import { seedGames } from '../config/seedGames.js';
 
 // @desc    Get all active games with company details and user progress
 // @route   GET /api/games
 // @access  Public (with optional user context)
 export const getGames = async (req, res) => {
   try {
+    let count = await Game.countDocuments({ isActive: true });
+    if (count === 0) {
+      console.log('No active games in DB. Auto-seeding 10 cognitive games on the fly...');
+      await seedGames();
+    }
+
     const games = await Game.find({ isActive: true })
       .populate('companies', 'name slug logo')
       .sort({ order: 1 })
@@ -54,9 +61,20 @@ export const getGames = async (req, res) => {
 // @access  Public (with optional user context)
 export const getGameBySlug = async (req, res) => {
   try {
-    const game = await Game.findOne({ slug: req.params.slug, isActive: true })
+    let game = await Game.findOne({ slug: req.params.slug, isActive: true })
       .populate('companies', 'name slug logo website')
       .lean();
+
+    if (!game) {
+      const count = await Game.countDocuments({ isActive: true });
+      if (count === 0) {
+        console.log('Database empty during game lookup. Auto-seeding 10 games...');
+        await seedGames();
+        game = await Game.findOne({ slug: req.params.slug, isActive: true })
+          .populate('companies', 'name slug logo website')
+          .lean();
+      }
+    }
 
     if (!game) {
       return res.status(404).json({ message: 'Game not found' });
