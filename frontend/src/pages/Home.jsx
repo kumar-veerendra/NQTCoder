@@ -74,6 +74,24 @@ const faqs = [
     ]
   },
   {
+    category: 'Web Development Practice',
+    color: 'text-accentBlue',
+    items: [
+      {
+        q: 'Does NQTCoder offer HTML, CSS, and JavaScript practical assessments?',
+        a: 'Yes! Our Web Development Practice Arena offers interactive, multi-file frontend coding challenges designed specifically for Cognizant, TCS, and product company practical assessments. You can write HTML, CSS, and JavaScript in dedicated Monaco editors with real-time sandbox preview.'
+      },
+      {
+        q: 'How are Web Development coding challenges evaluated?',
+        a: 'Evaluations are behavioral and test-driven. Our engine simulates genuine user clicks, form submissions, and keyboard events inside an isolated sandbox, checking DOM structure and computed styles to award instant, automated scores.'
+      },
+      {
+        q: 'Do I need to manually attach CSS and JS files in HTML?',
+        a: 'No. The platform automatically injects your CSS into the <head> and your JavaScript at the end of the <body> inside the sandboxed preview, so you can focus purely on coding UI components.'
+      }
+    ]
+  },
+  {
     category: 'Code Execution',
     color: 'text-accentBlue',
     items: [
@@ -582,10 +600,10 @@ const Home = () => {
     <div className="bg-darkBg text-slate-100 min-h-screen selection:bg-accentBlue/30 selection:text-slate-100">
       {/* ── SEO ──────────────────────────────────────────────────────────── */}
       <SEO
-        title="Placement Coding & Cognitive Games Practice — TCS, Cognizant, Capgemini"
-        description="Practice 200+ real placement coding questions, aptitude MCQs, and Cognizant/Capgemini Cognitive Games (Geo-Sudo, Switch Challenge, Motion Challenge, Spacio). Proctored mock tests & live leaderboards."
+        title="Placement Coding, Web Dev & Cognitive Games — TCS, Cognizant, Capgemini"
+        description="Practice 200+ placement coding questions, interactive HTML/CSS/JavaScript practical arena, aptitude MCQs, and Cognizant/Capgemini Cognitive Games. Proctored mock tests & live leaderboards."
         path="/"
-        keywords="NQT coder, placement coding practice, Cognizant game based aptitude practice, Capgemini cognitive games simulator, Geo Sudo game online practice, Switch challenge game Cognizant, Motion challenge Capgemini, Inductive challenge online test, Grid memory test, TCS NQT questions, Infosys coding interview, Wipro coding test, mock test, leaderboard, C++ Java Python"
+        keywords="NQT coder, placement coding practice, web development practice, frontend coding questions, Cognizant frontend practical test, HTML CSS JavaScript practice, DOM manipulation test, TCS web dev coding, Capgemini cognitive games simulator, Geo Sudo game online practice, Switch challenge game Cognizant, Motion challenge Capgemini, TCS NQT questions, Infosys coding interview, Wipro coding test, mock test, leaderboard, C++ Java Python"
         jsonLd={[
           {
             '@context': 'https://schema.org',
@@ -786,7 +804,7 @@ const Home = () => {
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {/* Card 1: All Roadmaps */}
           <div className="bg-darkCard border border-darkBorder p-6 rounded-xl flex flex-col justify-between hover:border-accentBlue transition-all group shadow-md relative overflow-hidden">
             <div className="space-y-4">
@@ -867,6 +885,34 @@ const Home = () => {
                 className="w-full inline-block bg-darkBg hover:bg-accentBtn text-slate-200 hover:text-white text-center font-bold text-[10px] uppercase tracking-wider py-2.5 rounded-lg border border-darkBorder transition-all"
               >
                 Explore Topic Paths
+              </Link>
+            </div>
+          </div>
+
+          {/* Card 4: Web Dev Practice Arena */}
+          <div className="bg-darkCard border border-darkBorder p-6 rounded-xl flex flex-col justify-between hover:border-accentBlue transition-all group shadow-md relative overflow-hidden">
+            <div className="space-y-4">
+              <div className="text-accentBlue bg-accentBlue/10 w-10 h-10 rounded-lg flex items-center justify-center border border-accentBlue/10">
+                <Code className="w-5 h-5" />
+              </div>
+              <div>
+                <h4 className="text-lg font-extrabold text-white group-hover:text-accentBlue transition-colors">Web Development</h4>
+                <p className="text-slate-400 text-xs mt-2 leading-relaxed">
+                  Solve HTML, CSS & JavaScript practical assessments with live sandbox preview & behavioral tests.
+                </p>
+                <div className="mt-4 flex items-center space-x-2">
+                  <span className="text-[9px] bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded font-bold uppercase tracking-wider border border-emerald-500/20">
+                    ⚡ Frontend Sandbox
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div className="mt-6">
+              <Link
+                to="/web-development"
+                className="w-full inline-block bg-accentBtn hover:bg-accentBtnHover text-white text-center font-bold text-[10px] uppercase tracking-wider py-2.5 rounded-lg shadow-md shadow-accentBtn/20 transition-all"
+              >
+                Practice Web Dev
               </Link>
             </div>
           </div>

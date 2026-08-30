@@ -18,6 +18,7 @@ import companyGuideRoutes from './routes/companyGuideRoutes.js';
 import adminCompanyGuideRoutes from './routes/adminCompanyGuideRoutes.js';
 import testimonialRoutes from './routes/testimonialRoutes.js';
 import gameRoutes from './routes/gameRoutes.js';
+import webDevRoutes from './routes/webDevRoutes.js';
 import { notFound, errorHandler } from './middleware/errorMiddleware.js';
 
 // Connect to database & auto-seed cognitive games if empty
@@ -87,6 +88,7 @@ app.use('/api/company-guides', companyGuideRoutes);
 app.use('/api/admin', adminCompanyGuideRoutes);
 app.use('/api/testimonials', testimonialRoutes);
 app.use('/api/games', gameRoutes);
+app.use('/api/web-development', webDevRoutes);
 
 // Error Middlewares
 app.use(notFound);

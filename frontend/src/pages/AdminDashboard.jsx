@@ -5,13 +5,14 @@ import * as trackService from '../services/trackService';
 import * as feedbackService from '../services/feedbackService';
 import * as resourceService from '../services/resourceService';
 import * as testimonialService from '../services/testimonialService';
+import * as webDevService from '../services/webDevService';
 import AdminQuestionForm from './AdminQuestionForm';
 import { 
   Plus, Edit2, Trash2, ShieldAlert, Award, Tag, Settings, 
   Users, BookOpen, Send, Activity, LayoutDashboard, ChevronRight,
   Compass, Calendar, ExternalLink, MessageSquare, Bug, Check,
   Database, Server, Network, Layers, FileText, FolderOpen, Link2, Building2,
-  Star, ThumbsUp, Eye, EyeOff, ShieldCheck, Filter, Search
+  Star, ThumbsUp, Eye, EyeOff, ShieldCheck, Filter, Search, Code, Globe
 } from 'lucide-react';
 import SEO from '../components/SEO';
 
@@ -20,7 +21,7 @@ const AdminDashboard = () => {
   const [questions, setQuestions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [activeTab, setActiveTab] = useState('overview'); // 'overview', 'questions', 'add_question', 'manage_tracks', 'feedback', 'testimonials'
+  const [activeTab, setActiveTab] = useState('overview'); // 'overview', 'questions', 'add_question', 'manage_tracks', 'feedback', 'testimonials', 'web_dev'
   const [editQuestionId, setEditQuestionId] = useState(null);
 
   // Feedback Management States
@@ -37,6 +38,14 @@ const AdminDashboard = () => {
   const [testimonialFilter, setTestimonialFilter] = useState('all'); // 'all', 'pending', 'approved', 'rejected', 'hidden'
   const [testimonialSearch, setTestimonialSearch] = useState('');
   const [adminNotes, setAdminNotes] = useState({});
+
+  // Web Development Management States
+  const [webDevQuestions, setWebDevQuestions] = useState([]);
+  const [webDevStats, setWebDevStats] = useState({ totalCount: 0, publishedCount: 0, draftCount: 0, archivedCount: 0 });
+  const [webDevLoading, setWebDevLoading] = useState(false);
+  const [webDevError, setWebDevError] = useState('');
+  const [webDevFilter, setWebDevFilter] = useState('all');
+  const [webDevSearch, setWebDevSearch] = useState('');
   
   // Track Management States
   const [tracks, setTracks] = useState([]);
@@ -245,6 +254,43 @@ const AdminDashboard = () => {
       } catch (err) {
         console.error(err);
         alert('Failed to delete testimonial.');
+      }
+    }
+  };
+
+  const fetchAdminWebDevQuestions = async (status = webDevFilter, search = webDevSearch) => {
+    setWebDevLoading(true);
+    setWebDevError('');
+    try {
+      const data = await webDevService.getAdminWebDevQuestions({ status, search });
+      setWebDevQuestions(data.questions || []);
+      if (data.stats) setWebDevStats(data.stats);
+    } catch (err) {
+      console.error(err);
+      setWebDevError('Could not retrieve web development challenges.');
+    } finally {
+      setWebDevLoading(false);
+    }
+  };
+
+  const handleToggleWebDevStatus = async (id, newStatus) => {
+    try {
+      await webDevService.updateAdminWebDevQuestion(id, { status: newStatus });
+      fetchAdminWebDevQuestions(webDevFilter, webDevSearch);
+    } catch (err) {
+      console.error(err);
+      alert('Failed to update challenge status.');
+    }
+  };
+
+  const handleDeleteWebDevQuestion = async (id) => {
+    if (window.confirm('Are you sure you want to delete this Web Dev Challenge and all student submissions?')) {
+      try {
+        await webDevService.deleteAdminWebDevQuestion(id);
+        fetchAdminWebDevQuestions(webDevFilter, webDevSearch);
+      } catch (err) {
+        console.error(err);
+        alert('Failed to delete challenge.');
       }
     }
   };
@@ -676,6 +722,25 @@ const AdminDashboard = () => {
               <span>Testimonials</span>
             </div>
             <ChevronRight className={`w-3.5 h-3.5 opacity-60 ${activeTab === 'testimonials' ? 'block' : 'hidden'}`} />
+          </button>
+
+          <button
+            onClick={() => {
+              setEditQuestionId(null);
+              setActiveTab('web_dev');
+              fetchAdminWebDevQuestions();
+            }}
+            className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-xs font-black tracking-wider uppercase transition-all border ${
+              activeTab === 'web_dev'
+                ? 'bg-accentBlue border-accentBlue text-white shadow-lg shadow-accentBlue/20'
+                : 'bg-transparent border-transparent text-slate-400 hover:text-slate-200 hover:bg-darkBg/60'
+            }`}
+          >
+            <div className="flex items-center space-x-3">
+              <Code className="w-4 h-4" />
+              <span>Web Development</span>
+            </div>
+            <ChevronRight className={`w-3.5 h-3.5 opacity-60 ${activeTab === 'web_dev' ? 'block' : 'hidden'}`} />
           </button>
 
           <button
@@ -1713,6 +1778,199 @@ const AdminDashboard = () => {
                       </button>
                     </div>
 
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* VIEW 5.7: Web Development Practical Challenges */}
+        {activeTab === 'web_dev' && (
+          <div className="space-y-6">
+            {/* Header */}
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-darkBorder pb-5">
+              <div>
+                <h1 className="text-3xl font-black text-white tracking-wide">Web Development Challenges</h1>
+                <p className="text-xs text-slate-400 mt-0.5">Manage HTML, CSS & JavaScript practical tasks, starter templates, and test suites</p>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => navigate('/admin/web-dev/new')}
+                className="bg-accentBtn hover:bg-accentBtnHover text-white px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider flex items-center space-x-2 shadow-lg shadow-accentBtn/20 transition-all self-start md:self-auto cursor-pointer"
+              >
+                <Plus className="w-4 h-4" />
+                <span>Add Web Dev Challenge</span>
+              </button>
+            </div>
+
+            {/* Quick Metrics */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <div className="bg-darkCard border border-darkBorder p-4 rounded-2xl">
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Total Challenges</span>
+                <span className="text-2xl font-black text-white">{webDevStats.totalCount}</span>
+              </div>
+              <div className="bg-darkCard border border-emerald-500/30 p-4 rounded-2xl bg-emerald-500/5">
+                <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-wider block mb-1">Published Live</span>
+                <span className="text-2xl font-black text-emerald-300">{webDevStats.publishedCount}</span>
+              </div>
+              <div className="bg-darkCard border border-amber-500/30 p-4 rounded-2xl bg-amber-500/5">
+                <span className="text-[10px] font-bold text-amber-400 uppercase tracking-wider block mb-1">Drafts</span>
+                <span className="text-2xl font-black text-amber-300">{webDevStats.draftCount}</span>
+              </div>
+              <div className="bg-darkCard border border-slate-500/30 p-4 rounded-2xl">
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Archived</span>
+                <span className="text-2xl font-black text-slate-300">{webDevStats.archivedCount}</span>
+              </div>
+            </div>
+
+            {/* Filter Bar & Search */}
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 bg-darkCard border border-darkBorder p-3 rounded-2xl">
+              <div className="flex flex-wrap items-center gap-2 select-none w-full sm:w-auto">
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center mr-1">
+                  <Filter className="w-3.5 h-3.5 mr-1" /> Filter:
+                </span>
+                {['all', 'published', 'draft', 'archived'].map((f) => (
+                  <button
+                    key={f}
+                    onClick={() => {
+                      setWebDevFilter(f);
+                      fetchAdminWebDevQuestions(f, webDevSearch);
+                    }}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
+                      webDevFilter === f
+                        ? 'bg-accentBlue text-white shadow-md shadow-accentBlue/20'
+                        : 'bg-darkBg text-slate-400 hover:text-slate-200 border border-darkBorder'
+                    }`}
+                  >
+                    {f}
+                  </button>
+                ))}
+              </div>
+
+              <div className="relative w-full sm:w-64">
+                <input
+                  type="text"
+                  placeholder="Search challenges..."
+                  value={webDevSearch}
+                  onChange={(e) => {
+                    setWebDevSearch(e.target.value);
+                    fetchAdminWebDevQuestions(webDevFilter, e.target.value);
+                  }}
+                  className="w-full bg-darkBg border border-darkBorder px-3.5 py-1.5 pl-8 rounded-xl text-xs focus:outline-none focus:border-accentBlue text-slate-200"
+                />
+                <Search className="w-3.5 h-3.5 text-slate-500 absolute left-2.5 top-1/2 -translate-y-1/2" />
+              </div>
+            </div>
+
+            {webDevError && (
+              <div className="bg-rose-500/10 border border-rose-500/20 text-rose-400 p-4 rounded-xl text-xs">
+                {webDevError}
+              </div>
+            )}
+
+            {webDevLoading ? (
+              <div className="text-center py-12 text-slate-400">
+                <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-accentBlue mx-auto mb-3"></div>
+                <span className="text-xs font-bold uppercase tracking-wider">Loading challenges...</span>
+              </div>
+            ) : webDevQuestions.length === 0 ? (
+              <div className="bg-darkCard border border-darkBorder rounded-2xl p-12 text-center text-slate-400">
+                <Code className="w-10 h-10 mx-auto text-slate-600 mb-3" />
+                <h3 className="text-base font-bold text-white mb-1">No Web Dev Challenges Found</h3>
+                <p className="text-xs">Click "Add Web Dev Challenge" to create your first practical task.</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {webDevQuestions.map((q) => (
+                  <div
+                    key={q._id}
+                    className="bg-darkCard border border-darkBorder hover:border-slate-700 rounded-2xl p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-xl transition-all"
+                  >
+                    <div className="space-y-2 min-w-0">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span
+                          className={`text-[9px] font-black uppercase tracking-widest px-2.5 py-0.5 rounded border ${
+                            q.difficulty === 'easy'
+                              ? 'text-emerald-400 border-emerald-500/25 bg-emerald-500/10'
+                              : q.difficulty === 'medium'
+                              ? 'text-amber-400 border-amber-500/25 bg-amber-500/10'
+                              : 'text-rose-400 border-rose-500/25 bg-rose-500/10'
+                          }`}
+                        >
+                          {q.difficulty}
+                        </span>
+
+                        <span className="text-[9px] font-bold uppercase tracking-wider text-slate-400 bg-darkBg border border-darkBorder px-2 py-0.5 rounded">
+                          {q.category}
+                        </span>
+
+                        <span className="text-[9px] font-mono text-slate-500">v{q.version || 1}</span>
+
+                        <div className="relative inline-flex">
+                          <select
+                            value={q.status}
+                            onChange={(e) => handleToggleWebDevStatus(q._id, e.target.value)}
+                            className={`text-[9px] font-black uppercase tracking-widest px-2.5 py-0.5 rounded border cursor-pointer focus:outline-none appearance-none pr-5 ${
+                              q.status === 'published'
+                                ? 'text-emerald-400 border-emerald-500/25 bg-emerald-500/10'
+                                : q.status === 'draft'
+                                ? 'text-amber-400 border-amber-500/25 bg-amber-500/10'
+                                : 'text-slate-400 border-slate-500/25 bg-slate-500/10'
+                            }`}
+                          >
+                            <option value="published">Published</option>
+                            <option value="draft">Draft</option>
+                            <option value="archived">Archived</option>
+                          </select>
+                          <span className="absolute right-1.5 top-1/2 -translate-y-1/2 text-[9px] pointer-events-none opacity-60">▾</span>
+                        </div>
+                      </div>
+
+                      <div>
+                        <h3 className="text-sm font-bold text-white tracking-tight">{q.title}</h3>
+                        <p className="text-xs text-slate-400 font-mono">slug: {q.slug}</p>
+                      </div>
+
+                      <div className="flex items-center space-x-4 text-[11px] text-slate-400">
+                        <span>{q.tests?.length || 0} Tests</span>
+                        <span>•</span>
+                        <span>{q.points || 100} Points</span>
+                        <span>•</span>
+                        <span>{q.requirements?.length || 0} Requirements</span>
+                      </div>
+                    </div>
+
+                    {/* Actions */}
+                    <div className="flex items-center space-x-2 shrink-0 self-end md:self-auto select-none">
+                      <Link
+                        to={`/web-development/${q.slug || q._id}`}
+                        target="_blank"
+                        className="px-3 py-1.5 bg-darkBg hover:bg-slate-700 text-slate-300 hover:text-white border border-darkBorder rounded-xl text-xs font-bold uppercase tracking-wider flex items-center space-x-1 transition-all"
+                      >
+                        <Eye className="w-3.5 h-3.5" />
+                        <span>Preview</span>
+                      </Link>
+
+                      <button
+                        type="button"
+                        onClick={() => navigate(`/admin/web-dev/edit/${q._id}`)}
+                        className="px-3 py-1.5 bg-accentBlue/10 hover:bg-accentBlue/20 text-accentBlue border border-accentBlue/20 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center space-x-1 transition-all cursor-pointer"
+                      >
+                        <Edit2 className="w-3.5 h-3.5" />
+                        <span>Edit</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteWebDevQuestion(q._id)}
+                        className="p-2 text-rose-400 hover:bg-rose-500/10 rounded-xl border border-transparent hover:border-rose-500/20 transition-all cursor-pointer"
+                        title="Delete Challenge"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>

@@ -50,6 +50,9 @@ import AdminCompanyGuidePreview from './pages/AdminCompanyGuidePreview';
 import GamesHub from './pages/games/GamesHub';
 import GameDetails from './pages/games/GameDetails';
 import GameArena from './pages/games/GameArena';
+import WebDevHub from './pages/webdev/WebDevHub';
+import WebDevArena from './pages/webdev/WebDevArena';
+import AdminWebDevForm from './pages/webdev/AdminWebDevForm';
 
 const UnverifiedBanner = () => {
   const { user, resendCode } = useContext(AuthContext);
@@ -151,6 +154,8 @@ const AppContent = () => {
         <Route path="/games" element={<GamesHub />} />
         <Route path="/games/:slug" element={<GameDetails />} />
         <Route path="/games/:slug/level/:levelNumber" element={<GameArena />} />
+        <Route path="/web-development" element={<WebDevHub />} />
+        <Route path="/web-development/:idOrSlug" element={<WebDevArena />} />
         <Route path="/companies" element={<CompaniesPage />} />
         <Route path="/companies/:slug" element={<CompanyGuidePage />} />
         <Route path="/login" element={<Login />} />
@@ -315,6 +320,22 @@ const AppContent = () => {
           element={
             <ProtectedRoute adminOnly={true}>
               <AdminCompanyGuidePreview />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/web-dev/new"
+          element={
+            <ProtectedRoute adminOnly={true}>
+              <AdminWebDevForm />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/web-dev/edit/:id"
+          element={
+            <ProtectedRoute adminOnly={true}>
+              <AdminWebDevForm />
             </ProtectedRoute>
           }
         />
