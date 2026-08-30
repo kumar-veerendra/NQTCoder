@@ -17,10 +17,23 @@ import companyRoutes from './routes/companyRoutes.js';
 import companyGuideRoutes from './routes/companyGuideRoutes.js';
 import adminCompanyGuideRoutes from './routes/adminCompanyGuideRoutes.js';
 import testimonialRoutes from './routes/testimonialRoutes.js';
+import gameRoutes from './routes/gameRoutes.js';
 import { notFound, errorHandler } from './middleware/errorMiddleware.js';
 
-// Connect to database
-connectDB();
+// Connect to database & auto-seed cognitive games if empty
+connectDB().then(async () => {
+  try {
+    const Game = (await import('./models/Game.js')).default;
+    const count = await Game.countDocuments({ isActive: true });
+    if (count === 0) {
+      console.log('Production startup check: 0 games found in database. Auto-seeding 10 cognitive games & 50 levels...');
+      const { seedGames } = await import('./config/seedGames.js');
+      await seedGames();
+    }
+  } catch (err) {
+    console.error('Error during initial game seed check:', err.message);
+  }
+});
 
 const app = express();
 
@@ -73,6 +86,7 @@ app.use('/api/companies', companyRoutes);
 app.use('/api/company-guides', companyGuideRoutes);
 app.use('/api/admin', adminCompanyGuideRoutes);
 app.use('/api/testimonials', testimonialRoutes);
+app.use('/api/games', gameRoutes);
 
 // Error Middlewares
 app.use(notFound);

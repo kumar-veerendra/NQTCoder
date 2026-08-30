@@ -47,6 +47,9 @@ import CompanyGuidePage from './pages/CompanyGuidePage';
 import AdminCompanyGuides from './pages/AdminCompanyGuides';
 import AdminCompanyGuideEditor from './pages/AdminCompanyGuideEditor';
 import AdminCompanyGuidePreview from './pages/AdminCompanyGuidePreview';
+import GamesHub from './pages/games/GamesHub';
+import GameDetails from './pages/games/GameDetails';
+import GameArena from './pages/games/GameArena';
 
 const UnverifiedBanner = () => {
   const { user, resendCode } = useContext(AuthContext);
@@ -105,8 +108,8 @@ const Layout = ({ children }) => {
   const location = useLocation();
   const { user } = useContext(AuthContext);
 
-  // Hide navbar on login, register, verify-email, problem arena, mocktest arena, aptitude arena, and V2 mocktest arena pages
-  const hideNavbar = ['/login', '/register', '/verify-email', '/forgot-password'].includes(location.pathname) || location.pathname.startsWith('/problem/') || location.pathname.startsWith('/mocktest/arena/') || location.pathname.startsWith('/aptitude/arena/') || location.pathname.startsWith('/mocktest/arena/v2/');
+  // Hide navbar on login, register, verify-email, problem arena, mocktest arena, aptitude arena, V2 mocktest arena, and game arena pages
+  const hideNavbar = ['/login', '/register', '/verify-email', '/forgot-password'].includes(location.pathname) || location.pathname.startsWith('/problem/') || location.pathname.startsWith('/mocktest/arena/') || location.pathname.startsWith('/aptitude/arena/') || location.pathname.startsWith('/mocktest/arena/v2/') || location.pathname.includes('/level/');
 
   // Show footer only on the Home page
   const hideFooter = location.pathname !== '/';
@@ -145,6 +148,9 @@ const AppContent = () => {
       <Routes>
         {/* Public Routes */}
         <Route path="/" element={<Home />} />
+        <Route path="/games" element={<GamesHub />} />
+        <Route path="/games/:slug" element={<GameDetails />} />
+        <Route path="/games/:slug/level/:levelNumber" element={<GameArena />} />
         <Route path="/companies" element={<CompaniesPage />} />
         <Route path="/companies/:slug" element={<CompanyGuidePage />} />
         <Route path="/login" element={<Login />} />

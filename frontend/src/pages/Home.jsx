@@ -7,8 +7,8 @@ import {
   ArrowRight, BookOpen, CheckCircle, Flame, Target, 
   Cpu, Briefcase, FileText, Database, Server, Network, Layers,
   AlertTriangle, X, ChevronDown, Terminal, Award,
-  Calculator, Brain, MessageSquare, BarChart2,
-  Mail, Github, Linkedin, Send, Bug, HelpCircle, Star, Sparkles, ShieldCheck
+  Calculator, Brain, MessageSquare, BarChart2, Gamepad2, Sparkles, Trophy, Zap,
+  Mail, Github, Linkedin, Send, Bug, HelpCircle, Star, ShieldCheck
 } from 'lucide-react';
 import SEO from '../components/SEO';
 import { getFeaturedGuides, getGuides } from '../services/companyGuideService';
@@ -156,6 +156,24 @@ const faqs = [
       {
         q: 'How do I earn and unlock dynamic achievement badges?',
         a: 'Achievements unlock automatically as you hit milestones. In addition to login streaks and runtime badges, completing any company roadmap unlocks a unique "[Company] Conqueror" badge, and completing topic paths unlocks "[Topic] Master" or "[Topic] Beginner" badges on your profile page.'
+      }
+    ]
+  },
+  {
+    category: 'Cognitive Placement Games',
+    color: 'text-amber-400',
+    items: [
+      {
+        q: 'What are Cognizant and Capgemini Game-Based Assessments?',
+        a: 'Cognizant (GenC / Elevate) and Capgemini (Exceller) use gamified cognitive tests to evaluate logical problem-solving, working memory, spatial orientation, and quantitative reflexes. Games include Geo-Sudo (Latin Square), Switch Challenge (Permutations), Motion Challenge (Sliding blocks), Inductive Challenge, and Grid Working Memory.'
+      },
+      {
+        q: 'Can I practice all 10 cognitive placement games for free on NQTCoder?',
+        a: 'Yes! NQTCoder provides 100% free interactive browser simulations for all 10 placement games with 5 progressive difficulty levels, procedural puzzle generation, live countdown timers, and placement accuracy scoring.'
+      },
+      {
+        q: 'How do levels and scoring work in Cognitive Games?',
+        a: 'Each game has 5 progressive levels. Passing a level with ≥70% accuracy automatically unlocks the next level. Higher levels feature faster speed multipliers, complex topological matrices, and bonus XP streaks.'
       }
     ]
   }
@@ -564,10 +582,10 @@ const Home = () => {
     <div className="bg-darkBg text-slate-100 min-h-screen selection:bg-accentBlue/30 selection:text-slate-100">
       {/* ── SEO ──────────────────────────────────────────────────────────── */}
       <SEO
-        title="Placement Coding Practice — NQT, TCS, Infosys, Wipro"
-        description="Practice 200+ real placement coding questions from TCS NQT, Infosys, Wipro, Cognizant & more. Take proctored mock tests, track your rank on the leaderboard. Free for all students."
+        title="Placement Coding & Cognitive Games Practice — TCS, Cognizant, Capgemini"
+        description="Practice 200+ real placement coding questions, aptitude MCQs, and Cognizant/Capgemini Cognitive Games (Geo-Sudo, Switch Challenge, Motion Challenge, Spacio). Proctored mock tests & live leaderboards."
         path="/"
-        keywords="NQT coder, placement coding practice, TCS NQT questions, Infosys coding interview, Wipro coding test, mock test, leaderboard, C++ Java Python, programming placement"
+        keywords="NQT coder, placement coding practice, Cognizant game based aptitude practice, Capgemini cognitive games simulator, Geo Sudo game online practice, Switch challenge game Cognizant, Motion challenge Capgemini, Inductive challenge online test, Grid memory test, TCS NQT questions, Infosys coding interview, Wipro coding test, mock test, leaderboard, C++ Java Python"
         jsonLd={[
           {
             '@context': 'https://schema.org',
@@ -966,6 +984,153 @@ const Home = () => {
               </button>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* 3.6 Cognitive Placement Games Section (SEO Boost for Cognizant & Capgemini Games) */}
+      <section className="border-t border-darkBorder py-16 px-6 max-w-6xl mx-auto">
+        <div className="mb-10 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+          <div>
+            <div className="inline-flex items-center space-x-2 bg-accentBlue/10 text-accentBlue px-3.5 py-1 rounded-full text-xs font-semibold border border-accentBlue/20 mb-2.5">
+              <Gamepad2 className="w-3.5 h-3.5" />
+              <span>Cognizant & Capgemini Assessment Simulator</span>
+            </div>
+            <h3 className="text-3xl font-extrabold text-white">Cognitive Games Arena</h3>
+            <p className="text-slate-400 text-sm mt-1.5 max-w-2xl leading-relaxed">
+              Ace real gamified placement assessments asked in <strong className="text-slate-200">Cognizant GenC/Elevate</strong> and <strong className="text-slate-200">Capgemini Exceller</strong> recruitment drives. Master Latin-Square logic, sequence permutations, and sliding block spatial routing.
+            </p>
+          </div>
+          <Link
+            to="/games"
+            className="inline-flex items-center text-accentBlue hover:text-white font-bold text-xs uppercase tracking-wider transition-colors shrink-0"
+          >
+            Explore All 10 Games <ArrowRight className="w-4 h-4 ml-1.5" />
+          </Link>
+        </div>
+
+        {/* 3 Featured Flagship Game Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* Card 1: Geo-Sudo */}
+          <div className="bg-darkCard border border-darkBorder p-6 rounded-2xl flex flex-col justify-between hover:border-accentBlue hover:shadow-lg hover:shadow-accentBlue/5 transition-all group">
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="w-10 h-10 rounded-xl bg-accentBlue/10 border border-accentBlue/20 flex items-center justify-center text-accentBlue group-hover:scale-105 transition-transform">
+                  <Brain className="w-5 h-5" />
+                </div>
+                <span className="text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full bg-accentBlue/10 text-accentBlue border border-accentBlue/20">
+                  Cognizant & Capgemini
+                </span>
+              </div>
+              <div>
+                <h4 className="text-lg font-extrabold text-white group-hover:text-accentBlue transition-colors">
+                  Geo-Sudo (Deductive Challenge)
+                </h4>
+                <p className="text-slate-400 text-xs mt-2 leading-relaxed">
+                  Latin-Square matrix puzzle. Deduce missing geometric shapes without repeating any symbol in any row or column.
+                </p>
+              </div>
+              <div className="flex items-center gap-2 pt-1 text-[11px] font-bold text-slate-500">
+                <span>⏱️ 5 Levels</span>
+                <span>•</span>
+                <span>⭐ Speed Multipliers</span>
+              </div>
+            </div>
+            <div className="mt-6">
+              <Link
+                to="/games/geo-sudo"
+                className="w-full inline-block bg-darkBg hover:bg-accentBtn text-slate-200 hover:text-white text-center font-bold text-xs uppercase tracking-wider py-2.5 rounded-xl border border-darkBorder hover:border-accentBlue transition-all shadow-sm"
+              >
+                Play Geo-Sudo
+              </Link>
+            </div>
+          </div>
+
+          {/* Card 2: Switch Challenge */}
+          <div className="bg-darkCard border border-darkBorder p-6 rounded-2xl flex flex-col justify-between hover:border-accentBlue hover:shadow-lg hover:shadow-accentBlue/5 transition-all group">
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="w-10 h-10 rounded-xl bg-accentBlue/10 border border-accentBlue/20 flex items-center justify-center text-accentBlue group-hover:scale-105 transition-transform">
+                  <Zap className="w-5 h-5" />
+                </div>
+                <span className="text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full bg-accentBlue/10 text-accentBlue border border-accentBlue/20">
+                  Cognizant GenC
+                </span>
+              </div>
+              <div>
+                <h4 className="text-lg font-extrabold text-white group-hover:text-accentBlue transition-colors">
+                  Switch Challenge
+                </h4>
+                <p className="text-slate-400 text-xs mt-2 leading-relaxed">
+                  Decode 4-digit sequence permutation operators transforming geometric shapes under strict countdown timers.
+                </p>
+              </div>
+              <div className="flex items-center gap-2 pt-1 text-[11px] font-bold text-slate-500">
+                <span>⚡ Logical Permutations</span>
+                <span>•</span>
+                <span>🔥 Streak Bonuses</span>
+              </div>
+            </div>
+            <div className="mt-6">
+              <Link
+                to="/games/switch-challenge"
+                className="w-full inline-block bg-darkBg hover:bg-accentBtn text-slate-200 hover:text-white text-center font-bold text-xs uppercase tracking-wider py-2.5 rounded-xl border border-darkBorder hover:border-accentBlue transition-all shadow-sm"
+              >
+                Play Switch Challenge
+              </Link>
+            </div>
+          </div>
+
+          {/* Card 3: Motion Challenge */}
+          <div className="bg-darkCard border border-darkBorder p-6 rounded-2xl flex flex-col justify-between hover:border-accentBlue hover:shadow-lg hover:shadow-accentBlue/5 transition-all group">
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="w-10 h-10 rounded-xl bg-accentBlue/10 border border-accentBlue/20 flex items-center justify-center text-accentBlue group-hover:scale-105 transition-transform">
+                  <Target className="w-5 h-5" />
+                </div>
+                <span className="text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full bg-accentBlue/10 text-accentBlue border border-accentBlue/20">
+                  Capgemini Exceller
+                </span>
+              </div>
+              <div>
+                <h4 className="text-lg font-extrabold text-white group-hover:text-accentBlue transition-colors">
+                  Motion Challenge
+                </h4>
+                <p className="text-slate-400 text-xs mt-2 leading-relaxed">
+                  Sliding-block Klotski maze. Slide colored obstacle blocks to clear a path for the Red Ball to reach the Black Hole.
+                </p>
+              </div>
+              <div className="flex items-center gap-2 pt-1 text-[11px] font-bold text-slate-500">
+                <span>🧱 Fixed Wall Mazes</span>
+                <span>•</span>
+                <span>🎯 Move Optimization</span>
+              </div>
+            </div>
+            <div className="mt-6">
+              <Link
+                to="/games/motion-challenge"
+                className="w-full inline-block bg-darkBg hover:bg-accentBtn text-slate-200 hover:text-white text-center font-bold text-xs uppercase tracking-wider py-2.5 rounded-xl border border-darkBorder hover:border-accentBlue transition-all shadow-sm"
+              >
+                Play Motion Challenge
+              </Link>
+            </div>
+          </div>
+        </div>
+
+        {/* Unified Tag Cloud & Direct CTAs */}
+        <div className="mt-8 pt-6 border-t border-darkBorder flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex flex-wrap items-center gap-2 text-xs">
+            <span className="font-bold text-slate-400">Featured Placement Tests:</span>
+            <Link to="/games/geo-sudo" className="bg-darkCard hover:bg-accentBlue/10 hover:border-accentBlue text-slate-300 px-3 py-1 rounded-lg border border-darkBorder transition-colors">Cognizant Geo-Sudo</Link>
+            <Link to="/games/switch-challenge" className="bg-darkCard hover:bg-accentBlue/10 hover:border-accentBlue text-slate-300 px-3 py-1 rounded-lg border border-darkBorder transition-colors">Cognizant Switch</Link>
+            <Link to="/games/motion-challenge" className="bg-darkCard hover:bg-accentBlue/10 hover:border-accentBlue text-slate-300 px-3 py-1 rounded-lg border border-darkBorder transition-colors">Capgemini Motion</Link>
+            <Link to="/games/inductive-challenge" className="bg-darkCard hover:bg-accentBlue/10 hover:border-accentBlue text-slate-300 px-3 py-1 rounded-lg border border-darkBorder transition-colors">Capgemini Spacio</Link>
+          </div>
+          <Link
+            to="/games"
+            className="text-xs font-black text-accentBlue hover:text-white flex items-center gap-1 uppercase tracking-wider shrink-0 transition-colors"
+          >
+            Start Free Practice Arena ➔
+          </Link>
         </div>
       </section>
 
