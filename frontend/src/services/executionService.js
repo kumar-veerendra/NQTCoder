@@ -2,12 +2,45 @@ import api from './api';
 
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
-const pollJobStatus = async (jobId, onStatusChange) => {
+const ADAPTIVE_POLL_INTERVALS = [0, 150, 250, 400, 600, 1000];
+const MAX_POLL_TIMEOUT_MS = 60000; // 60s hard timeout
+const MAX_CONSECUTIVE_ERRORS = 5;
+
+export const pollJobStatus = async (jobId, onStatusChange, options = {}) => {
+  const startTime = Date.now();
+  let pollCount = 0;
+  let consecutiveErrors = 0;
+
   while (true) {
-    let failed = false;
-    let errorMsg = '';
+    // Check if component unmounted or request was cancelled
+    if (options.signal?.aborted) {
+      throw new Error('Execution polling cancelled');
+    }
+
+    // Check hard timeout
+    if (Date.now() - startTime > MAX_POLL_TIMEOUT_MS) {
+      throw new Error(`Execution timed out waiting for job ${jobId}`);
+    }
+
+    // Determine current polling delay
+    const delay = pollCount < ADAPTIVE_POLL_INTERVALS.length
+      ? ADAPTIVE_POLL_INTERVALS[pollCount]
+      : 1000;
+
+    if (delay > 0) {
+      await sleep(delay);
+    }
+    pollCount++;
+
+    if (options.signal?.aborted) {
+      throw new Error('Execution polling cancelled');
+    }
+
     try {
-      const response = await api.get(`/api/submissions/status/${jobId}`);
+      const response = await api.get(`/api/submissions/status/${jobId}`, {
+        signal: options.signal
+      });
+      consecutiveErrors = 0;
       const job = response.data;
 
       if (job.status === 'completed') {
@@ -15,8 +48,7 @@ const pollJobStatus = async (jobId, onStatusChange) => {
       }
       
       if (job.status === 'failed') {
-        failed = true;
-        errorMsg = job.error || 'Compilation or execution failed';
+        throw new Error(job.error || 'Compilation or execution failed');
       }
 
       if (onStatusChange) {
@@ -27,24 +59,29 @@ const pollJobStatus = async (jobId, onStatusChange) => {
         });
       }
     } catch (err) {
-      // If network fails temporarily, we wait and retry instead of crashing
-      console.warn('Temporary status polling error, retrying...', err);
+      if (options.signal?.aborted) {
+        throw new Error('Execution polling cancelled');
+      }
+      // If error was thrown from failed status, rethrow
+      if (err.message && (err.message.includes('Compilation or execution failed') || err.message.startsWith('Time limit'))) {
+        throw err;
+      }
+      consecutiveErrors++;
+      if (consecutiveErrors >= MAX_CONSECUTIVE_ERRORS) {
+        throw new Error('Network communication with compiler service failed. Please try again.');
+      }
+      console.warn(`Temporary status polling error (${consecutiveErrors}/${MAX_CONSECUTIVE_ERRORS}), retrying...`, err);
     }
-
-    if (failed) {
-      throw new Error(errorMsg);
-    }
-    await sleep(1000);
   }
 };
 
-export const runCode = async (code, language, questionId, customInput = '', onStatusChange = null) => {
+export const runCode = async (code, language, questionId, customInput = '', onStatusChange = null, options = {}) => {
   const response = await api.post('/api/submissions/run', {
     code,
     language,
     questionId,
     customInput
-  });
+  }, { signal: options.signal });
 
   const data = response.data;
   if (data.jobId) {
@@ -55,18 +92,18 @@ export const runCode = async (code, language, questionId, customInput = '', onSt
         estimatedWait: data.estimatedWait || 0
       });
     }
-    return await pollJobStatus(data.jobId, onStatusChange);
+    return await pollJobStatus(data.jobId, onStatusChange, options);
   }
 
   return data;
 };
 
-export const submitCode = async (code, language, questionId, onStatusChange = null) => {
+export const submitCode = async (code, language, questionId, onStatusChange = null, options = {}) => {
   const response = await api.post('/api/submissions/submit', {
     code,
     language,
     questionId
-  });
+  }, { signal: options.signal });
 
   const data = response.data;
   if (data.jobId) {
@@ -77,7 +114,7 @@ export const submitCode = async (code, language, questionId, onStatusChange = nu
         estimatedWait: data.estimatedWait || 0
       });
     }
-    return await pollJobStatus(data.jobId, onStatusChange);
+    return await pollJobStatus(data.jobId, onStatusChange, options);
   }
 
   return data;

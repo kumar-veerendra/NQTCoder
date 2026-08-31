@@ -1,4 +1,4 @@
-import { spawn, execSync, exec } from 'child_process';
+import { spawn, execFile, execSync, exec } from 'child_process';
 import { promisify } from 'util';
 import fs from 'fs';
 import path from 'path';
@@ -8,14 +8,41 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const TEMP_DIR = path.join(__dirname, '..', 'temp');
 
+const MAX_OUTPUT_BYTES = Number(process.env.MAX_OUTPUT_BYTES) || 65536; // 64 KB
+const JAVA_MAX_HEAP = process.env.JAVA_MAX_HEAP || '128m';
+const JAVA_INITIAL_HEAP = process.env.JAVA_INITIAL_HEAP || '16m';
+
 // Ensure temp directory exists
 if (!fs.existsSync(TEMP_DIR)) {
   fs.mkdirSync(TEMP_DIR, { recursive: true });
 }
 
+/**
+ * Prunes stale orphaned temporary execution directories older than maxAgeMs.
+ */
+export const pruneTempDirectory = (maxAgeMs = 10 * 60 * 1000) => {
+  try {
+    if (!fs.existsSync(TEMP_DIR)) return;
+    const now = Date.now();
+    const entries = fs.readdirSync(TEMP_DIR);
+    for (const entry of entries) {
+      const entryPath = path.join(TEMP_DIR, entry);
+      try {
+        const stats = fs.statSync(entryPath);
+        if (now - stats.mtimeMs > maxAgeMs) {
+          fs.rmSync(entryPath, { recursive: true, force: true });
+        }
+      } catch (e) {}
+    }
+  } catch (e) {}
+};
+
+// Initial startup prune & 5-minute periodic prune
+pruneTempDirectory();
+setInterval(() => pruneTempDirectory(), 5 * 60 * 1000);
+
 // Check if a compiler/executable is available on the system
 const isCommandAvailable = (cmd) => {
-  // If the command contains path separators, check if it exists directly on disk
   if (cmd.includes('/') || cmd.includes('\\')) {
     try {
       if (fs.existsSync(cmd)) return true;
@@ -40,54 +67,143 @@ const isCommandAvailable = (cmd) => {
 };
 
 /**
- * Runs a command with a child process, feeds stdin, handles timeouts
+ * Terminates process and process group cleanly
+ */
+const killProcessTree = (proc) => {
+  if (!proc || !proc.pid) return;
+  try {
+    if (process.platform === 'win32') {
+      proc.kill();
+    } else {
+      try {
+        process.kill(-proc.pid, 'SIGKILL');
+      } catch (e) {
+        proc.kill('SIGKILL');
+      }
+    }
+  } catch (e) {}
+};
+
+/**
+ * Executes a compiler command with explicit argument array and no shell interpolation
+ */
+const execCompilerAsync = (cmd, args, options = {}) => {
+  return new Promise((resolve) => {
+    execFile(cmd, args, { cwd: options.cwd || TEMP_DIR, maxBuffer: 1024 * 1024 }, (err, stdout, stderr) => {
+      if (err) {
+        resolve({
+          success: false,
+          stdout: stdout || '',
+          stderr: (stderr || err.message || '').toString()
+        });
+      } else {
+        resolve({
+          success: true,
+          stdout: stdout || '',
+          stderr: stderr || ''
+        });
+      }
+    });
+  });
+};
+
+/**
+ * Runs a command with a child process, feeds stdin, handles timeouts, and enforces streaming output limits
  */
 const runProcess = (cmd, args, input, timeoutSec, options = {}) => {
   return new Promise((resolve) => {
-    const processInstance = spawn(cmd, args, { cwd: options.cwd || TEMP_DIR });
+    let processInstance;
+    try {
+      processInstance = spawn(cmd, args, {
+        cwd: options.cwd || TEMP_DIR,
+        detached: process.platform !== 'win32'
+      });
+    } catch (err) {
+      return resolve({
+        status: 'Runtime Error',
+        stdout: '',
+        error: err.message
+      });
+    }
+
     let stdout = '';
     let stderr = '';
+    let stdoutBytes = 0;
+    let stderrBytes = 0;
     let timedOut = false;
+    let outputLimitExceeded = false;
+    let resolved = false;
+
+    const safeResolve = (val) => {
+      if (resolved) return;
+      resolved = true;
+      clearTimeout(timeout);
+      resolve(val);
+    };
 
     const timeout = setTimeout(() => {
       timedOut = true;
-      try {
-        processInstance.kill();
-      } catch (e) {}
-      resolve({
+      killProcessTree(processInstance);
+      safeResolve({
         status: 'Time Limit Exceeded',
-        stdout: '',
+        stdout: stdout.substring(0, MAX_OUTPUT_BYTES),
         error: `Time limit of ${timeoutSec}s exceeded.`
       });
     }, timeoutSec * 1000);
 
     if (input) {
-      processInstance.stdin.write(input);
-      processInstance.stdin.end();
+      try {
+        processInstance.stdin.write(input);
+        processInstance.stdin.end();
+      } catch (e) {}
     } else {
-      processInstance.stdin.end();
+      try {
+        processInstance.stdin.end();
+      } catch (e) {}
     }
 
     processInstance.stdout.on('data', (data) => {
+      if (outputLimitExceeded || timedOut) return;
+      stdoutBytes += data.length;
+      if (stdoutBytes > MAX_OUTPUT_BYTES) {
+        outputLimitExceeded = true;
+        killProcessTree(processInstance);
+        safeResolve({
+          status: 'Output Limit Exceeded',
+          stdout: stdout.substring(0, MAX_OUTPUT_BYTES),
+          error: `Output limit of ${Math.round(MAX_OUTPUT_BYTES / 1024)}KB exceeded.`
+        });
+        return;
+      }
       stdout += data.toString();
     });
 
     processInstance.stderr.on('data', (data) => {
+      if (outputLimitExceeded || timedOut) return;
+      stderrBytes += data.length;
+      if (stderrBytes > MAX_OUTPUT_BYTES) {
+        outputLimitExceeded = true;
+        killProcessTree(processInstance);
+        safeResolve({
+          status: 'Output Limit Exceeded',
+          stdout: stdout.substring(0, MAX_OUTPUT_BYTES),
+          error: `Output limit of ${Math.round(MAX_OUTPUT_BYTES / 1024)}KB exceeded in stderr.`
+        });
+        return;
+      }
       stderr += data.toString();
     });
 
     processInstance.on('close', (code) => {
-      clearTimeout(timeout);
-      if (timedOut) return;
-
+      if (timedOut || outputLimitExceeded) return;
       if (code === 0) {
-        resolve({
+        safeResolve({
           status: 'Success',
           stdout,
           error: stderr
         });
       } else {
-        resolve({
+        safeResolve({
           status: 'Runtime Error',
           stdout,
           error: stderr || `Process exited with code ${code}`
@@ -96,9 +212,8 @@ const runProcess = (cmd, args, input, timeoutSec, options = {}) => {
     });
 
     processInstance.on('error', (err) => {
-      clearTimeout(timeout);
-      if (timedOut) return;
-      resolve({
+      if (timedOut || outputLimitExceeded) return;
+      safeResolve({
         status: 'Runtime Error',
         stdout: '',
         error: err.message
@@ -109,188 +224,164 @@ const runProcess = (cmd, args, input, timeoutSec, options = {}) => {
 
 /**
  * Main execution runner for multiple test cases (Compile Once, Run Many)
+ * Uses isolated ephemeral directory per job with guaranteed finally cleanup.
  */
 export const runLocalCodeMulti = async (code, language, inputs, timeLimit = 2) => {
   const jobId = Math.random().toString(36).substring(7);
-  
+  const jobDir = path.join(TEMP_DIR, `job_${jobId}`);
+  fs.mkdirSync(jobDir, { recursive: true });
+
   console.log(`\n--- [NQTCoder Compiler] Job ${jobId} initialized for language: ${language} ---`);
   console.time(`[Job ${jobId}] Total Time`);
 
   const inputsArray = Array.isArray(inputs) ? inputs : [inputs];
   const results = [];
 
-  if (language === 'python') {
-    const filename = `script_${jobId}.py`;
-    const filepath = path.join(TEMP_DIR, filename);
-    fs.writeFileSync(filepath, code);
+  try {
+    if (language === 'python') {
+      const filename = `script_${jobId}.py`;
+      const filepath = path.join(jobDir, filename);
+      fs.writeFileSync(filepath, code);
 
-    // Determine python command
-    let pyCmd = 'python';
-    if (!isCommandAvailable('python') && isCommandAvailable('python3')) {
-      pyCmd = 'python3';
-    }
-
-    if (!isCommandAvailable(pyCmd)) {
-      try { fs.unlinkSync(filepath); } catch (e) {}
-      console.timeEnd(`[Job ${jobId}] Total Time`);
-      return {
-        status: 'Compilation Error',
-        error: '[System Error] Python was not detected on this machine.\n\nTo run Python code, please download and install Python 3.x and ensure it is added to your system Environment Variables.'
-      };
-    }
-
-    console.time(`[Job ${jobId}] Run ${inputsArray.length} test cases`);
-    for (const input of inputsArray) {
-      const runRes = await runProcess(pyCmd, [filename], input, timeLimit);
-      results.push({
-        status: runRes.status === 'Success' ? 'Accepted' : runRes.status,
-        stdout: runRes.stdout,
-        error: runRes.error
-      });
-    }
-    console.timeEnd(`[Job ${jobId}] Run ${inputsArray.length} test cases`);
-
-    // Clean up
-    try {
-      if (fs.existsSync(filepath)) fs.unlinkSync(filepath);
-    } catch (e) {}
-
-  } else if (language === 'cpp') {
-    const filename = `code_${jobId}.cpp`;
-    const filepath = path.join(TEMP_DIR, filename);
-    const binaryName = `prog_${jobId}${process.platform === 'win32' ? '.exe' : '.out'}`;
-    const binaryPath = path.join(TEMP_DIR, binaryName);
-
-    fs.writeFileSync(filepath, code);
-
-    if (!isCommandAvailable('g++')) {
-      try { fs.unlinkSync(filepath); } catch (e) {}
-      console.timeEnd(`[Job ${jobId}] Total Time`);
-      return {
-        status: 'Compilation Error',
-        error: '[System Error] GCC C++ Compiler (g++) was not detected on this machine.\n\nTo run C++ code, please download and install MinGW (GCC) and ensure its "bin" path is added to your system Environment Variables.'
-      };
-    }
-
-    // Compile once - using -O1 optimization for faster compile times on Render
-    console.time(`[Job ${jobId}] C++ Compilation`);
-    try {
-      execSync(`g++ -O1 "${filepath}" -o "${binaryPath}"`, { stdio: 'pipe' });
-      console.timeEnd(`[Job ${jobId}] C++ Compilation`);
-    } catch (err) {
-      console.timeEnd(`[Job ${jobId}] C++ Compilation`);
-      const errorMsg = err.stderr ? err.stderr.toString() : err.message;
-      try {
-        if (fs.existsSync(filepath)) fs.unlinkSync(filepath);
-      } catch (e) {}
-      console.timeEnd(`[Job ${jobId}] Total Time`);
-      return {
-        status: 'Compilation Error',
-        error: errorMsg
-      };
-    }
-
-    // Run test cases
-    console.time(`[Job ${jobId}] Run ${inputsArray.length} test cases`);
-    for (const input of inputsArray) {
-      const runRes = await runProcess(binaryPath, [], input, timeLimit);
-      results.push({
-        status: runRes.status === 'Success' ? 'Accepted' : runRes.status,
-        stdout: runRes.stdout,
-        error: runRes.error
-      });
-    }
-    console.timeEnd(`[Job ${jobId}] Run ${inputsArray.length} test cases`);
-
-    // Clean up
-    try {
-      if (fs.existsSync(filepath)) fs.unlinkSync(filepath);
-      if (fs.existsSync(binaryPath)) fs.unlinkSync(binaryPath);
-    } catch (e) {}
-
-  } else if (language === 'java') {
-    const jobDir = path.join(TEMP_DIR, `java_${jobId}`);
-    fs.mkdirSync(jobDir, { recursive: true });
-
-    const filename = 'Main.java';
-    const filepath = path.join(jobDir, filename);
-    fs.writeFileSync(filepath, code);
-
-    // Dynamic paths for Java 11/8 bin override from .env
-    const javaBin = process.env.JAVA_11_BIN || process.env.JAVA_8_BIN || '';
-    const javacCmd = javaBin ? path.join(javaBin, 'javac') : 'javac';
-    const javaCmd = javaBin ? path.join(javaBin, 'java') : 'java';
-
-    // Verify if java is available
-    if (!isCommandAvailable(javacCmd) || !isCommandAvailable(javaCmd)) {
-      try { fs.rmSync(jobDir, { recursive: true, force: true }); } catch (e) {}
-      console.timeEnd(`[Job ${jobId}] Total Time`);
-      return {
-        status: 'Compilation Error',
-        error: '[System Error] Java Compiler (javac/java) was not detected on this machine.\n\nTo run Java 11 code, please download and install JDK 11 (Java Development Kit) and ensure its "bin" path is added to your system Environment Variables.'
-      };
-    }
-
-    // Compile targeting Java 11 using --release 11 parameter if supported
-    console.time(`[Job ${jobId}] Java Compilation`);
-    let compiled = false;
-    let compileError = '';
-
-    try {
-      // We wrap compiler paths in quotes to support Windows paths with spaces
-      execSync(`"${javacCmd}" --release 11 "${filepath}"`, { stdio: 'pipe' });
-      compiled = true;
-    } catch (err) {
-      // Fallback compilation without --release flag if using a pure Java 11 JDK (which doesn't support --release or doesn't need it)
-      try {
-        execSync(`"${javacCmd}" "${filepath}"`, { stdio: 'pipe' });
-        compiled = true;
-      } catch (innerErr) {
-        compileError = innerErr.stderr ? innerErr.stderr.toString() : innerErr.message;
+      let pyCmd = 'python';
+      if (!isCommandAvailable('python') && isCommandAvailable('python3')) {
+        pyCmd = 'python3';
       }
-    }
-    console.timeEnd(`[Job ${jobId}] Java Compilation`);
 
-    if (!compiled) {
-      try {
-        fs.rmSync(jobDir, { recursive: true, force: true });
-      } catch (e) {}
+      if (!isCommandAvailable(pyCmd)) {
+        console.timeEnd(`[Job ${jobId}] Total Time`);
+        return {
+          status: 'Compilation Error',
+          error: '[System Error] Python was not detected on this machine.\n\nTo run Python code, please install Python 3.x and add it to system PATH.'
+        };
+      }
+
+      console.time(`[Job ${jobId}] Run ${inputsArray.length} test cases`);
+      for (const input of inputsArray) {
+        const runRes = await runProcess(pyCmd, [filename], input, timeLimit, { cwd: jobDir });
+        results.push({
+          status: runRes.status === 'Success' ? 'Accepted' : runRes.status,
+          stdout: runRes.stdout,
+          error: runRes.error
+        });
+      }
+      console.timeEnd(`[Job ${jobId}] Run ${inputsArray.length} test cases`);
+
+    } else if (language === 'cpp') {
+      const filename = `code_${jobId}.cpp`;
+      const filepath = path.join(jobDir, filename);
+      const binaryName = `prog_${jobId}${process.platform === 'win32' ? '.exe' : '.out'}`;
+      const binaryPath = path.join(jobDir, binaryName);
+
+      fs.writeFileSync(filepath, code);
+
+      if (!isCommandAvailable('g++')) {
+        console.timeEnd(`[Job ${jobId}] Total Time`);
+        return {
+          status: 'Compilation Error',
+          error: '[System Error] GCC C++ Compiler (g++) was not detected on this machine.\n\nTo run C++ code, please install MinGW/GCC and add it to system PATH.'
+        };
+      }
+
+      // Compile once with explicit argument array
+      console.time(`[Job ${jobId}] C++ Compilation`);
+      const compRes = await execCompilerAsync('g++', ['-O1', filename, '-o', binaryName], { cwd: jobDir });
+      console.timeEnd(`[Job ${jobId}] C++ Compilation`);
+
+      if (!compRes.success) {
+        console.timeEnd(`[Job ${jobId}] Total Time`);
+        return {
+          status: 'Compilation Error',
+          error: compRes.stderr || 'C++ Compilation failed'
+        };
+      }
+
+      // Run test cases
+      console.time(`[Job ${jobId}] Run ${inputsArray.length} test cases`);
+      for (const input of inputsArray) {
+        const runRes = await runProcess(binaryPath, [], input, timeLimit, { cwd: jobDir });
+        results.push({
+          status: runRes.status === 'Success' ? 'Accepted' : runRes.status,
+          stdout: runRes.stdout,
+          error: runRes.error
+        });
+      }
+      console.timeEnd(`[Job ${jobId}] Run ${inputsArray.length} test cases`);
+
+    } else if (language === 'java') {
+      const filename = 'Main.java';
+      const filepath = path.join(jobDir, filename);
+      fs.writeFileSync(filepath, code);
+
+      const javaBin = process.env.JAVA_11_BIN || process.env.JAVA_8_BIN || '';
+      const javacCmd = javaBin ? path.join(javaBin, 'javac') : 'javac';
+      const javaCmd = javaBin ? path.join(javaBin, 'java') : 'java';
+
+      if (!isCommandAvailable(javacCmd) || !isCommandAvailable(javaCmd)) {
+        console.timeEnd(`[Job ${jobId}] Total Time`);
+        return {
+          status: 'Compilation Error',
+          error: '[System Error] Java Compiler (javac/java) was not detected on this machine.\n\nTo run Java code, please install JDK 11+ and add it to system PATH.'
+        };
+      }
+
+      // Compile with explicit argument array
+      console.time(`[Job ${jobId}] Java Compilation`);
+      let compRes = await execCompilerAsync(javacCmd, ['--release', '11', filename], { cwd: jobDir });
+      if (!compRes.success) {
+        // Fallback without --release
+        compRes = await execCompilerAsync(javacCmd, [filename], { cwd: jobDir });
+      }
+      console.timeEnd(`[Job ${jobId}] Java Compilation`);
+
+      if (!compRes.success) {
+        console.timeEnd(`[Job ${jobId}] Total Time`);
+        return {
+          status: 'Compilation Error',
+          error: compRes.stderr || 'Java Compilation failed'
+        };
+      }
+
+      // Java execution arguments with configurable heap limits and C1 client compiler acceleration
+      const javaArgs = [
+        `-Xms${JAVA_INITIAL_HEAP}`,
+        `-Xmx${JAVA_MAX_HEAP}`,
+        '-XX:+TieredCompilation',
+        '-XX:TieredStopAtLevel=1',
+        'Main'
+      ];
+
+      // Run test cases
+      console.time(`[Job ${jobId}] Run ${inputsArray.length} test cases`);
+      for (const input of inputsArray) {
+        const runRes = await runProcess(javaCmd, javaArgs, input, timeLimit, { cwd: jobDir });
+        results.push({
+          status: runRes.status === 'Success' ? 'Accepted' : runRes.status,
+          stdout: runRes.stdout,
+          error: runRes.error
+        });
+      }
+      console.timeEnd(`[Job ${jobId}] Run ${inputsArray.length} test cases`);
+
+    } else {
       console.timeEnd(`[Job ${jobId}] Total Time`);
       return {
         status: 'Compilation Error',
-        error: compileError
+        error: `Unsupported language: ${language}`
       };
     }
 
-    // Run test cases
-    console.time(`[Job ${jobId}] Run ${inputsArray.length} test cases`);
-    for (const input of inputsArray) {
-      const runRes = await runProcess(javaCmd, ['Main'], input, timeLimit, { cwd: jobDir });
-      results.push({
-        status: runRes.status === 'Success' ? 'Accepted' : runRes.status,
-        stdout: runRes.stdout,
-        error: runRes.error
-      });
-    }
-    console.timeEnd(`[Job ${jobId}] Run ${inputsArray.length} test cases`);
-
-    // Clean up directory
+    console.timeEnd(`[Job ${jobId}] Total Time`);
+    return {
+      status: 'Success',
+      results
+    };
+  } finally {
+    // Guaranteed cleanup of the entire ephemeral job directory
     try {
       fs.rmSync(jobDir, { recursive: true, force: true });
     } catch (e) {}
-  } else {
-    console.timeEnd(`[Job ${jobId}] Total Time`);
-    return {
-      status: 'Compilation Error',
-      error: `Unsupported language: ${language}`
-    };
   }
-
-  console.timeEnd(`[Job ${jobId}] Total Time`);
-  return {
-    status: 'Success',
-    results
-  };
 };
 
 /**
