@@ -138,6 +138,9 @@ export const runCode = async (req, res) => {
     return res.status(202).json(jobStatus);
 
   } catch (error) {
+    if (error.statusCode === 429 || error.code === 'QUEUE_FULL') {
+      return res.status(429).json({ message: error.message || 'Execution queue is full. Please try again shortly.' });
+    }
     res.status(500).json({ message: error.message });
   }
 };
@@ -237,32 +240,15 @@ export const submitCode = async (req, res) => {
 
       // Check if this user already solved this question before (for isFirstAccepted)
       const user = await User.findById(userId);
-      const alreadySolved = user.solvedQuestions.some(
+      const alreadySolved = user ? user.solvedQuestions.some(
         (id) => id.toString() === question._id.toString()
-      );
+      ) : false;
       const isFirstAccepted = isAccepted && !alreadySolved;
 
-      const submission = await Submission.create({
-        user: userId,
-        question: question._id,
-        code,
-        language,
-        status: overallVerdict,
-        passedCount,
-        totalCount,
-        errorMessage: firstErrorMessage,
-        runTime: runTimeMax,
-        isFirstAccepted
-      });
-
-      // Auto-update Question stats (totalSubmissions + totalAccepted)
-      await updateQuestionStats(question._id, isAccepted);
-
-      // Update User statistics
-      user.submissionsCount += 1;
-
-      if (isAccepted) {
-        if (!alreadySolved) {
+      // Update user statistics in memory
+      if (user) {
+        user.submissionsCount += 1;
+        if (isAccepted && !alreadySolved) {
           user.solvedQuestions.push(question._id);
           
           // Update solved difficulty counts
@@ -273,7 +259,24 @@ export const submitCode = async (req, res) => {
         }
       }
 
-      await user.save();
+      // Parallelize genuinely independent database writes
+      const [submission] = await Promise.all([
+        Submission.create({
+          user: userId,
+          question: question._id,
+          code,
+          language,
+          status: overallVerdict,
+          passedCount,
+          totalCount,
+          errorMessage: firstErrorMessage,
+          runTime: runTimeMax,
+          isFirstAccepted
+        }),
+        updateQuestionStats(question._id, isAccepted),
+        user ? user.save() : Promise.resolve()
+      ]);
+
       return submission;
     };
 
@@ -281,6 +284,9 @@ export const submitCode = async (req, res) => {
     return res.status(202).json(jobStatus);
 
   } catch (error) {
+    if (error.statusCode === 429 || error.code === 'QUEUE_FULL') {
+      return res.status(429).json({ message: error.message || 'Execution queue is full. Please try again shortly.' });
+    }
     res.status(500).json({ message: error.message });
   }
 };

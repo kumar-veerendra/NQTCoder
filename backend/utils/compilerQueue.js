@@ -1,11 +1,24 @@
 import crypto from 'crypto';
 
+export class QueueCapacityError extends Error {
+  constructor(message = 'Execution queue is full. Please try again shortly.') {
+    super(message);
+    this.name = 'QueueCapacityError';
+    this.statusCode = 429;
+    this.code = 'QUEUE_FULL';
+  }
+}
+
 class CompilerQueue {
   constructor() {
     this.queue = [];
     this.jobs = new Map();
     this.activeJobsCount = 0;
-    this.MAX_RUNNING = Number(process.env.MAX_RUNNING) || 2;
+    
+    // Explicit queue configuration
+    this.MAX_RUNNING = Number(process.env.MAX_EXECUTION_WORKERS) || Number(process.env.MAX_RUNNING) || 1;
+    this.MAX_QUEUE_SIZE = Number(process.env.MAX_QUEUE_SIZE) || 30; // Maximum WAITING jobs
+    this.QUEUE_WAIT_TIMEOUT_MS = Number(process.env.QUEUE_WAIT_TIMEOUT_MS) || 45000; // 45s
 
     // Evict old jobs from jobs Map after 10 minutes to prevent memory leak
     setInterval(() => {
@@ -19,6 +32,11 @@ class CompilerQueue {
   }
 
   enqueue(runFn) {
+    // Check queue capacity (maximum waiting jobs)
+    if (this.queue.length >= this.MAX_QUEUE_SIZE) {
+      throw new QueueCapacityError(`Execution queue is full (${this.queue.length} jobs waiting). Please try again shortly.`);
+    }
+
     const jobId = crypto.randomUUID();
     const job = {
       jobId,
@@ -48,7 +66,7 @@ class CompilerQueue {
 
     if (job.status === 'queued') {
       const position = this.queue.findIndex(j => j.jobId === jobId) + 1;
-      const estimatedWait = Math.max(1, position * 3); // simple formula: 3s per position
+      const estimatedWait = Math.max(1, position * 2); // estimated 2s per position
       return {
         jobId,
         status: 'queued',
@@ -62,7 +80,7 @@ class CompilerQueue {
         jobId,
         status: 'running',
         position: 0,
-        estimatedWait: 3
+        estimatedWait: 2
       };
     }
 
@@ -88,6 +106,16 @@ class CompilerQueue {
     job.status = 'running';
     job.startedAt = Date.now();
 
+    // Check if job timed out while waiting in queue
+    if (Date.now() - job.queuedAt > this.QUEUE_WAIT_TIMEOUT_MS) {
+      job.status = 'failed';
+      job.error = 'Queue wait timeout exceeded. The compiler server is under heavy load, please retry.';
+      job.finishedAt = Date.now();
+      this.activeJobsCount--;
+      process.nextTick(() => this.processQueue());
+      return;
+    }
+
     try {
       const result = await job.runFn();
       job.status = 'completed';
@@ -102,12 +130,15 @@ class CompilerQueue {
       process.nextTick(() => this.processQueue());
     }
   }
+
   // Returns live snapshot of queue for server load indicator
   getQueueLoad() {
     return {
       waiting: this.queue.length,
       running: this.activeJobsCount,
-      total: this.queue.length + this.activeJobsCount
+      total: this.queue.length + this.activeJobsCount,
+      maxWorkers: this.MAX_RUNNING,
+      maxQueueSize: this.MAX_QUEUE_SIZE
     };
   }
 }
